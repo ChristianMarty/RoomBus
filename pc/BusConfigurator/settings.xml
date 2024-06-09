@@ -1,0 +1,19 @@
+<settings>
+
+<connection type="tcp">
+	<ip>192.168.1.200</ip>
+	<port>6666</port>
+</connection>
+
+
+
+<connection type="udp">
+	<ip>192.168.1.200</ip>
+	<port>6667</port>
+</connection>
+	
+	<connection type="serial">
+	<port>COM12</port>
+</connection>
+
+</settings>

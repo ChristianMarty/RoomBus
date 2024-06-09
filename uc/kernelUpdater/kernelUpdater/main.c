@@ -1,0 +1,71 @@
+/*
+ * kernelUpdater.c
+ *
+ * Created: 21.06.2021 22:10:47
+ * Author : Christian
+ */ 
+
+
+#include "sam.h"
+#include "drv/SAMx5x/flash.h"
+#include "drv/SAMx5x/wdt.h"
+
+#define KERNEL_START_ADDRESS 0x00000000
+#define NEW_KERNEL_START_ADDRESS  ((FLASH_SIZE/2) + (KERNEL_START_ADDRESS/2))
+#define NEW_KERNEL_LENGTH_OFFSET 0x10
+
+int main(void);
+
+typedef struct {
+	uint32_t appCRC;
+	uint32_t appSize;
+	uint8_t appRevMaj;
+	uint8_t appRevMin;
+	uint8_t appName[60];
+	void* appRun;
+	void* onRx;
+}appHead_t;
+
+__attribute__((section(".appHeader"))) appHead_t appHead ={
+	/*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
+	/*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
+	/*appRevMaj	 */ 0x01,
+	/*appRevMin	 */ 0x00,
+	/*appName[60]*/ "Kernel updater",
+	/*main		 */ main,
+	/*onRx		 */ 0
+};
+
+typedef struct {
+	uint32_t kernelStartAddress;
+	uint32_t kernelSize;
+}kernelHead_t;
+
+__attribute__((section(".kernelHeader"))) kernelHead_t kernelHead ={
+	/*kernelStartAddress*/ 0xFEFEFEFE, // Will be written by Bootload tool
+	/*kernelSize	    */ 0xABABABAB // Will be written by Bootload tool
+};
+
+int main(void)
+{
+	wdt_off();
+	wdt_clear();
+	__disable_irq();
+	
+	uint8_t blocksToErase = kernelHead.kernelSize / flash_getBlockSize();
+	
+	for(uint32_t i = 0; i<=blocksToErase; i++)
+	{
+		flash_eraseBlock((i*flash_getBlockSize()) );
+	}
+
+	// Copy new Kernel
+	for(uint32_t i= 0; i< kernelHead.kernelSize; i+=512)
+	{
+		flash_writePage((KERNEL_START_ADDRESS+i),&((uint8_t*)kernelHead.kernelStartAddress)[i],512);
+	}
+	
+	__NVIC_SystemReset();
+	
+	while (1);
+}

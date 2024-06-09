@@ -1,0 +1,12 @@
+#ifndef BUSACCESS_GLOBAL_H
+#define BUSACCESS_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(BUSACCESS_LIBRARY)
+#  define BUSACCESSSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define BUSACCESSSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // BUSACCESS_GLOBAL_H
