@@ -1,0 +1,3 @@
+[submodule "pc/QuCLib"]
+	path = pc/QuCLib
+	url = git@github.com:ChristianMarty/QuCLib.git
