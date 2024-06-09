@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include "hexFileParser_old.h"
-#include "../../QCodebase/crc.h"
+#include "../../QuCLib/source/crc.h"
 
 #define DataRecordStr "00"
 #define EndOfFileRecordStr "01"

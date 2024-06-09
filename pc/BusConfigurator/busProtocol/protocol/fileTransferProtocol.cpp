@@ -1,5 +1,5 @@
 #include "fileTransferProtocol.h"
-#include "../../QCodebase/crc.h"
+#include "../../QuCLib/source/crc.h"
 
 fileTransferProtocol::fileTransferProtocol(busDevice *device):busProtocol(device)
 {

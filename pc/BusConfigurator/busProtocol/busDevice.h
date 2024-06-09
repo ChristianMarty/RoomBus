@@ -8,7 +8,7 @@
 
 #include "busMessage.h"
 #include "busProtocol.h"
-#include "../../QCodebase/hexFileParser.h"
+#include "../../QuCLib/source/hexFileParser.h"
 
 
 class busDevice : public QObject

@@ -12,7 +12,8 @@
 
 #include "protocol/serialBridgeProtocol.h"
 
-#include "../../QCodebase/cobs.h"
+#include "../../QuCLib/source/hexFileParser.h"
+#include "../../QuCLib/source/cobs.h"
 
 class tinyLoader: public QObject
 {

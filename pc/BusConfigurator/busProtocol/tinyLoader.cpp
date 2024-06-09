@@ -1,6 +1,6 @@
 #include "tinyLoader.h"
 
-#include "../../QCodebase/crc.h"
+#include "../../QuCLib/source/crc.h"
 
 tinyLoader::tinyLoader(busDevice *busDevice): _serialBridgeProtocol(busDevice)
 {

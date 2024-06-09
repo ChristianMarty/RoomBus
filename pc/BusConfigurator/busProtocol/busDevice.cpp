@@ -1,7 +1,7 @@
 #include "busDevice.h"
 #include <QTimer>
 #include <busProtocol.h>
-#include "../../QCodebase/crc.h"
+#include "../../QuCLib/source/crc.h"
 
 busDevice::busDevice(QObject *parent) : QObject(parent)
 {

@@ -24,7 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         ../../QuCLib/source/cobs.cpp \
         ../../QuCLib/source/crc.cpp \
-        ../../QCodebase/hexFileParser.cpp \
+        ../../QuCLib/source/hexFileParser.cpp \
         busDevice.cpp \
         busMessage.cpp \
         busProtocol.cpp \
@@ -42,7 +42,7 @@ SOURCES += \
 HEADERS += \
         ../../QuCLib/source/cobs.h \
         ../../QuCLib/source/crc.h \
-        ../../QCodebase/hexFileParser.h \
+        ../../QuCLib/source/hexFileParser.h \
         busDevice.h \
         busMessage.h \
         busProtocol.h \
