@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>TinyBus</title>
+    <title>RoomBus</title>
     <link media="print" />
     <link rel="stylesheet" href="https://www.christian-marty.ch/WebPaperLayout/documentTemplate_A4.css">
     <link rel="stylesheet" href="https://www.christian-marty.ch/WebPaperLayout/pageLayout.css">
@@ -15,7 +15,7 @@
 <script src="https://www.christian-marty.ch/WebPaperLayout/navigation.js"></script>
 
 <body>
-
+    
 <div class="wpl_navigation">
 </div>
 
@@ -267,10 +267,9 @@
     </table> 
 
     <h4>Priority</h4>
-    <p>The priority field defines the priority of a frame on the bus.</p>
-    <p>As a result of the CAN-bus arbitration, a higher number will result in a lower priority.</p>
+    <p>The priority field defines the priority of a frame on the bus. As a result of the CAN-bus arbitration, a higher number will result in a lower priority.</p>
 
-    <h5>Priority Levels</h5> 
+
     <table>
         <tr>
           <th>Id</th>
@@ -302,12 +301,10 @@
 
     <h4>Addressing</h4>
     <p>RoomBus supports an address range of 1 - 126.</p>
-    <p><b>Note:</b></p>
-    <ul>
-        <li>Address 0 (0h) is reserved as production default.</li>
-        <li>Address 127 (7Fh) is reserved as broadcast address.</li>
-        <li>A broadcast frame will be received and processed by all devices on the bus.</li>
-    </ul>
+    <li>Address 0 (0h) is reserved as production default.</li>
+    <li>Address 127 (7Fh) is reserved as broadcast address.</li>
+    <li>A broadcast frame will be received and processed by all devices on the bus.</li>
+    
 
     <h4>Protocol Id</h4>
     <p>The protocol id is a 6-bit (0-63) number that specifies the used application protocol.</p>
@@ -1053,6 +1050,8 @@
 <document-page>
     <h3>Messages Log Protocol</h3>
     <p>The messages log protocol allows to send text messages for logging and diagnostic purposes from the device to a host.</p>
+    <p>Messages must be encoded as ANSI string.</p>
+    <p>The message length is limited to 60 characters.</p>
     <p><b>Protocol Id:</b> 1 (1h)</p>
     
     <h4>Information Flow</h4>
@@ -1069,19 +1068,21 @@
     <li>0x07 – Reserved</li>
 
     <h4>Payload</h4>
-    <p>Byte 0 - 1 is reserved. Those bytes must be set to 0.</p>
-    <p>Byte 2 - 63 can be used for the message.</p>
+    <p>Byte 0 - 4 is reserved. Those bytes must be set to 0.</p>
+    <p>Byte 4 - 63 can be used for the message.</p>
     <table>
         <tr>
             <th>Byte</th>
             <th>0</th>
             <th>1</th>
-            <th>2 - 63</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4 - 63</th>
         </tr>
         <tr>
             <th>Data</th>
-            <td colspan="2" >Reserved</td>
-            <td colspan="16" >Message</td>
+            <td colspan="4" >Reserved</td>
+            <td>Message</td>
         </tr>
     </table>
 
