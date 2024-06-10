@@ -69,6 +69,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButton_serialBridge">
+          <property name="text">
+           <string>Serial Bridge</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -80,13 +87,6 @@
            </size>
           </property>
          </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="tinyLoaderButton">
-          <property name="text">
-           <string>Tiny Loader</string>
-          </property>
-         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="rebootButton">

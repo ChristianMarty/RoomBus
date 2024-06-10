@@ -43,12 +43,12 @@ SOURCES += \
         mainwindow.cpp \
         messageLogWidget.cpp \
         qualityOfServiceWindow.cpp \
+        serialBridgeWidget.cpp \
         settings.cpp \
         settingsWidget.cpp \
         stateReportLine.cpp \
         stateReportWidget.cpp \
         tcpConnectionWidget.cpp \
-        tinyLoaderWidget.cpp \
         triggerLine.cpp \
         triggerWidget.cpp \
         valueReportLine.cpp \
@@ -68,12 +68,12 @@ HEADERS += \
         mainwindow.h \
         messageLogWidget.h \
         qualityOfServiceWindow.h \
+        serialBridgeWidget.h \
         settings.h \
         settingsWidget.h \
         stateReportLine.h \
         stateReportWidget.h \
         tcpConnectionWidget.h \
-        tinyLoaderWidget.h \
         triggerLine.h \
         triggerWidget.h \
         valueReportLine.h \
@@ -92,11 +92,11 @@ FORMS += \
         mainwindow.ui \
         messageLogWidget.ui \
         qualityOfServiceWindow.ui \
+        serialBridgeWidget.ui \
         settingsWidget.ui \
         stateReportLine.ui \
         stateReportWidget.ui \
         tcpConnectionWidget.ui \
-        tinyLoaderWidget.ui \
         triggerLine.ui \
         triggerWidget.ui \
         valueReportLine.ui \

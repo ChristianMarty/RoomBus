@@ -237,21 +237,19 @@ void busDeviceWindow::on_busTransmitMessage(busMessage msg)
 
 }
 
-
-void busDeviceWindow::on_tinyLoaderButton_clicked()
+void busDeviceWindow::on_pushButton_serialBridge_clicked()
 {
-    if(_tinyLoaderWidget == nullptr) _tinyLoaderWidget = new tinyLoaderWidget(_device,this);
+    if(_tinyLoaderWidget == nullptr) _tinyLoaderWidget = new SerialBridgeWidget(_device,this);
 
-    if(_tinyLoaderWindow == nullptr)
+    if(_serialBridgeWindow == nullptr)
     {
-        _tinyLoaderWindow = new QMdiSubWindow;
-        _tinyLoaderWindow->setWidget(_tinyLoaderWidget);
-        _tinyLoaderWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _tinyLoaderWindow->setWindowTitle("Tiny Loader");
-        ui->mdiArea->addSubWindow(_tinyLoaderWindow);
-        _tinyLoaderWindow->show();
+        _serialBridgeWindow = new QMdiSubWindow;
+        _serialBridgeWindow->setWidget(_tinyLoaderWidget);
+      //  _tinyLoaderWindow->setAttribute(Qt::WA_DeleteOnClose);
+        ui->mdiArea->addSubWindow(_serialBridgeWindow);
+        _serialBridgeWindow->show();
     }
 
-    _tinyLoaderWindow->setFocus();
+    _serialBridgeWindow->setFocus();
 }
 

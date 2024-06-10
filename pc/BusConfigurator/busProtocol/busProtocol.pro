@@ -31,13 +31,13 @@ SOURCES += \
         hexFileParser_old.cpp \
         protocol/messageLogProtocol.cpp \
         protocol/protocolDecoder.cpp \
-        tinyLoader.cpp \
         protocol/eventProtocol.cpp \
         protocol/fileTransferProtocol.cpp \
         protocol/serialBridgeProtocol.cpp \
         protocol/stateReportProtocol.cpp \
         protocol/triggerProtocol.cpp \
-        protocol/valueReportProtocol.cpp
+        protocol/valueReportProtocol.cpp \
+        serialBridge.cpp
 
 HEADERS += \
         ../../QuCLib/source/cobs.h \
@@ -49,14 +49,14 @@ HEADERS += \
         protocol/messageLogProtocol.h \
         protocol/protocol.h \
         protocol/protocolDecoder.h \
-        tinyLoader.h \
         hexFileParser_old.h \
         protocol/eventProtocol.h \
         protocol/fileTransferProtocol.h \
         protocol/serialBridgeProtocol.h \
         protocol/stateReportProtocol.h \
         protocol/triggerProtocol.h \
-        protocol/valueReportProtocol.h
+        protocol/valueReportProtocol.h \
+        serialBridge.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

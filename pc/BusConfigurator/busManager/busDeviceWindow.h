@@ -11,7 +11,7 @@
 #include "fileTransferWidget.h"
 #include "echoTestWidget.h"
 
-#include "tinyLoaderWidget.h"
+#include "serialBridgeWidget.h"
 
 #include <appPluginInterface.h>
 #include <QPluginLoader>
@@ -54,8 +54,7 @@ private slots:
 
     void on_appConfi_destroyed(QObject *obj = nullptr);
 
-
-    void on_tinyLoaderButton_clicked();
+    void on_pushButton_serialBridge_clicked();
 
 private:
     Ui::busDeviceWindow *ui;
@@ -68,7 +67,7 @@ private:
     valueReportWidget *_valueReportWidget = nullptr;
     fileTransferWidget *_fileTransferWidget = nullptr;
 
-    tinyLoaderWidget *_tinyLoaderWidget = nullptr;
+    SerialBridgeWidget *_tinyLoaderWidget = nullptr;
 
     QMdiSubWindow *_settingsWindow = nullptr;
     QMdiSubWindow *_echoWindow = nullptr;
@@ -76,7 +75,7 @@ private:
     QMdiSubWindow *_stateReportWindow = nullptr;
     QMdiSubWindow *_valueReportWindow = nullptr;
     QMdiSubWindow *_fileTransferWindow = nullptr;
-    QMdiSubWindow *_tinyLoaderWindow = nullptr;
+    QMdiSubWindow *_serialBridgeWindow = nullptr;
 
     appPluginInterface *_appConfigInterface = nullptr;
     QWidget *_appConfigWidget = nullptr;
