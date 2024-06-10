@@ -9,7 +9,7 @@
 
 
 
-class triggerProtocol : public busProtocol
+class triggerProtocol : public BusProtocol
 {
     Q_OBJECT
 public:

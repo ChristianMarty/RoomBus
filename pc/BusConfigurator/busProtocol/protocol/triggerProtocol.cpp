@@ -1,6 +1,6 @@
 #include "triggerProtocol.h"
 
-triggerProtocol::triggerProtocol(busDevice *device):busProtocol(device)
+triggerProtocol::triggerProtocol(busDevice *device):BusProtocol(device)
 {
 }
 

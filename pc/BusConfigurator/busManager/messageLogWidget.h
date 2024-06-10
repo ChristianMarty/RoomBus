@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include "busDevice.h"
-#include "protocol/messageLoggingProtocol.h"
+#include "protocol/messageLogProtocol.h"
 
 namespace Ui {
 class messageLogWidget;
@@ -20,7 +20,7 @@ public:
     void assignDevice(busDevice *busDevice);
 private slots:
 
-    void on_newMessage(logMessage msg);
+    void on_newMessage(LogMessage msg);
 
     void on_sysMsgBox_stateChanged(int arg1);
     void on_sysWarnBox_stateChanged(int arg1);
@@ -34,11 +34,11 @@ private slots:
 private:
     Ui::messageLogWidget *ui;
 
-    void addMessage(logMessage msg);
+    void addMessage(LogMessage msg);
 
     void updateLog(void);
 
-    messageLoggingProtocol *_logProtocol = nullptr;
+    MessageLogProtocol *_logProtocol = nullptr;
 
     uint8_t _filter;
     QString _log;

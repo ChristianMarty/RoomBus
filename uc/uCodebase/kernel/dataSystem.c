@@ -6,7 +6,7 @@
  */ 
 
 #include "dataSystem.h"
-#include "messageProtocol.h"
+#include "protocol/messageLOgProtocol.h"
 
 #include <stdio.h>
 #include <stdlib.h>

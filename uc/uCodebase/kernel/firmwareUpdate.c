@@ -5,7 +5,7 @@
  *  Author: Christian
  */ 
 
-#include "kernel/deviceManagementProtocol.h"
+#include "protocol/deviceManagementProtocol.h"
 #include "kernel/firmwareUpdate.h"
 #include "drv/SAMx5x/flash.h"
 #include "kernel/systemControl.h"

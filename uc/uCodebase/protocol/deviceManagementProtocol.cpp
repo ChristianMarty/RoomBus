@@ -1,11 +1,12 @@
-/*
- * deviceManagementProtocol.cpp
- *
- * Created: 07.10.2018 14:59:42
- *  Author: Christian
- */ 
+//**********************************************************************************************************************
+// FileName : deviceManagementProtocol.cpp
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 09.06.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 
-#include "kernel/deviceManagementProtocol.h"
+#include "protocol/deviceManagementProtocol.h"
 #include "drv/SAMx5x/sysTickTimer.h"
 #include "drv/SAMx5x/eeprom.h"
 #include "drv/SAMx5x/flash.h"

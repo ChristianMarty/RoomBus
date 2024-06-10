@@ -29,11 +29,11 @@ SOURCES += \
         busMessage.cpp \
         busProtocol.cpp \
         hexFileParser_old.cpp \
+        protocol/messageLogProtocol.cpp \
         protocol/protocolDecoder.cpp \
         tinyLoader.cpp \
         protocol/eventProtocol.cpp \
         protocol/fileTransferProtocol.cpp \
-        protocol/messageLoggingProtocol.cpp \
         protocol/serialBridgeProtocol.cpp \
         protocol/stateReportProtocol.cpp \
         protocol/triggerProtocol.cpp \
@@ -46,13 +46,13 @@ HEADERS += \
         busDevice.h \
         busMessage.h \
         busProtocol.h \
+        protocol/messageLogProtocol.h \
         protocol/protocol.h \
         protocol/protocolDecoder.h \
         tinyLoader.h \
         hexFileParser_old.h \
         protocol/eventProtocol.h \
         protocol/fileTransferProtocol.h \
-        protocol/messageLoggingProtocol.h \
         protocol/serialBridgeProtocol.h \
         protocol/stateReportProtocol.h \
         protocol/triggerProtocol.h \

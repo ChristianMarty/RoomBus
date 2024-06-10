@@ -5,7 +5,7 @@
 
 enum Protocol {
     DeviceManagementProtocol = 0,
-    MessageLoggingProtocol = 1,
+    MessageLogProtocolId = 1,
     FileTransferProtocol = 2,
 
     TriggerProtocol = 8,

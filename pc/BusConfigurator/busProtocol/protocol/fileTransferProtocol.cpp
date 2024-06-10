@@ -1,7 +1,7 @@
 #include "fileTransferProtocol.h"
 #include "../../QuCLib/source/crc.h"
 
-fileTransferProtocol::fileTransferProtocol(busDevice *device):busProtocol(device)
+fileTransferProtocol::fileTransferProtocol(busDevice *device):BusProtocol(device)
 {
 }
 

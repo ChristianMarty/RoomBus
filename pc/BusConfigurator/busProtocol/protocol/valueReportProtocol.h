@@ -8,7 +8,7 @@
 #include "busProtocol.h"
 
 
-class valueReportProtocol : public busProtocol
+class valueReportProtocol : public BusProtocol
 {
     Q_OBJECT
 public:

@@ -1,6 +1,6 @@
 #include "valueReportProtocol.h"
 
-valueReportProtocol::valueReportProtocol(busDevice *device):busProtocol(device)
+valueReportProtocol::valueReportProtocol(busDevice *device):BusProtocol(device)
 {
 }
 

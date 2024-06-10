@@ -1,13 +1,34 @@
+//**********************************************************************************************************************
+// FileName : fileTransferProtocol.cpp
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 09.06.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#include "protocol/fileTransferProtocol.h"
+#include "protocol/messageLogProtocol.h"
 
-
-#include "kernel/fileTransferProtocol.h"
-#include "utility/string.h"
-#include "kernel/messageProtocol.h"
 #include "kernel/bus.h"
+
 #include "utility/pack.h"
+#include "utility/string.h"
 
 #include "kernel/littleFS/lfs_util.h"
 #include "kernel/littleFS/lfs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void ftp_init(void)
+{
+	
+}
+
+void ftp_handler(void)
+{
+	
+}
 
 void ftp_sendFileInfo(uint8_t address, lfs_info *info)
 {
@@ -168,8 +189,6 @@ void ftp_endTransmitFile(uint8_t sourceAddress, lfs_t *lfs)
 }
 
 
-
-
 /*****************************************************************************
  * File Write
  * ***************************************************************************/
@@ -253,7 +272,6 @@ void ftp_endReceiveFile(uint8_t sourceAddress, lfs_t *lfs)
 }
 
 
-
 /*****************************************************************************
  * 
  * ***************************************************************************/
@@ -308,3 +326,7 @@ void ftp_receiveHandler(lfs_t *lfs, uint8_t sourceAddress, uint8_t command, uint
 	
 	
 }
+
+#ifdef __cplusplus
+}
+#endif

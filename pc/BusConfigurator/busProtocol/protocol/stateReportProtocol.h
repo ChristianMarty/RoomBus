@@ -5,7 +5,7 @@
 #include <QMap>
 #include "busProtocol.h"
 
-class stateReportProtocol : public busProtocol
+class stateReportProtocol : public BusProtocol
 {
     Q_OBJECT
 public:

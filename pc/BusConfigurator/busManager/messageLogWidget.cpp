@@ -19,26 +19,26 @@ messageLogWidget::~messageLogWidget()
 
 void messageLogWidget::assignDevice(busDevice *busDevice)
 {
-    if(_logProtocol == nullptr) _logProtocol = new messageLoggingProtocol(busDevice);
-    connect(_logProtocol,&messageLoggingProtocol::newMessage, this, &messageLogWidget::on_newMessage);
+    if(_logProtocol == nullptr) _logProtocol = new MessageLogProtocol(busDevice);
+    connect(_logProtocol,&MessageLogProtocol::newMessage, this, &messageLogWidget::on_newMessage);
 }
 
-void messageLogWidget::on_newMessage(logMessage msg)
+void messageLogWidget::on_newMessage(LogMessage msg)
 {
     addMessage(msg);
     ui->textEdit->setHtml(_log);
 }
 
-void messageLogWidget::addMessage(logMessage msg)
+void messageLogWidget::addMessage(LogMessage msg)
 {
     QString temp;
 
-    if(msg.messageType == logMessage::sysMessage && (_filter & 0x01))  temp.append("<font color=\"Black\">");
-    else if(msg.messageType == logMessage::sysWarning && (_filter & 0x02))  temp.append("<font color=\"Orange\">");
-    else if(msg.messageType == logMessage::sysError && (_filter & 0x04))  temp.append("<font color=\"Red\">");
-    else if(msg.messageType == logMessage::appMessage && (_filter & 0x10))  temp.append("<font color=\"Black\">");
-    else if(msg.messageType == logMessage::appWarning && (_filter & 0x20))  temp.append("<font color=\"Orange\">");
-    else if(msg.messageType == logMessage::appError && (_filter & 0x40))  temp.append("<font color=\"Red\">");
+    if(msg.messageType == LogMessage::sysMessage && (_filter & 0x01))  temp.append("<font color=\"Black\">");
+    else if(msg.messageType == LogMessage::sysWarning && (_filter & 0x02))  temp.append("<font color=\"Orange\">");
+    else if(msg.messageType == LogMessage::sysError && (_filter & 0x04))  temp.append("<font color=\"Red\">");
+    else if(msg.messageType == LogMessage::appMessage && (_filter & 0x10))  temp.append("<font color=\"Black\">");
+    else if(msg.messageType == LogMessage::appWarning && (_filter & 0x20))  temp.append("<font color=\"Orange\">");
+    else if(msg.messageType == LogMessage::appError && (_filter & 0x40))  temp.append("<font color=\"Red\">");
     else return;
 
     temp.append(msg.time.toString("hh:mm:ss"));
@@ -53,7 +53,7 @@ void messageLogWidget::updateLog(void)
 {
     _log.clear();
 
-    foreach( logMessage msg , _logProtocol->messages() )
+    foreach( LogMessage msg , _logProtocol->messages() )
     {
         addMessage(msg);
     }

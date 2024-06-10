@@ -1,13 +1,12 @@
-/*
- * deviceManagementProtocol.h
- *
- * Created: 07.10.2018 14:53:44
- *  Author: Christian
- */ 
-
-
-#ifndef DEVICEMANAGEMENTPROTOCOL_H_
-#define DEVICEMANAGEMENTPROTOCOL_H_
+//**********************************************************************************************************************
+// FileName : deviceManagementProtocol.h
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 09.06.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#ifndef DEVICE_MANAGEMENT_PROTOCOL_H_
+#define DEVICE_MANAGEMENT_PROTOCOL_H_
 
 #include "sam.h"
 #include "kernel/busDefines.h"
@@ -70,4 +69,4 @@ uint32_t dmp_getAppCrc(void);
 }
 #endif
 
-#endif /* DEVICEMANAGEMENTPROTOCOL_H_ */
+#endif /* DEVICE_MANAGEMENT_PROTOCOL_H_ */

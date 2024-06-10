@@ -6,12 +6,12 @@
 
 class busDevice;
 
-class busProtocol: public QObject
+class BusProtocol: public QObject
 {
     Q_OBJECT
 public:
-    busProtocol(busDevice *device);
-    ~busProtocol(void);
+    BusProtocol(busDevice *device);
+    ~BusProtocol(void);
 
     virtual void pushData(busMessage msg)=0;
 

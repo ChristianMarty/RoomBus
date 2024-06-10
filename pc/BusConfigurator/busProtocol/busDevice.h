@@ -121,8 +121,8 @@ public:
     uint16_t heartbeatInterval() const;
     uint16_t systemInfoInterval() const;
 
-    void addProtocol(busProtocol* protocol);
-    void removeProtocol(busProtocol* protocol);
+    void addProtocol(BusProtocol* protocol);
+    void removeProtocol(BusProtocol* protocol);
 
     void startFirmwareUpload(QString hexPath);
 
@@ -171,7 +171,7 @@ private:
     QuCLib::HexFileParser _appBinary;
     uint32_t _bootloadDataIndex;
 
-    QList< busProtocol* > _protocols;
+    QList< BusProtocol* > _protocols;
 
     QString _deviceName;
     QString _applicationName;

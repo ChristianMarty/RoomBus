@@ -17,7 +17,7 @@ public:
     bool active;
 };
 
-class eventProtocol : public busProtocol
+class eventProtocol : public BusProtocol
 {
     Q_OBJECT
 public:

@@ -9,7 +9,7 @@
 #include "busProtocol.h"
 
 
-class fileTransferProtocol : public busProtocol
+class fileTransferProtocol : public BusProtocol
 {
     Q_OBJECT
 public:

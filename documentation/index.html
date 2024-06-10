@@ -396,7 +396,6 @@
 
     <h4>Stopping the application</h4>
     <p>TBD</p>
-
 </document-page>
 
 <document-page>
@@ -1052,8 +1051,13 @@
 </document-page>
 
 <document-page>
-    <h3>System Message and Logging Protocol (ID 0x01)</h3>
-    <p>This protocol allows to send text messages for logging and diagnostic purposes from the device.</p>
+    <h3>Messages Log Protocol</h3>
+    <p>The messages log protocol allows to send text messages for logging and diagnostic purposes from the device to a host.</p>
+    <p><b>Protocol Id:</b> 1 (1h)</p>
+    
+    <h4>Information Flow</h4>
+    <p>This protocol only generates outbound traffic from a device. Inbound traffic is ignored. </p>
+
     <h4>Commands</h4>
     <li>0x00 – System Message</li>
     <li>0x01 – System Warning Message</li>
@@ -1063,6 +1067,7 @@
     <li>0x05 – Application Warning Message</li>
     <li>0x06 – Application Error Message</li>
     <li>0x07 – Reserved</li>
+
     <h4>Payload</h4>
     <p>Byte 0 - 1 is reserved. Those bytes must be set to 0.</p>
     <p>Byte 2 - 63 can be used for the message.</p>
@@ -1071,7 +1076,7 @@
             <th>Byte</th>
             <th>0</th>
             <th>1</th>
-            <th>2 ... 63</th>
+            <th>2 - 63</th>
         </tr>
         <tr>
             <th>Data</th>
@@ -1079,13 +1084,21 @@
             <td colspan="16" >Message</td>
         </tr>
     </table>
+
 </document-page>
 
 <document-page>
-    <h3>File Transfer Protocol (ID 0x02)</h3>
+    <h3>File Transfer Protocol</h3>
+    <p>The file transfer protocol allows access to the file system on the device.</p>
+    <p><b>Protocol Id:</b> 2 (2h)</p>
+
+    <h4>Information Flow</h4>
+    <p>This protocol generates outbound traffic from the device on request.</p>
+
     <h4>Commands</h4>
-    <li>0x00 – Command – Host to Device Communication</li>
-    <li>0x01 – Response – Device to Host Communication</li>
+    
+    <li>0x00 – Host to Device Communication</li>
+    <li>0x01 – Device to Host Communication</li>
     <li>0x02 – Reserved</li>
     <li>0x03 – Reserved</li>
     <li>0x04 – Data Transfer from Device</li>
@@ -1323,18 +1336,94 @@
 </document-page>
 
 <document-page>
-    <h3>Event System Protocol (ID 0x09)</h3>
+    <h3>Trigger System Protocol</h3>
+    <p>The trigger system protocol allows to trigger an action on a device.</p>
+    <p>A device can emit triggers, called a trigger signal, and consume triggers, called a trigger slot.</p>
+    <p><b>Protocol Id:</b> 8 (8h)</p>
+
+    <h4>Information Flow</h4>
+    <p>This protocol accepts inbound traffic and generates outbound traffic.</p>
+
+    <h4>Commands </h4>
+    <li>0x00 – Trigger Slot</li>
+    <li>0x01 – Trigger Signal Name Report</li>
+    <li>0x02 – Trigger Slot Name Report</li>
+    <li>0x03 – Trigger Signal Name Request</li>
+    <li>0x04 – Trigger Slot Name Request</li>
+    <li>0x05 – Reserved</li>
+    <li>0x06 – Reserved</li>
+    <li>0x07 – Reserved</li>
+
+    <h5>Trigger Slot / Trigger Signal Name Request / Trigger Slot Name Request</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>n</th>
+            <th>n+1</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">Trigger Channel Number</td>
+        </tr>
+    </table>
+
+    <h5>Trigger Signal Name Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3-n</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td>Destination Address</td>
+            <td colspan="2">Trigger Channel Number</td>
+            <td>Channel Name</td>
+        </tr>
+    </table>
+  
+    <h5>Trigger Slot Name Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3-n</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td>Source Address</td>
+            <td colspan="2">Trigger Channel Number</td>
+            <td>Channel Name</td>
+        </tr>
+    </table>
+</document-page>
+
+<document-page>
+    <h3>Event System Protocol</h3>
+    <p>The event system protocol allows to enable an action for a defined time on a device.</p>
+    <p><b>Protocol Id:</b> 9 (9h)</p>
+
+    <h4>Information Flow</h4>
+    <p>This protocol accepts inbound traffic and generates outbound traffic.</p>
+
     <h4>Commands </h4>
     <li>0x00 – Event Slot</li>
-    <li>0x01 – Event Signal Name Reporting</li>
-    <li>0x02 – Event Slot Name Reporting</li>
+    <li>0x01 – Event Signal Name Report</li>
+    <li>0x02 – Event Slot Name Report</li>
     <li>0x03 – Event Signal Name Request</li>
     <li>0x04 – Event Slot Name Request</li>
     <li>0x05 – Event Timeout Reset Request</li>
     <li>0x06 – Reserved</li>
     <li>0x07 – Reserved</li>
 
-    <h4>Event Slot (0x00)</h4>
+    <h5>Event Slot (0x00)</h5>
     <p>The event slot message contains a list channels of currently active events.</p>
     <table>
         <tr>
@@ -1348,7 +1437,7 @@
         </tr>
     </table>
 
-    <h4>Event Signal Name Reporting (0x01)</h4>
+    <h5>Event Signal Name Reporting (0x01)</h5>
     <table>
         <tr>
             <th colspan="3">Byte</th>
@@ -1365,7 +1454,7 @@
         </tr>
     </table>
   
-    <h4>Event Slot Name Reporting (0x02)</h4>
+    <h5>Event Slot Name Reporting (0x02)</h5>
     <table>
         <tr>
             <th colspan="5">Byte</th>
@@ -1385,7 +1474,7 @@
         </tr>
     </table>
 
-    <h4>Event Signal Name Request (0x03) / Event Slot Name Request (0x04)</h4>
+    <h5>Event Signal Name Request (0x03) / Event Slot Name Request (0x04)</h5>
     <table>
         <tr>
             <th>Byte</th>
@@ -1398,7 +1487,7 @@
         </tr>
     </table>
 
-    <h4>Event Timeout Reset Request (0x05)</h4>
+    <h5>Event Timeout Reset Request (0x05)</h5>
     <p>This command resets the event repetition timeout counter. All currently active events will be reported.</p>
     <table>
         <tr>
@@ -1419,81 +1508,6 @@
         </tr>
     </table>
 
-</document-page>
-
-<document-page>
-    <h3>Trigger System Protocol (ID 0x08)</h3>
-    <h4>Commands </h4>
-    <li>0x00 – Trigger Slot</li>
-    <li>0x01 – Trigger Signal Name Reporting</li>
-    <li>0x02 – Trigger Slot Name Reporting</li>
-    <li>0x03 – Trigger Signal Name Request</li>
-    <li>0x04 – Trigger Slot Name Request</li>
-    <li>0x05 – Reserved</li>
-    <li>0x06 – Reserved</li>
-    <li>0x07 – Reserved</li>
-
-    <h4>Trigger Slot (0x00)</h4>
-    <table>
-        <tr>
-            <th>Byte</th>
-        </tr>
-        <tr>
-            <th>n</th>
-        </tr>
-        <tr>
-            <td>Trigger Channel Number</td>
-        </tr>
-    </table>
-
-    <h4>Trigger Signal Name Reporting (0x01)</h4>
-    <table>
-        <tr>
-            <th colspan="3">Byte</th>
-        </tr>
-        <tr>
-            <th>0</th>
-            <th>1</th>
-            <th>2-n</th>
-        </tr>
-        <tr>
-            <td>Destination Address</td>
-            <td>Event Channel Nr</td>
-            <td>Channel Name</td>
-        </tr>
-    </table>
-  
-    <h4>Trigger Slot Name Reporting (0x02)</h4>
-    <table>
-        <tr>
-            <th colspan="5">Byte</th>
-        </tr>
-        <tr>
-            <th>0</th>
-            <th>1</th>
-            <th>2</th>
-            <th>3</th>
-            <th>4-n</th>
-        </tr>
-        <tr>
-            <td>Source Address</td>
-            <td>Event Channel Nr</td>
-            <td colspan="2" >Timeout</td>
-            <td>Trigger Channel Name</td>
-        </tr>
-    </table>
-    <h4>Trigger Signal Name Request (0x03) / Trigger Slot Name Request (0x04)</h4>
-    <table>
-        <tr>
-            <th>Byte</th>
-        </tr>
-        <tr>
-            <th>n</th>
-        </tr>
-        <tr>
-            <td>Trigger Channel Number</td>
-        </tr>
-    </table>
 </document-page>
 
 <document-page>

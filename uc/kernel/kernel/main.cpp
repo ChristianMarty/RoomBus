@@ -8,11 +8,14 @@
 #define APP_START_ADDR 0x10000
 
 #include "sam.h"
+
+#include "protocol/deviceManagementProtocol.h"
+#include "protocol/messageLogProtocol.h"
+#include "protocol/fileTransferProtocol.h"
+
 #include "kernel/bus.h"
 #include "kernel/kernel.h"
 #include "kernel/standardIO.h"
-#include "kernel/deviceManagementProtocol.h"
-#include "kernel/messageProtocol.h"
 #include "kernel/systemControl.h"
 #include "kernel/dataSystem.h"
 
@@ -26,8 +29,6 @@
 #include "drv/SAMx5x/wdt.h"
 #include "drv/SAMx5x/dma.h"
 #include "drv/SAMx5x/eeprom.h"
-
-#include "kernel/fileTransferProtocol.h"
 
 #include "utility/string.h"
 #include "utility/softCRC.h"
@@ -230,6 +231,8 @@ int main(void)
 	
 	dmp_init(&appHead->appName[0], &sysControl, &sysStatus, &appState, &appBenchmark);
 	dmp_sendExtendedHeartbeat();
+	
+	ftp_init();
 	
 	sysSavedSettings.reg = eeporm_readByte(&eememSysSavedSettings);
 	systemControl_init(&sysControlHandler,&sysSavedSettings);
@@ -445,6 +448,8 @@ int main(void)
 		}
 		
 		dmp_handler();
+		ftp_handler();
+		
 		
 		if(sysTick_delay1ms(&redLedTimer,10))
 		{

@@ -5,7 +5,7 @@ QString ProtocolDecoder::protocolName(Protocol protocol)
 {
     switch(protocol){
         case DeviceManagementProtocol: return "Device Management"; break;
-        case MessageLoggingProtocol: return "Message Logging"; break;
+        case MessageLogProtocolId: return "Message Logging"; break;
         case FileTransferProtocol: return "File Transfer"; break;
         case TriggerProtocol: return "Trigger"; break;
         case EventProtocol: return "Event"; break;
@@ -20,7 +20,7 @@ QString ProtocolDecoder::commandName(Protocol protocol, int command)
 {
     switch(protocol){
         case DeviceManagementProtocol: return DeviceManagementCommandlName((DeviceManagementCommand)command); break;
-        case MessageLoggingProtocol: return MessageLoggingCommandlName((MessageLoggingCommand)command); break;
+        case MessageLogProtocolId: return MessageLoggingCommandlName((MessageLoggingCommand)command); break;
         case FileTransferProtocol: return FileTransferCommandlName((FileTransferCommand)command); break;
         case TriggerProtocol: return TriggerCommandlName((TriggerCommand)command); break;
         case EventProtocol: return EventCommandlName((EventCommand)command); break;
@@ -35,7 +35,7 @@ QString ProtocolDecoder::dataDecoded(Protocol protocol, int command, QByteArray 
 {
     switch(protocol){
         case DeviceManagementProtocol: return DeviceManagementDataDecoder((DeviceManagementCommand)command, data); break;
-        case MessageLoggingProtocol: return MessageLoggingDataDecoder((MessageLoggingCommand)command, data); break;
+        case MessageLogProtocolId: return MessageLoggingDataDecoder((MessageLoggingCommand)command, data); break;
         case FileTransferProtocol: return FileTransferDecoder((FileTransferCommand)command, data); break;
         case TriggerProtocol: return TriggerDecoder((TriggerCommand)command, data); break;
         case EventProtocol: return EventDecoder((EventCommand)command, data); break;

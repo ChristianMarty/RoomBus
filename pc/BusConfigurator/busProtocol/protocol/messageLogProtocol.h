@@ -7,11 +7,11 @@
 
 #include "busProtocol.h"
 
-class logMessage
+class LogMessage
 {
 public:
-    logMessage(void){time = QDateTime::currentDateTime();}
-    enum messageType_t{
+    LogMessage(void){time = QDateTime::currentDateTime();}
+    enum MessageType:uint8_t {
         sysMessage,
         sysWarning,
         sysError,
@@ -20,33 +20,30 @@ public:
         appWarning,
         appError,
         appReserved
-    }messageType;
+    } messageType;
 
-    uint8_t messageCode;
+    uint32_t messageCode;
     QString massage;
     QDateTime time;
-
 };
 
-class messageLoggingProtocol : public busProtocol
+class MessageLogProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
-    messageLoggingProtocol(busDevice *device);
+    MessageLogProtocol(busDevice *device);
 
     void pushData(busMessage msg);
     QList<Protocol> protocol(void);
 
-    QList<logMessage> messages() const;
+    QList<LogMessage> messages() const;
     void clearLog(void);
 
 signals:
-    void newMessage(logMessage msg);
+    void newMessage(LogMessage msg);
 
 private:
-
-
-    QList<logMessage> _messages;
+    QList<LogMessage> _messages;
 };
 
 #endif // MESSAGE_LOG_PROTOCOL_H

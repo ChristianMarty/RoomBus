@@ -1,6 +1,6 @@
 #include "serialBridgeProtocol.h"
 
-serialBridgeProtocol::serialBridgeProtocol(busDevice *device):busProtocol(device)
+serialBridgeProtocol::serialBridgeProtocol(busDevice *device):BusProtocol(device)
 {
 
 }

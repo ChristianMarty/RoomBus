@@ -6,7 +6,7 @@
 #include <QMap>
 #include "busProtocol.h"
 
-class serialBridgeProtocol: public busProtocol
+class serialBridgeProtocol: public BusProtocol
 {
     Q_OBJECT
 public:

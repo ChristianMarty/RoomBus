@@ -1,6 +1,6 @@
 #include "eventProtocol.h"
 
-eventProtocol::eventProtocol(busDevice *device):busProtocol(device)
+eventProtocol::eventProtocol(busDevice *device):BusProtocol(device)
 {
 }
 

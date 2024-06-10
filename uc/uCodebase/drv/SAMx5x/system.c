@@ -8,7 +8,7 @@
 
 #include "drv/SAMx5x/system.h"
 #include "drv/SAMx5x/fuse.h"
-#include "kernel/messageProtocol.h"
+#include "protocol/messageLogProtocol.h"
 
 void system_init(void)
 {

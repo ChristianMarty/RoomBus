@@ -439,12 +439,12 @@ uint16_t busDevice::systemInfoInterval() const
     return _extendedHeartbeatInterval;
 }
 
-void busDevice::addProtocol(busProtocol* protocol)
+void busDevice::addProtocol(BusProtocol* protocol)
 {
     _protocols.append(protocol);
 }
 
-void busDevice::removeProtocol(busProtocol* protocol)
+void busDevice::removeProtocol(BusProtocol* protocol)
 {
     _protocols.removeOne(protocol);
 }
@@ -488,24 +488,24 @@ void busDevice::handleDeviceManagementProtocol(busMessage msg)
 
         if(data.size() != 41) return;
 
-        _hwVersion = busProtocol::getUint16(data,5);
-        _kernelVersion = busProtocol::getUint16(data,7);
-        _heartbeatInterval = busProtocol::getUint16(data,9);
-        _extendedHeartbeatInterval = busProtocol::getUint16(data,11);
-        _appCRC = busProtocol::getUint32(data,13);
-        _appStartAddress = busProtocol::getUint32(data,17);
-        _deviceIdentificationCode = busProtocol::getUint32(data,21);
-        _serialNumberWord0 = busProtocol::getUint32(data,25);
-        _serialNumberWord1 = busProtocol::getUint32(data,29);
-        _serialNumberWord2 = busProtocol::getUint32(data,33);
-        _serialNumberWord3 = busProtocol::getUint32(data,37);
+        _hwVersion = BusProtocol::getUint16(data,5);
+        _kernelVersion = BusProtocol::getUint16(data,7);
+        _heartbeatInterval = BusProtocol::getUint16(data,9);
+        _extendedHeartbeatInterval = BusProtocol::getUint16(data,11);
+        _appCRC = BusProtocol::getUint32(data,13);
+        _appStartAddress = BusProtocol::getUint32(data,17);
+        _deviceIdentificationCode = BusProtocol::getUint32(data,21);
+        _serialNumberWord0 = BusProtocol::getUint32(data,25);
+        _serialNumberWord1 = BusProtocol::getUint32(data,29);
+        _serialNumberWord2 = BusProtocol::getUint32(data,33);
+        _serialNumberWord3 = BusProtocol::getUint32(data,37);
 
         _heartbeatTimer.setInterval(_heartbeatInterval*2500);
 
     case cmd_heartbeat:
         {
             if(data.size() != 5) break;
-            uint32_t status = busProtocol::getUint32(data,1);
+            uint32_t status = BusProtocol::getUint32(data,1);
             _sysStatus = *((sysStatus_t*) &status);
 
             _timeoutStatus = false;
@@ -556,9 +556,9 @@ void busDevice::handleDeviceManagementProtocol(busMessage msg)
 
             if(data.size() > 5)
             {
-                appBenchmark.avg = busProtocol::getUint32(data,5);
-                appBenchmark.min = busProtocol::getUint32(data,9);
-                appBenchmark.max = busProtocol::getUint32(data,13);
+                appBenchmark.avg = BusProtocol::getUint32(data,5);
+                appBenchmark.min = BusProtocol::getUint32(data,9);
+                appBenchmark.max = BusProtocol::getUint32(data,13);
             }
 
             emit statusUpdate();

@@ -1,10 +1,19 @@
-
+//**********************************************************************************************************************
+// FileName : fileTransferProtocol.h
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 09.06.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifndef FILE_TRANSFER_PROTOCOL_H_
 #define FILE_TRANSFER_PROTOCOL_H_
 
-#include "sam.h"
 #include "kernel/kernel.h"
 #include "kernel/littleFS/lfs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 typedef enum {
@@ -63,7 +72,12 @@ typedef struct{
 	
 }ftp_transfer_t;
 
-
+void ftp_init(void);
+void ftp_handler(void);
 void ftp_receiveHandler(lfs_t *lfs, uint8_t sourceAddress, uint8_t command, uint8_t *data, uint8_t size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* FILE_TRANSFER_PROTOCOL_H_ */

@@ -1,29 +1,29 @@
 #include "busProtocol.h"
 #include "busDevice.h"
 
-busProtocol::busProtocol(busDevice *device)
+BusProtocol::BusProtocol(busDevice *device)
 {
     _device = device;
     _device->addProtocol(this);
 }
 
-busProtocol::~busProtocol(void)
+BusProtocol::~BusProtocol(void)
 {
     _device->removeProtocol(this);
 }
 
-void busProtocol::sendMessage(busMessage msg)
+void BusProtocol::sendMessage(busMessage msg)
 {
     msg.dstAddress = _device->deviceAddress();
     _device->dataReady(msg);
 }
 
-uint8_t busProtocol::getUint8(QByteArray data, uint32_t index)
+uint8_t BusProtocol::getUint8(QByteArray data, uint32_t index)
 {
     return static_cast<uint8_t>(data.at(index));
 }
 
-uint16_t busProtocol::getUint16(QByteArray data, uint32_t index)
+uint16_t BusProtocol::getUint16(QByteArray data, uint32_t index)
 {
     uint16_t temp = 0;
 
@@ -33,7 +33,7 @@ uint16_t busProtocol::getUint16(QByteArray data, uint32_t index)
     return temp;
 }
 
-uint32_t busProtocol::getUint32(QByteArray data, uint32_t index)
+uint32_t BusProtocol::getUint32(QByteArray data, uint32_t index)
 {
     uint32_t temp = 0;
 
@@ -45,7 +45,7 @@ uint32_t busProtocol::getUint32(QByteArray data, uint32_t index)
     return temp;
 }
 
-float busProtocol::getFloat32(QByteArray data, uint32_t index)
+float BusProtocol::getFloat32(QByteArray data, uint32_t index)
 {
     uint32_t temp = getUint32(data,index);
 
@@ -55,7 +55,7 @@ float busProtocol::getFloat32(QByteArray data, uint32_t index)
     return *out;
 }
 
-QByteArray busProtocol::packUint32(uint32_t value)
+QByteArray BusProtocol::packUint32(uint32_t value)
 {
     QByteArray temp;
     temp.append(static_cast<char>(static_cast<uint8_t>(value>>24)));
@@ -66,7 +66,7 @@ QByteArray busProtocol::packUint32(uint32_t value)
     return temp;
 }
 
-QByteArray busProtocol::packFloat32(float value)
+QByteArray BusProtocol::packFloat32(float value)
 {
     uint32_t *temp = (uint32_t*)&value;
 

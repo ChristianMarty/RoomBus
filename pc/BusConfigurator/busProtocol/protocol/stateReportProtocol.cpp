@@ -1,6 +1,6 @@
 #include "stateReportProtocol.h"
 
-stateReportProtocol::stateReportProtocol(busDevice *device):busProtocol(device)
+stateReportProtocol::stateReportProtocol(busDevice *device):BusProtocol(device)
 {
 }
 

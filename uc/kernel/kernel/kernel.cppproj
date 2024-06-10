@@ -292,22 +292,6 @@
       <SubType>compile</SubType>
       <Link>kernel\dataSystem.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\deviceManagementProtocol.cpp">
-      <SubType>compile</SubType>
-      <Link>kernel\deviceManagementProtocol.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\kernel\deviceManagementProtocol.h">
-      <SubType>compile</SubType>
-      <Link>kernel\deviceManagementProtocol.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\kernel\fileTransferProtocol.cpp">
-      <SubType>compile</SubType>
-      <Link>kernel\fileTransferProtocol.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\kernel\fileTransferProtocol.h">
-      <SubType>compile</SubType>
-      <Link>kernel\fileTransferProtocol.h</Link>
-    </Compile>
     <Compile Include="..\..\uCodebase\kernel\firmwareUpdate.c">
       <SubType>compile</SubType>
       <Link>kernel\firmwareUpdate.c</Link>
@@ -336,14 +320,6 @@
       <SubType>compile</SubType>
       <Link>kernel\littleFs\lfs_util.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\messageProtocol.c">
-      <SubType>compile</SubType>
-      <Link>kernel\messageProtocol.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\kernel\messageProtocol.h">
-      <SubType>compile</SubType>
-      <Link>kernel\messageProtocol.h</Link>
-    </Compile>
     <Compile Include="..\..\uCodebase\kernel\standardIO.c">
       <SubType>compile</SubType>
       <Link>kernel\standardIO.c</Link>
@@ -359,6 +335,30 @@
     <Compile Include="..\..\uCodebase\kernel\systemControl.h">
       <SubType>compile</SubType>
       <Link>kernel\systemControl.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\protocol\deviceManagementProtocol.cpp">
+      <SubType>compile</SubType>
+      <Link>protocol\deviceManagementProtocol.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\protocol\deviceManagementProtocol.h">
+      <SubType>compile</SubType>
+      <Link>protocol\deviceManagementProtocol.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\protocol\fileTransferProtocol.cpp">
+      <SubType>compile</SubType>
+      <Link>protocol\fileTransferProtocol.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\protocol\fileTransferProtocol.h">
+      <SubType>compile</SubType>
+      <Link>protocol\fileTransferProtocol.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\protocol\messageLogProtocol.cpp">
+      <SubType>compile</SubType>
+      <Link>protocol\messageLogProtocol.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\protocol\messageLogProtocol.h">
+      <SubType>compile</SubType>
+      <Link>protocol\messageLogProtocol.h</Link>
     </Compile>
     <Compile Include="..\..\uCodebase\utility\cobs.h">
       <SubType>compile</SubType>
@@ -399,6 +399,7 @@
     <Folder Include="kernel\littleFs" />
     <Folder Include="lib" />
     <Folder Include="kernel" />
+    <Folder Include="protocol" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\same51j19a_flash.ld">
