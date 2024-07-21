@@ -5,13 +5,14 @@
 #include "busDevice.h"
 
 #include "settingsWidget.h"
-#include "triggerWidget.h"
-#include "stateReportWidget.h"
-#include "valueReportWidget.h"
+#include "trigger/triggerWidget.h"
+#include "event/eventWidget.h"
+#include "state/stateReportWidget.h"
+#include "value/valueReportWidget.h"
 #include "fileTransferWidget.h"
 #include "echoTestWidget.h"
 
-#include "serialBridgeWidget.h"
+#include "serialBridge/serialBridgeWidget.h"
 
 #include <appPluginInterface.h>
 #include <QPluginLoader>
@@ -56,14 +57,17 @@ private slots:
 
     void on_pushButton_serialBridge_clicked();
 
+    void on_pushButton_event_clicked();
+
 private:
     Ui::busDeviceWindow *ui;
     busDevice *_device;
 
     settingsWidget *_settingsWidget = nullptr;
     echoTestWidget *_echoWidget = nullptr;
-    triggerWidget *_triggerWidget = nullptr;
-    stateReportWidget *_stateReportWidget = nullptr;
+    TriggerWidget *_triggerWidget = nullptr;
+    EventWidget *_eventWidget = nullptr;
+    StateReportWidget *_stateReportWidget = nullptr;
     valueReportWidget *_valueReportWidget = nullptr;
     fileTransferWidget *_fileTransferWidget = nullptr;
 
@@ -72,6 +76,7 @@ private:
     QMdiSubWindow *_settingsWindow = nullptr;
     QMdiSubWindow *_echoWindow = nullptr;
     QMdiSubWindow *_triggerWindow = nullptr;
+    QMdiSubWindow *_eventWindow = nullptr;
     QMdiSubWindow *_stateReportWindow = nullptr;
     QMdiSubWindow *_valueReportWindow = nullptr;
     QMdiSubWindow *_fileTransferWindow = nullptr;

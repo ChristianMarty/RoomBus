@@ -1,115 +1,122 @@
 #include "stateReportProtocol.h"
 
-stateReportProtocol::stateReportProtocol(busDevice *device):BusProtocol(device)
+StateReportProtocol::StateReportProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void stateReportProtocol::pushData(busMessage msg)
+void StateReportProtocol::pushData(busMessage msg)
 {
     if(msg.protocol == Protocol::StateReportProtocol)
     {
-        if(msg.command == stateReportChannelNameReporting) parseStateNameReport(msg);
-        else if(msg.command == group0Report) parseGroup0Report(msg);
-        else if(msg.command == individualStateReport) parseIndividualReport(msg);
+        if(msg.command == State) _parseStateReport(msg);
+        else if(msg.command == SignalInformationReport) _parseSignalInformationReport(msg);
+        else if(msg.command == SlotInformationReport) _parseSlotInformationReport(msg);
     }
 }
 
-QList<Protocol> stateReportProtocol::protocol(void)
+QList<Protocol> StateReportProtocol::protocol(void)
 {
     QList<Protocol> temp;
     temp.append(Protocol::StateReportProtocol);
     return temp;
 }
 
-void stateReportProtocol::reset(void)
-{
-    _stateReports.clear();
-    _stateReportNames.clear();
-}
-
-void stateReportProtocol::parseGroup0Report(busMessage msg)
-{
-    for(uint8_t i = 0; i< msg.data.size(); i++)
-    {
-        state_t state0 = static_cast<state_t>((msg.data.at(i)&0x0F));
-        state_t state1 = static_cast<state_t>(((msg.data.at(i)>>4)&0x0F));
-
-        _stateReports[i*2] = state0;
-        _stateReports[i*2+1] = state1;
-    }
-
-    emit stateChange();
-}
-
-void stateReportProtocol::parseIndividualReport(busMessage msg)
-{
-    for(uint8_t i = 0; i< msg.data.size(); i += 2)
-    {
-        uint8_t channel = static_cast<uint8_t>(msg.data.at(i));
-        state_t state = static_cast<state_t>(msg.data.at(i+1));
-
-        _stateReports[channel] = state;
-    }
-
-    emit stateChange();
-}
-
-void stateReportProtocol::parseStateNameReport(busMessage msg)
-{
-    uint8_t channelNr = static_cast<uint8_t>(msg.data.at(0));
-    QString name = msg.data.remove(0,1);
-    _stateReportNames[channelNr] = name;
-
-    emit stateReportListChange();
-}
-
-void stateReportProtocol::requestStateReportChannelNames(void)
+void StateReportProtocol::requestSignalInformation()
 {
     busMessage msg;
 
     msg.protocol = Protocol::StateReportProtocol;
-    msg.command = stateReportChannelNameRequest;
-
-    for (uint8_t i = 0; i<64; i++)
-    {
-        msg.data.append(static_cast<char>(i));
-    }
+    msg.command = Command::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
-void stateReportProtocol::requestState(uint8_t channel)
+void StateReportProtocol::requestSlotInformation()
 {
     busMessage msg;
 
     msg.protocol = Protocol::StateReportProtocol;
-    msg.command = stateReportRequest;
-    msg.data.append(static_cast<char>(channel));
+    msg.command = Command::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
-void stateReportProtocol::requestStateAll(void)
+void StateReportProtocol::requestAllState()
 {
     busMessage msg;
 
     msg.protocol = Protocol::StateReportProtocol;
-    msg.command = stateReportRequest;
-
-    foreach(uint8_t channel, _stateReports.keys())
-    {
-        msg.data.append(static_cast<char>(channel));
-    }
+    msg.command = Command::StateRequest;
 
     sendMessage(msg);
 }
 
-QMap<uint8_t, QString> stateReportProtocol::stateReportNames() const
+void StateReportProtocol::reset(void)
 {
-    return _stateReportNames;
+    _stateReportSignal.clear();
+    _stateReportSlot.clear();
 }
 
-QMap<uint8_t, stateReportProtocol::state_t> stateReportProtocol::stateReports() const
+QList<StateReportProtocol::StateReportSignal *> StateReportProtocol::stateReportSignls()
 {
-    return _stateReports;
+    QList<StateReportProtocol::StateReportSignal *> output;
+    for(auto &item: _stateReportSignal){
+        output.append(&item);
+    }
+    return output;
+}
+
+QList<StateReportProtocol::StateReportSlot *> StateReportProtocol::stateReportSlots()
+{
+    QList<StateReportProtocol::StateReportSlot *> output;
+    for(auto &item: _stateReportSlot){
+        output.append(&item);
+    }
+    return output;
+}
+
+QMap<uint16_t, StateReportProtocol::StateReportSignal> StateReportProtocol::stateReportSignalMap() const
+{
+    return _stateReportSignal;
+}
+
+QMap<uint16_t, StateReportProtocol::StateReportSlot> StateReportProtocol::stateReportSlotMap() const
+{
+    return _stateReportSlot;
+}
+
+void StateReportProtocol::_parseStateReport(busMessage msg)
+{
+    for(uint8_t i = 0; i < msg.data.length(); i+=3)
+    {
+        uint16_t channel = getUint16(msg.data.mid(i,2), 0);
+        StateReportProtocol::SignalState state = (StateReportProtocol::SignalState) msg.data.at(i+2);
+
+        _signalState[channel] = state;
+        emit signalStateChnage(channel, state);
+    }
+}
+
+void StateReportProtocol::_parseSignalInformationReport(busMessage msg)
+{
+    StateReportSignal signal;
+    signal.channel = getUint16(msg.data,0);
+    signal.interval = getUint16(msg.data,2);
+    signal.description = msg.data.remove(0,4);
+
+    _stateReportSignal[signal.channel] = signal;
+
+    emit signalListChange();
+}
+
+void StateReportProtocol::_parseSlotInformationReport(busMessage msg)
+{
+    StateReportSlot slot;
+    slot.channel = getUint16(msg.data,0);
+    slot.timeout = getUint16(msg.data,2);
+    slot.description = msg.data.remove(0,4);
+
+    _stateReportSlot[slot.channel] = slot;
+
+    emit slotListChange();
 }

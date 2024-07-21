@@ -28,8 +28,6 @@ void busMonitor::on_newMessage(busMessage msg)
     if(!ui->listWidget->hasFocus()){
         ui->listWidget->scrollToBottom();
     }
-
-
 }
 
 void busMonitor::on_clearButton_clicked()

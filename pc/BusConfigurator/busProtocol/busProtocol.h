@@ -30,6 +30,7 @@ protected:
 
     void sendMessage(busMessage msg);
 
+    QByteArray packUint16(uint16_t value);
     QByteArray packUint32(uint32_t value);
     QByteArray packFloat32(float value);
 };

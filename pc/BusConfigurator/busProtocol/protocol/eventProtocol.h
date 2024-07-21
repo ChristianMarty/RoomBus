@@ -1,5 +1,5 @@
-#ifndef EVENTPROTOCOL_H
-#define EVENTPROTOCOL_H
+#ifndef EVENT_PROTOCOL_H
+#define EVENT_PROTOCOL_H
 
 #include <QObject>
 #include <QMap>
@@ -7,28 +7,42 @@
 #include "protocol/protocol.h"
 
 
-class eventSlot
-{
-public:
-    QString name;
-    uint8_t channel;
-    uint16_t timeout;
-    uint8_t sourceAddress;
-    bool active;
-};
-
-class eventProtocol : public BusProtocol
+class EventProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
 
-    eventProtocol(busDevice *device);
+    enum Command {
+        Event,
+        Reserved0,
+        Reserved1,
+        Reserved2,
+
+        SignalInformationReport,
+        SlotInformationReport,
+        SignalInformationRequest,
+        SlotInformationRequest
+    };
+
+    struct EventSignal {
+        uint16_t channel;
+        QString description;
+        uint16_t interval;
+    };
+
+    struct EventSlot {
+        uint16_t channel;
+        QString description;
+        uint16_t timeout;
+    };
+
+    EventProtocol(busDevice *device);
 
     void pushData(busMessage msg);
     QList<Protocol> protocol(void);
 
-    void requestEventSignalNames(void);
-    void requestEventSlotNames(void);
+    void requestSignalInformation(void);
+    void requestSlotInformation(void);
 
     void resetEventTimeout(QList<uint8_t>eventChannels);
     void resetEventTimeout(uint8_t eventChannel);
@@ -38,19 +52,24 @@ public:
     void sendEvent(QList<uint8_t>eventChannels);
     void sendEvent(uint8_t eventChannel);
 
-    QList<eventSlot*> eventSlots();
+    void reset(void);
+
+    QList<EventProtocol::EventSlot*> eventSlots();
+    QList<EventProtocol::EventSignal*> eventSignls();
 
 signals:
     void eventSignalReceived(QList<uint8_t>triggerSignal);
+
     void eventSignalListChange(void);
     void eventSlotListChange(void);
 
 private:
-    QMap<uint8_t, eventSlot> _eventSlots;
+    QMap<uint16_t, EventProtocol::EventSlot> _eventSlot;
+    QMap<uint16_t, EventProtocol::EventSignal> _eventSignal;
 
-    void parseEventSignal(busMessage msg);
-    void parseEventSignalNameReport(busMessage msg);
-    void parseEventSlotNameReport(busMessage msg);
+    void _parseEvent(busMessage msg);
+    void _parseSignalInformationReport(busMessage msg);
+    void _parseSlotInformationReport(busMessage msg);
 };
 
-#endif // EVENTPROTOCOL_H
+#endif // EVENT_PROTOCOL_H

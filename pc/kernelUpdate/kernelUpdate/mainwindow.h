@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "../../QCodebase/hexFileParser.h"
+#include "../../QuCLib/source/hexFileParser.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,10 +31,10 @@ private:
     void _loadUpdater(void);
     void _loadKernel(void);
 
-    hexFileParser _updaterBinary;
-    hexFileParser _kernelBinary;
+    QuCLib::HexFileParser _updaterBinary;
+    QuCLib::HexFileParser _kernelBinary;
 
-    hexFileParser _output;
+    QuCLib::HexFileParser _output;
 
     QString _savePath;
 };

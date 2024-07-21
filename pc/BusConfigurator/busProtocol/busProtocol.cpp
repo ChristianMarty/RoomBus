@@ -18,6 +18,7 @@ void BusProtocol::sendMessage(busMessage msg)
     _device->dataReady(msg);
 }
 
+
 uint8_t BusProtocol::getUint8(QByteArray data, uint32_t index)
 {
     return static_cast<uint8_t>(data.at(index));
@@ -60,6 +61,15 @@ QByteArray BusProtocol::packUint32(uint32_t value)
     QByteArray temp;
     temp.append(static_cast<char>(static_cast<uint8_t>(value>>24)));
     temp.append(static_cast<char>(static_cast<uint8_t>(value>>16)));
+    temp.append(static_cast<char>(static_cast<uint8_t>(value>>8)));
+    temp.append(static_cast<char>(static_cast<uint8_t>(value)));
+
+    return temp;
+}
+
+QByteArray BusProtocol::packUint16(uint16_t value)
+{
+    QByteArray temp;
     temp.append(static_cast<char>(static_cast<uint8_t>(value>>8)));
     temp.append(static_cast<char>(static_cast<uint8_t>(value)));
 

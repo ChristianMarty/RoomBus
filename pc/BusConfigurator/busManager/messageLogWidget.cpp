@@ -41,8 +41,9 @@ void messageLogWidget::addMessage(LogMessage msg)
     else if(msg.messageType == LogMessage::appError && (_filter & 0x40))  temp.append("<font color=\"Red\">");
     else return;
 
-    temp.append(msg.time.toString("hh:mm:ss"));
+    temp.append(msg.receiveTime.toString("hh:mm:ss"));
     temp.append(" : ");
+    temp.append(QString::number(msg.tickTime).rightJustified(10,'0')+"ms - ");
     temp.append(msg.massage);
     temp.append("</font><br>");
 

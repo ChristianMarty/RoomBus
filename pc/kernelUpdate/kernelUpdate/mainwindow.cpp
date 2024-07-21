@@ -48,7 +48,7 @@ void MainWindow::on_merge_button_clicked()
     _output.clear();
     _output.insert(_updaterBinary.binary().at(0));
 
-    hexFileParser::binaryChunk kernel = _kernelBinary.binary().at(0);
+    QuCLib::HexFileParser::binaryChunk kernel = _kernelBinary.binary().at(0);
     kernel.offset += _newKernelOffset;
 
     _output.insert(kernel);

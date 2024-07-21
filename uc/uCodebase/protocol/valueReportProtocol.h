@@ -81,7 +81,7 @@ void vrp_mainHandler(const kernel_t *kernel, const valueReportProtocol_t* vrp) ;
 
 
 
-void vrp_receiveHandler(const kernel_t *kernel, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
+bool vrp_receiveHandler(const kernel_t *kernel, const valueReportProtocol_t* vrp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
 
 void vrp_sendValues(const kernel_t *kernel, const valueReportProtocol_t* vrp);
 

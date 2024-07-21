@@ -23,8 +23,8 @@
 <document-page 
     title="RoomBus" 
     subtitle="System documentation" 
-    footer="christian-marty.ch/RoomBus"
-    link="https://www.christian-marty.ch/RoomBus/index.html"
+    footer="christian-marty.ch/RoomBus/documentation/index.html"
+    link="https://www.christian-marty.ch/RoomBus/documentation/index.html"
 >
     <h1>RoomBus</h1>
     <p>RoomBus is a CAN-FD based bus for room monitoring and control.</p>
@@ -205,11 +205,11 @@
     
     <h3>LEDs</h3>
     <p>Every bus node should be equipped with 3 LEDs, colored red, green and blue. These can either be three individual LEDs or one RGB-LED.</p>
-
-    <li>Red: Data Received and processed</li>
-    <li>Green: Data Transmit</li>
-    <li>Blue: Administration Mode is enabled</li>
-
+    <ul>
+        <li>Red: Data Received and processed</li>
+        <li>Green: Data Transmit</li>
+        <li>Blue: Administration Mode is enabled</li>
+    </ul>
 
     <h2>Data Link Layer</h2>
     <p>RoomBus uses CAN-FD with a 29-bit identifier at a fixed baud rate of 500k-baud.</p>
@@ -280,7 +280,7 @@
             <td>0</td>
             <td>Immediate</td>
             <td>Reserved for alerts. Should not be used by applications.</td>
-        </tr>
+        </tr> 
         <tr>
             <td>1</td>
             <td>High</td>
@@ -301,10 +301,11 @@
 
     <h4>Addressing</h4>
     <p>RoomBus supports an address range of 1 - 126.</p>
-    <li>Address 0 (0h) is reserved as production default.</li>
-    <li>Address 127 (7Fh) is reserved as broadcast address.</li>
-    <li>A broadcast frame will be received and processed by all devices on the bus.</li>
-    
+    <ul>
+        <li>Address 0 (0h) is reserved as production default.</li>
+        <li>Address 127 (7Fh) is reserved as broadcast address.</li>
+        <li>A broadcast frame will be received and processed by all devices on the bus.</li>
+    </ul>
 
     <h4>Protocol Id</h4>
     <p>The protocol id is a 6-bit (0-63) number that specifies the used application protocol.</p>
@@ -411,7 +412,7 @@
         </tr>
         <tr>
             <td>1</td>
-            <td>Sys Msg / Logging</td>
+            <td>Message Log Protocol</td>
             <td>Allows to send text based messages from the device to e.g. a logging server.</td>
         </tr>
         <tr>
@@ -1048,8 +1049,8 @@
 </document-page>
 
 <document-page>
-    <h3>Messages Log Protocol</h3>
-    <p>The messages log protocol allows to send text messages for logging and diagnostic purposes from the device to a host.</p>
+    <h3>Message Log Protocol</h3>
+    <p>The message log protocol allows to send text messages for logging and diagnostic purposes from the device to a host.</p>
     <p>Messages must be encoded as ANSI string.</p>
     <p>The message length is limited to 60 characters.</p>
     <p><b>Protocol Id:</b> 1 (1h)</p>
@@ -1068,21 +1069,27 @@
     <li>0x07 – Reserved</li>
 
     <h4>Payload</h4>
-    <p>Byte 0 - 4 is reserved. Those bytes must be set to 0.</p>
-    <p>Byte 4 - 63 can be used for the message.</p>
-    <table>
+    <p>Byte 0 - 3 is the system tick time. This value represents the number of milliseconds since the device started.</p>
+    <p>Byte 4 - 7 is reserved. Those bytes must be set to 0.</p>
+    <p>Byte 8 - 63 can be used for the message.</p>
+    <table style="table-layout : fixed; border: none;">
         <tr>
             <th>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
             <th>3</th>
-            <th>4 - 63</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th colspan="6">8 - 63</th>
         </tr>
         <tr>
             <th>Data</th>
+            <td colspan="4" >System Tick Time</td>
             <td colspan="4" >Reserved</td>
-            <td>Message</td>
+            <td colspan="6">Message</td>
         </tr>
     </table>
 
@@ -1185,7 +1192,9 @@
             <td></td>
         </tr>
     </table>
+</document-page>
 
+<document-page>
     <h5>Response (0x01)</h5>
     <table>
         <tr>
@@ -1346,17 +1355,38 @@
     <p>This protocol accepts inbound traffic and generates outbound traffic.</p>
 
     <h4>Commands </h4>
-    <li>0x00 – Trigger Slot</li>
-    <li>0x01 – Trigger Signal Name Report</li>
-    <li>0x02 – Trigger Slot Name Report</li>
-    <li>0x03 – Trigger Signal Name Request</li>
-    <li>0x04 – Trigger Slot Name Request</li>
-    <li>0x05 – Reserved</li>
-    <li>0x06 – Reserved</li>
-    <li>0x07 – Reserved</li>
+    <li>0x00 – Trigger</li>
+    <li>0x01 – Reserved</li>
+    <li>0x02 – Reserved</li>
+    <li>0x03 – Reserved</li>
+    <li>0x04 – Trigger Signal Information Report</li>
+    <li>0x05 – Trigger Slot Information Report</li>
+    <li>0x06 – Trigger Signal Information Request</li>
+    <li>0x07 – Trigger Slot Information Request</li>
 
-    <h5>Trigger Slot / Trigger Signal Name Request / Trigger Slot Name Request</h5>
-    <p></p>
+    <h5>Trigger</h5>
+    <p>A trigger command holds a list of trigger channels.</p>
+    <p>1 to 32 triggers can be sent in one message.</p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>n</th>
+            <th>n+1</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">Trigger Channel Number</td>
+        </tr>
+    </table>
+</document-page>
+
+<document-page>
+    <h5>Trigger Signal Information Request / Trigger Slot Information Request</h5>
+
+    <p>Upon receipt of a information request, the device will respond with a information report.</p>
+    <p>The payload of the information request can either contain a list of the requested trigger channel numbers or be left empty.</p>
+    <p>In case of an empty payload, a trigger information report for all configured trigger signals or slots will be returned respectively.</p>
+    
     <table style="table-layout: fixed;">
         <tr>
             <th style="width: 100px;">Byte</th>
@@ -1369,39 +1399,35 @@
         </tr>
     </table>
 
-    <h5>Trigger Signal Name Report</h5>
+    <h5>Trigger Signal Information Report</h5>
     <p></p>
     <table style="table-layout: fixed;">
         <tr>
             <th style="width: 100px;">Byte</th>
             <th>0</th>
             <th>1</th>
-            <th>2</th>
-            <th>3-n</th>
+            <th>2+n</th>
         </tr>
         <tr>
             <th>Data</th>
-            <td>Destination Address</td>
             <td colspan="2">Trigger Channel Number</td>
-            <td>Channel Name</td>
+            <td>Channel Description</td>
         </tr>
     </table>
-  
-    <h5>Trigger Slot Name Report</h5>
+
+    <h5>Trigger Slot Information Report</h5>
     <p></p>
     <table style="table-layout: fixed;">
         <tr>
             <th style="width: 100px;">Byte</th>
             <th>0</th>
             <th>1</th>
-            <th>2</th>
-            <th>3-n</th>
+            <th>2+n</th>
         </tr>
         <tr>
             <th>Data</th>
-            <td>Source Address</td>
             <td colspan="2">Trigger Channel Number</td>
-            <td>Channel Name</td>
+            <td>Channel Description</td>
         </tr>
     </table>
 </document-page>
@@ -1415,52 +1441,72 @@
     <p>This protocol accepts inbound traffic and generates outbound traffic.</p>
 
     <h4>Commands </h4>
-    <li>0x00 – Event Slot</li>
-    <li>0x01 – Event Signal Name Report</li>
-    <li>0x02 – Event Slot Name Report</li>
-    <li>0x03 – Event Signal Name Request</li>
-    <li>0x04 – Event Slot Name Request</li>
-    <li>0x05 – Event Timeout Reset Request</li>
-    <li>0x06 – Reserved</li>
-    <li>0x07 – Reserved</li>
+    <li>0x00 – Event</li>
+    <li>0x01 – Reserved</li>
+    <li>0x02 – Reserved</li>
+    <li>0x03 – Reserved</li>
+    <li>0x04 – Event Signal Information Report</li>
+    <li>0x05 – Event Slot Information Report</li>
+    <li>0x06 – Event Signal Information Request</li>
+    <li>0x07 – Event Slot Information Request</li>
 
-    <h5>Event Slot (0x00)</h5>
-    <p>The event slot message contains a list channels of currently active events.</p>
-    <table>
+    <h5>Event Slot</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
         <tr>
-            <th>Byte</th>
-        </tr>
-        <tr>
+            <th style="width: 100px;">Byte</th>
             <th>n</th>
+            <th>n+1</th>
         </tr>
         <tr>
-            <td>Event Channel Number</td>
+            <th>Data</th>
+            <td colspan="2">Event Channel Number</td>
         </tr>
     </table>
+</document-page>
 
-    <h5>Event Signal Name Reporting (0x01)</h5>
-    <table>
+<document-page>
+    <h5>Event Signal Information Request / Event Slot Information Request</h5>
+
+    <p>Upon receipt of a information request, the device will respond with a information report.</p>
+    <p>The payload of the information request can either contain a list of the requested event channel numbers or be left empty.</p>
+    <p>In case of an empty payload, a event information report for all configured event signals or slots will be returned respectively.</p>
+    
+    <table style="table-layout: fixed;">
         <tr>
-            <th colspan="3">Byte</th>
+            <th style="width: 100px;">Byte</th>
+            <th>n</th>
+            <th>n+1</th>
         </tr>
         <tr>
+            <th>Data</th>
+            <td colspan="2">Event Channel Number</td>
+        </tr>
+    </table>
+    <h5>Event Signal Information Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
             <th>0</th>
             <th>1</th>
-            <th>2-n</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4-n</th>
         </tr>
         <tr>
-            <td>Destination Address</td>
-            <td>Event Channel Nr</td>
+            <th>Data</th>
+            <td colspan="2">Event Channel Number</td>
+            <td colspan="2" >Interval</td>
             <td>Channel Name</td>
         </tr>
     </table>
   
-    <h5>Event Slot Name Reporting (0x02)</h5>
-    <table>
+    <h5>Event Slot Information Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
         <tr>
-            <th colspan="5">Byte</th>
-        </tr>
-        <tr>
+            <th style="width: 100px;">Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -1468,82 +1514,48 @@
             <th>4-n</th>
         </tr>
         <tr>
-            <td>Source Address</td>
-            <td>Event Channel Nr</td>
+            <th>Data</th>
+            <td colspan="2">Event Channel Number</td>
             <td colspan="2" >Timeout</td>
             <td>Channel Name</td>
         </tr>
     </table>
-
-    <h5>Event Signal Name Request (0x03) / Event Slot Name Request (0x04)</h5>
-    <table>
-        <tr>
-            <th>Byte</th>
-        </tr>
-        <tr>
-            <th>n</th>
-        </tr>
-        <tr>
-            <td>Event Channel Number</td>
-        </tr>
-    </table>
-
-    <h5>Event Timeout Reset Request (0x05)</h5>
-    <p>This command resets the event repetition timeout counter. All currently active events will be reported.</p>
-    <table>
-        <tr>
-            <th colspan="5">Byte</th>
-        </tr>
-        <tr>
-            <th>0</th>
-            <th>1</th>
-            <th>2</th>
-            <th>3</th>
-            <th>4-n</th>
-        </tr>
-        <tr>
-            <td>Source Address</td>
-            <td>Event Channel Nr</td>
-            <td colspan="2" >Timeout</td>
-            <td>Channel Name</td>
-        </tr>
-    </table>
-
 </document-page>
 
 <document-page>
-    <h3>State Report Protocol (ID 0x0A)</h3>
+    <h3>State Report Protocol</h3>
+    <p>The state report protocol allows the distribution of a device state on the system.</p>
+    <p><b>Protocol Id:</b> 10 (Ah)</p>
+
+    <h4>Information Flow</h4>
+    <p>This protocol accepts inbound traffic and generates outbound traffic.</p>
+
     <h4>Commands </h4>
-    <li>0x00 – Group 0 Report (Channels 0-127)</li>
-    <li>0x01 – Group 1 Report (Channels 128-255)</li>
+    <li>0x00 – State Report</li>
+    <li>0x01 – State Request</li>
     <li>0x02 – Reserved</li>
     <li>0x03 – Reserved</li>
-    <li>0x04 – Individual State Report</li>
-    <li>0x05 – State Report Request</li>
-    <li>0x06 – State Report Channel Name Reporting</li>
-    <li>0x07 – State Report Channel Name Request</li>
+    <li>0x04 – State Signal Information Report</li>
+    <li>0x05 – State Slot Information Report</li>
+    <li>0x06 – State Signal Information Request</li>
+    <li>0x07 – State Slot Information Request</li>
 
-    <h4>Group 0 Report (0x00) / (0x01)</h4>
-    <table>
+    <h5>State Report</h5>
+    <table style="table-layout: fixed;">
         <tr>
-            <th colspan="3">Byte</th>
+            <th style="width: 100px;">Byte</th>
+            <th>n</th>
+            <th>n+1</th>
+            <th>n+2</th>
         </tr>
         <tr>
-            <th colspan="3">n</th>
-        </tr>
-        <tr>
-            <th>Bit</th>
-            <th>7:4</th>
-            <th>3:0</th>
-        </tr>
-        <tr>
-            <td></td>
-            <td>Channel 0+n*2</td>
-            <td>Channel 1+n*2</td>
+            <th>Data</th>
+            <td colspan="2">State Channel Number</td>
+            <td>State Code</td>
         </tr>
     </table>
 
-    <h5>State</h5>
+    <h6>State Code</h6>
     <table>
         <tr>
             <th>Code</th>
@@ -1570,65 +1582,115 @@
             <td>Undefined / Error</td>
             <td>State is unclear or error</td>
         </tr>
+        <tr>
+            <td>4-255</td>
+            <td>Reserved</td>
+            <td></td>
+        </tr>
     </table>
 </document-page>
 
 <document-page>
-    <h3>Value Report Protocol (ID 0x0B)</h3>
+    <h5>State Request / State Signal Information Request / State Slot Information Request</h5>
 
-    <h4>Value Reporting (0x00)</h4>
-    <table>
+    <p>Upon receipt of a request, the device will respond with a report.</p>
+    <p>The payload of the request can either contain a list of the requested event channel numbers or be left empty.</p>
+    <p>In case of an empty payload, a report for all configured signals or slots will be returned respectively.</p>
+    
+    <table style="table-layout: fixed;">
         <tr>
-            <th colspan="6">Byte</th>
+            <th style="width: 100px;">Byte</th>
+            <th>n</th>
+            <th>n+1</th>
         </tr>
         <tr>
-            <th></th>
-            <th >0</th>
-            <th colspan="2">1</th>
-            <th >2-5</th>
+            <th>Data</th>
+            <td colspan="2">State Channel Number</td>
+        </tr>
+    </table>
+    <h5>State Signal Information Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2+n</th>
         </tr>
         <tr>
-            <th>Bit</th>
-            <th>7:0</th>
-            <th>7:4</th>
-            <th>3:0</th>
-            <th>7:0</th>
+            <th>Data</th>
+            <td colspan="2">State Channel Number</td>
+            <td>Channel Name</td>
+        </tr>
+    </table>
+  
+    <h5>State Slot Information Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2+n</th>
         </tr>
         <tr>
-            <td></td>
-            <td colspan="2">Channel Nr</td>
-            <td>Data Type</td>
+            <th>Data</th>
+            <td colspan="2">State Channel Number</td>
+            <td>Channel Name</td>
+        </tr>
+    </table>
+</document-page>
+
+<document-page>
+    <h3>Value Report Protocol</h3>
+
+    <p>The value report protocol allows the distribution of a device value on the system.</p>
+    <p><b>Protocol Id:</b> 11 (Bh)</p>
+
+    <h4>Information Flow</h4>
+    <p>This protocol accepts inbound traffic and generates outbound traffic.</p>
+
+    <h4>Commands </h4>
+    <li>0x00 – Value Report</li>
+    <li>0x01 – Value Request</li>
+    <li>0x02 – Value Command</li>
+    <li>0x03 – Reserved</li>
+    <li>0x04 – Value Signal Information Report</li>
+    <li>0x05 – Value Slot Information Report</li>
+    <li>0x06 – Value Signal Information Request</li>
+    <li>0x07 – Value Slot Information Request</li>
+
+    <h5>Value Report</h5>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2+n</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">Value Channel Number</td>
             <td>Value</td>
         </tr>
     </table>
 
-    <h4>Value Command (0x01)</h4>
-    <table>
+    <h5>Value Command</h5>
+    <table style="table-layout: fixed;">
         <tr>
-            <th colspan="6">Byte</th>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2+n</th>
         </tr>
         <tr>
-            <th></th>
-            <th >0</th>
-            <th colspan="2">1</th>
-            <th >2-5</th>
-        </tr>
-        <tr>
-            <th>Bit</th>
-            <th>7:0</th>
-            <th>7:4</th>
-            <th>3:0</th>
-            <th>7:0</th>
-        </tr>
-        <tr>
-            <td></td>
-            <td colspan="2">Channel Nr</td>
-            <td>Data Type</td>
+            <th>Data</th>
+            <td colspan="2">Value Channel Number</td>
             <td>Value</td>
         </tr>
     </table>
 
-    <h5>Commands</h5>
+    <h5>Commands - old</h5>
     <table>
         <tr>
             <th>Index</th>
@@ -1698,46 +1760,294 @@
         </tr>
     </table>
 
-    <h4>Meta Data Reporting (0x02)</h4>
-    <table>
+</document-page>
+
+<document-page>
+    <h5>Value Signal Information Request / Value Slot Information Request</h5>
+
+    <p>Upon receipt of a information request, the device will respond with a information report.</p>
+    <p>The payload of the information request can either contain a list of the requested event channel numbers or be left empty.</p>
+    <p>In case of an empty payload, a information report for all configured signals or slots will be returned respectively.</p>
+    
+    <table style="table-layout: fixed;">
         <tr>
-            <th colspan="6">Byte</th>
+            <th style="width: 100px;">Byte</th>
+            <th>n</th>
+            <th>n+1</th>
         </tr>
         <tr>
-            <th>0</th>
-            <th colspan="2">1</th>
-            <th>2-5</th>
-            <th>6-9</th>
-            <th>10-n</th>
-        </tr>
-        <tr>
-            <th>7:0</th>
-            <th>7</th>
-            <th>6:0</th>
-            <th>7:0</th>
-            <th>7:0</th>
-            <th>7:0</th>
-        </tr>
-        <tr>
-            <td>Channel Nr</td>
-            <td>RO</td>
-            <td>UoM</td>
-            <td>Min Value</td>
-            <td>Max Value</td>
-            <td>Name</td>
+            <th>Data</th>
+            <td colspan="2">State Channel Number</td>
         </tr>
     </table>
-
-    <h4>Value Request (0x03) / Meta Data Request (0x04)</h4>
-    <p>If no channel number is specified, a report for all channels is returned</p>
-    <table>
+    <h5>Value Signal Information Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
         <tr>
-            <th>Byte</th>
-            <th>n</th>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3+n</th>
         </tr>
         <tr>
+            <th>Data</th>
+            <td colspan="2">State Channel Number</td>
+            <td>Unit of Measurement</td>
+            <td>Channel Name</td>
+        </tr>
+    </table>
+  
+    <h5>Value Slot Information Report</h5>
+    <p></p>
+    <table style="table-layout: fixed;">
+        <tr>
+            <th style="width: 100px;">Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3+n</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">State Channel Number</td>
+            <td>Unit of Measurement</td>
+            <td>Channel Name</td>
+        </tr>
+    </table>
+</document-page>
+
+<document-page>
+    <h4>Unit of Measurements</h4>
+    <p>For data type definitions, see chapter  "Datatypes"</p>
+    <table>
+        <tr>
+            <th>UoM Code</th>
+            <th>Symbol</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Size [Byte]</th>
+            <th>Note</th>
+        </tr>
+        <tr>
+            <td>0x00</td>
             <td></td>
-            <td>Channel Nr</td>
+            <td>Generic Boolean</td>
+            <td>Bool</td>
+            <td>1</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x01</td>
+            <td></td>
+            <td>Generic String</td>
+            <td>String</td>
+            <td>1-64</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x02</td>
+            <td></td>
+            <td>Generic Byte</td>
+            <td>Byte</td>
+            <td>1</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x03</td>
+            <td></td>
+            <td>Generic Integer</td>
+            <td>Integer</td>
+            <td>2</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x04</td>
+            <td></td>
+            <td>Generic Long</td>
+            <td>Long</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x05</td>
+            <td></td>
+            <td>Generic sByte</td>
+            <td>sByte</td>
+            <td>1</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x06</td>
+            <td></td>
+            <td>Generic sInteger</td>
+            <td>sInteger</td>
+            <td>2</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x07</td>
+            <td></td>
+            <td>Generic sLong</td>
+            <td>sLong</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x08</td>
+            <td></td>
+            <td>Generic Number</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>0x09</td>
+            <td></td>
+            <td>State</td>
+            <td>Byte</td>
+            <td>1</td>
+            <td>See chapter "State Code"</td>
+        </tr>
+        <tr>
+            <td colspan="6"></td>
+        </tr>
+        <tr>
+            <td>0x10</td>
+            <td></td>
+            <td>Absolute Time</td>
+            <td>Long</td>
+            <td>4</td>
+            <td>Unix time as 32 bit unsigned int</td>
+        </tr>
+        <tr>
+            <td>0x11</td>
+            <td>s</td>
+            <td>Relative Time</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x12</td>
+            <td>°C</td>
+            <td>Temperature</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x13</td>
+            <td>%</td>
+            <td>Rel. Humidity</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x14</td>
+            <td>kPa</td>
+            <td>Pressure</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x15</td>
+            <td>V</td>
+            <td>Voltage</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x16</td>
+            <td>A</td>
+            <td>Current</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x17</td>
+            <td>W</td>
+            <td>Power</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x18</td>
+            <td></td>
+            <td>Power Factor</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x19</td>
+            <td>Hz</td>
+            <td>Frequency</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x1A</td>
+            <td>kWh</td>
+            <td>Energy</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x1B</td>
+            <td>Ω</td>
+            <td>Resistance</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x1C</td>
+            <td>F</td>
+            <td>Capacitance</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x1D</td>
+            <td>N</td>
+            <td>Force</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x1E</td>
+            <td>kg</td>
+            <td>Weight</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x1F</td>
+            <td>m</td>
+            <td>Length</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>0x20</td>
+            <td>m/s</td>
+            <td>Speed</td>
+            <td>Number</td>
+            <td>4</td>
+            <td></td>
         </tr>
     </table>
 </document-page>
@@ -1835,171 +2145,6 @@
     <p>This command will return a list of available ports. The Data field is empty.</p>
 </document-page>
 
-<document-page>
-    <h2>Unit of Measurements</h2>
-    <table>
-        <tr>
-            <th>UoM Code</th>
-            <th>Symbol</th>
-            <th>Description</th>
-            <th>Data Type</th>
-            <th>Size [Byte]</th>
-            <th>Note</th>
-        </tr>
-        <tr>
-            <td>0x00</td>
-            <td></td>
-            <td>Raw Data</td>
-            <td>uint32</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x01</td>
-            <td></td>
-            <td>Digital I/O</td>
-            <td>Boolean</td>
-            <td>1</td>
-            <td>0x00 Off, 0x01 On, 0x02 Transitioning</td>
-        </tr>
-        <tr>
-            <td>0x02</td>
-            <td></td>
-            <td>Absolute Time</td>
-            <td>uint32</td>
-            <td>4</td>
-            <td>Unix time as 32 bit unsigned int</td>
-        </tr>
-        <tr>
-            <td>0x03</td>
-            <td>s</td>
-            <td>Relative Time</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x04</td>
-            <td>°C</td>
-            <td>Temperature</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x05</td>
-            <td>%</td>
-            <td>Rel. Humidity</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x06</td>
-            <td>kPa</td>
-            <td>Pressure</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x07</td>
-            <td>V</td>
-            <td>Voltage</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x08</td>
-            <td>A</td>
-            <td>Current</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x09</td>
-            <td>W</td>
-            <td>Power</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x0A</td>
-            <td></td>
-            <td>Power Factor</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x0B</td>
-            <td>Hz</td>
-            <td>Frequency</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x0C</td>
-            <td>kWh</td>
-            <td>Energy</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x0D</td>
-            <td>Ω</td>
-            <td>Resistance</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x0E</td>
-            <td>F</td>
-            <td>Capacitance</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x0F</td>
-            <td>N</td>
-            <td>Force</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x10</td>
-            <td>kg</td>
-            <td>Weight</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x11</td>
-            <td>m</td>
-            <td>Length</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x12</td>
-            <td>m/s</td>
-            <td>Speed</td>
-            <td>Float</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-    </table>
-</document-page>
 
 </div>
 </body>

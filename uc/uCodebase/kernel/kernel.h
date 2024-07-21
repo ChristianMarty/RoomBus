@@ -145,8 +145,8 @@ typedef struct {
 		
 }kernel_t;
 
-typedef int (*appMain_t)(const kernel_t *kernel);
-typedef void (*onReceive_t)(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
+typedef int (*appMain_t)(void);
+typedef bool (*onReceive_t)(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
 
 typedef struct {
 	uint32_t appCRC;
@@ -158,8 +158,16 @@ typedef struct {
  	onReceive_t onRx;
 }appHead_t;
 
+
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* APP_DEFINES_H_ */
+
+
+#ifndef KERNEL_H_
+#define KERNEL_H_
+
+extern kernel_t kernel;
+
+#endif /* KERNEL_H_ */

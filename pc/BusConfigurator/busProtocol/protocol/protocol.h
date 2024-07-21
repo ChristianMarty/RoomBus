@@ -67,30 +67,39 @@ enum FileTransferCommand {
 };
 
 enum TriggerCommand {
-    TP_Slot = 0x00,
-    TP_SignalNameReport = 0x01,
-    TP_SlotNameReport = 0x02,
-    TP_SignalNameRequest = 0x03,
-    TP_SlotNameRequest = 0x04,
+    TP_Trigger,
+    TP_Reserved0,
+    TP_Reserved1,
+    TP_Reserved2,
+
+    TP_SignalInformationReport,
+    TP_SlotInformationReport,
+    TP_SignalInformationRequest,
+    TP_SlotInformationRequest
 };
 
 enum EventCommand {
-    EP_Slot = 0x00,
-    EP_SignalNameReport = 0x01,
-    EP_SlotNameReport = 0x02,
-    EP_SignalNameRequest = 0x03,
-    EP_SlotNameRequest = 0x04,
-    EP_TimeoutResetRequest = 0x05
+    EP_Event,
+    EP_Reserved0,
+    EP_Reserved1,
+    EP_Reserved2,
+
+    EP_SignalInformationReport,
+    EP_SlotInformationReport,
+    EP_SignalInformationRequest,
+    EP_SlotInformationRequest
 };
 
 enum StateReportCommand {
-    SRP_Group0Report = 0x00,
-    SRP_Group1Report = 0x01,
+    SRP_State,
+    SRP_StateRequest,
+    SRP_Reserved0,
+    SRP_Reserved1,
 
-    SRP_IndividualStateReport = 0x04,
-    SRP_StateReportRequest = 0x05,
-    SRP_StateReportChannelNameReporting = 0x06,
-    SRP_StateReportChannelNameRequest = 0x07
+    SRP_SignalInformationReport,
+    SRP_SlotInformationReport,
+    SRP_SignalInformationRequest,
+    SRP_SlotInformationRequest
 };
 
 enum ValueReportCommand {

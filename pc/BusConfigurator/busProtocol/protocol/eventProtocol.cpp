@@ -1,67 +1,57 @@
 #include "eventProtocol.h"
 
-eventProtocol::eventProtocol(busDevice *device):BusProtocol(device)
+EventProtocol::EventProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void eventProtocol::pushData(busMessage msg)
+void EventProtocol::pushData(busMessage msg)
 {
     if(msg.protocol == Protocol::EventProtocol)
     {
-        if(msg.command == 0x00) parseEventSignal(msg);
-        if(msg.command == 0x01) parseEventSignalNameReport(msg);
-        else if(msg.command == 0x02) parseEventSlotNameReport(msg);
+        if(msg.command == Command::Event) _parseEvent(msg);
+        else if(msg.command == Command::SignalInformationReport) _parseSignalInformationReport(msg);
+        else if(msg.command == Command::SlotInformationReport) _parseSlotInformationReport(msg);
     }
 }
 
-QList<Protocol> eventProtocol::protocol(void)
+QList<Protocol> EventProtocol::protocol(void)
 {
     QList<Protocol> temp;
-    temp.append(EventProtocol);
+    temp.append(Protocol::EventProtocol);
     return temp;
 }
 
-void eventProtocol::requestEventSignalNames(void)
+void EventProtocol::requestSignalInformation(void)
 {
     busMessage msg;
 
     msg.protocol = Protocol::EventProtocol;
-    msg.command = 0x03;
-
-    for (uint8_t i = 0; i<64; i++)
-    {
-        msg.data.append(static_cast<char>(i));
-    }
+    msg.command = Command::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
-void eventProtocol::requestEventSlotNames(void)
+void EventProtocol::requestSlotInformation(void)
 {
     busMessage msg;
 
     msg.protocol = Protocol::EventProtocol;
-    msg.command = 0x04;
-
-    for (uint8_t i = 0; i<64; i++)
-    {
-        msg.data.append(static_cast<char>(i));
-    }
+    msg.command = Command::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
-void eventProtocol::setActiveState(uint8_t eventChannel, bool active)
+void EventProtocol::setActiveState(uint8_t eventChannel, bool active)
 {
-    if(_eventSlots.contains(eventChannel))
+  /*  if(_eventSlots.contains(eventChannel))
     {
         _eventSlots[eventChannel].active = active;
     }
 
-    sendEvent(eventChannel);
+    sendEvent(eventChannel);*/
 }
 
-void eventProtocol::sendEvent(QList<uint8_t>eventChannels)
+void EventProtocol::sendEvent(QList<uint8_t>eventChannels)
 {
     busMessage msg;
 
@@ -76,7 +66,7 @@ void eventProtocol::sendEvent(QList<uint8_t>eventChannels)
     sendMessage(msg);
 }
 
-void eventProtocol::sendEvent(uint8_t eventChannel)
+void EventProtocol::sendEvent(uint8_t eventChannel)
 {
    QList<uint8_t>eventChannels;
    eventChannels.append(eventChannel);
@@ -84,23 +74,34 @@ void eventProtocol::sendEvent(uint8_t eventChannel)
    sendEvent(eventChannels);
 }
 
-QList<eventSlot*> eventProtocol::eventSlots()
+void EventProtocol::reset()
 {
-    QList<eventSlot*> temp;
+    _eventSlot.clear();
+    _eventSignal.clear();
 
-    QMapIterator<uint8_t, eventSlot> i(_eventSlots);
-
-    while (i.hasNext())
-    {
-        i.next();
-
-        temp.append(&_eventSlots[i.key()]);
-    }
-
-    return temp;
+    emit eventSignalListChange();
+    emit eventSlotListChange();
 }
 
-void eventProtocol::parseEventSignal(busMessage msg)
+QList<EventProtocol::EventSlot *> EventProtocol::eventSlots()
+{
+    QList<EventProtocol::EventSlot *> output;
+    for(auto &item: _eventSlot){
+        output.append(&item);
+    }
+    return output;
+}
+
+QList<EventProtocol::EventSignal *> EventProtocol::eventSignls()
+{
+    QList<EventProtocol::EventSignal *> output;
+    for(auto &item: _eventSignal){
+        output.append(&item);
+    }
+    return output;
+}
+
+void EventProtocol::_parseEvent(busMessage msg)
 {
     QList<uint8_t> eventrSignals;
 
@@ -112,27 +113,26 @@ void eventProtocol::parseEventSignal(busMessage msg)
     emit eventSignalReceived(eventrSignals);
 }
 
-void eventProtocol::parseEventSignalNameReport(busMessage msg)
+void EventProtocol::_parseSignalInformationReport(busMessage msg)
 {
-    uint8_t eventChannel = static_cast<uint8_t>(msg.data.at(0));
-    QString name = msg.data.remove(0,1);
+    EventSignal signal;
+    signal.channel = getUint16(msg.data,0);
+    signal.interval = getUint16(msg.data,2);
+    signal.description = msg.data.remove(0,4);
 
-    _eventSlots[eventChannel].name = name;
+    _eventSignal[signal.channel] = signal;
 
     emit eventSignalListChange();
 }
 
-void eventProtocol::parseEventSlotNameReport(busMessage msg)
+void EventProtocol::_parseSlotInformationReport(busMessage msg)
 {
-    uint8_t eventChannel = static_cast<uint8_t>(msg.data.at(0)); 
-    uint16_t timeout = 0;
-    timeout |= (static_cast<uint16_t>(msg.data.at(1)) << 8);
-    timeout |= (static_cast<uint16_t>(msg.data.at(2)) & 0xFF);
-    QString name = msg.data.remove(0,3);
+    EventSlot slot;
+    slot.channel = getUint16(msg.data,0);
+    slot.timeout = getUint16(msg.data,2);
+    slot.description = msg.data.remove(0,4);
 
-    _eventSlots[eventChannel].name = name;
-    _eventSlots[eventChannel].timeout = timeout;
-    _eventSlots[eventChannel].channel = eventChannel;
+    _eventSlot[slot.channel] = slot;
 
     emit eventSlotListChange();
 }

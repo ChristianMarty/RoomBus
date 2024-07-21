@@ -5,7 +5,8 @@
  * Author : Christian
  */ 
 
-#define APP_START_ADDR 0x10000
+#define APP_START_ADDR   0x10000
+#define KERNEL_H_
 
 #include "sam.h"
 
@@ -49,6 +50,8 @@ volatile uint8_t eememSysSavedSettings EEPROM;
 volatile uint8_t eememAppData[256] EEPROM;
 
 appHead_t *appHead = (appHead_t*)(APP_START_ADDR);
+
+kernel_t kernel __attribute__((section(".kernelCall")));
  
 sysStatusData_t sysStatus;
 sysControlData_t sysControl;
@@ -60,7 +63,7 @@ systemControl_t sysControlHandler ={.sysControl = &sysControl, .sysStatus = &sys
 kernelSignals_t kernelSignals;
 appSignals_t appSignals;
 
-kernel_t kernel;
+
 
 appState_t appState;
 
@@ -195,7 +198,7 @@ void wdt_earlyWarningHandler(void)
 
 
 int main(void)
-{
+ {
 	system_configure();
 	
 	system_init();
@@ -416,7 +419,7 @@ int main(void)
 			volatile uint16_t startTick = sysTick_getTick_us();
 			volatile uint32_t startTime = sysTick_getTickTime();
 			
-			appHead->appRun(&kernel);
+			appHead->appRun();
 			
 			volatile uint32_t endTime = sysTick_getTickTime();
 			volatile uint16_t endTick = sysTick_getTick_us();
@@ -486,7 +489,7 @@ int main(void)
 													
 				default:									if((appState == APP_INIT)||(appState == APP_RUN)||(appState == APP_SHUTDOWN))
 															{
-																appHead->onRx(&kernel, srcAddr, protocol, command, &rx->data[0], length);
+																appHead->onRx(srcAddr, protocol, command, &rx->data[0], length);
 															}
 			}
 		

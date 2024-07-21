@@ -7,6 +7,7 @@ MessageLogProtocol::MessageLogProtocol(busDevice *device):BusProtocol(device)
 void MessageLogProtocol::pushData(busMessage msg)
 {
     if(msg.protocol != Protocol::MessageLogProtocolId) return;
+    if(msg.data.size() < 8) return;
 
     LogMessage temp;
 
@@ -19,22 +20,16 @@ void MessageLogProtocol::pushData(busMessage msg)
     else if(msg.command == 0x06) temp.messageType = LogMessage::appError;
     else if(msg.command == 0x07) temp.messageType = LogMessage::appReserved;
 
-    temp.messageCode = BusProtocol::getUint32(msg.data, 0);
+    temp.tickTime = BusProtocol::getUint32(msg.data, 0);
+    temp.messageCode = BusProtocol::getUint32(msg.data, 4);
 
     QString temp2 = "";
 
-    for(uint8_t i= 0; i<(msg.data.size()-1);i++)
+    for(uint8_t i = 8; i<msg.data.size(); i++)
     {
-        char temp = msg.data.at(1+i);
-
-        // *** Legacy: Remove after kernel update
-        if(i==0&&temp == 0)continue;
-        if(i==1&&temp == 0)continue;
-        if(i==2&&temp == 0)continue;
-        // ***
-
-        if(temp == 0) break;
-        temp2 += temp;
+        char byte = msg.data.at(i);
+        if(byte == 0) break;
+        temp2 += byte;
     }
 
     temp.massage = temp2;

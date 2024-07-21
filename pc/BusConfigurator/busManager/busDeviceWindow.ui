@@ -48,6 +48,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButton_event">
+          <property name="text">
+           <string>Event</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="stateButton">
           <property name="text">
            <string>State</string>

@@ -1,12 +1,10 @@
 #include "valueReportProtocol.h"
 #include "string.h"
 
-
-void vrp_parseMetaDataRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
-void vrp_parseValueRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
-void vrp_parseValueCommand(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
-void vrp_parseValueReport(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
-
+bool parseMetaDataRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
+bool parseValueRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
+bool parseValueCommand(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
+bool parseValueReport(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp);
 
 void vrp_init(const kernel_t *kernel, const valueReportProtocol_t* vrp)
 {
@@ -18,12 +16,16 @@ void vrp_mainHandler(const kernel_t *kernel, const valueReportProtocol_t* vrp)
 	
 }
 
-void vrp_receiveHandler(const kernel_t *kernel, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
+bool vrp_receiveHandler(const kernel_t *kernel, const valueReportProtocol_t* vrp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
 {
-	if(command == vrp_cmd_metaDataRequest) vrp_parseMetaDataRequest(kernel, sourceAddress, data, size, vrp);
-	else if(command == vrp_cmd_valueRequest) vrp_parseValueRequest(kernel, sourceAddress, data, size, vrp);
-	else if(command == vrp_cmd_valueCommand) vrp_parseValueCommand(kernel, sourceAddress, data, size, vrp);
-	else if(command == vrp_cmd_valueReport) vrp_parseValueReport(kernel, sourceAddress, data, size, vrp);
+	switch(command){
+		case vrp_cmd_metaDataRequest: return parseMetaDataRequest(kernel, sourceAddress, data, size, vrp);
+		case vrp_cmd_valueRequest: return parseValueRequest(kernel, sourceAddress, data, size, vrp);
+		case vrp_cmd_valueCommand: return parseValueCommand(kernel, sourceAddress, data, size, vrp);
+		case vrp_cmd_valueReport: return parseValueReport(kernel, sourceAddress, data, size, vrp);
+	}
+	
+	return false;
 }
 
 void vrp_sendMetaData(const kernel_t *kernel, const valueReportProtocol_t* vrp)
@@ -44,7 +46,120 @@ void vrp_sendMetaData(const kernel_t *kernel, const valueReportProtocol_t* vrp)
 	}
 }
 
-void vrp_parseValueReport(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
+
+
+
+void vrp_sendValues(const kernel_t *kernel, const valueReportProtocol_t* vrp)
+{
+	for(uint8_t j = 0; j <vrp->valueSize; j++)
+	{
+		vrp_sendValueReport(kernel, vrp->value[j].channel, *vrp->value[j].value);
+		/*bus_message_t msg;
+		kernel->bus.getMessageSlot(&msg);
+		kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueReport, busPriority_low);
+		
+		kernel->bus.pushByte(&msg, vrp->value[j].channel);
+		kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].value));
+		
+		kernel->bus.send(&msg);*/
+	}
+}
+
+
+
+void vrp_sendValueReport(const kernel_t *kernel, uint8_t channel, float value)
+{
+	bus_message_t msg;
+	kernel->bus.getMessageSlot(&msg);
+
+	kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueReport, busPriority_low);
+	
+	kernel->bus.pushByte(&msg, channel);
+	kernel->bus.pushWord32(&msg, *((uint32_t*)&value));
+	
+	kernel->bus.send(&msg);
+}
+
+void vrp_sendValueCommmand(const kernel_t *kernel, uint8_t channel, valueCommand_t command, float value)
+{
+	bus_message_t msg;
+	kernel->bus.getMessageSlot(&msg);
+
+	kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueCommand, busPriority_normal);
+	
+	kernel->bus.pushByte(&msg, channel);
+	kernel->bus.pushByte(&msg, command);
+	kernel->bus.pushWord32(&msg, *((uint32_t*)&value));
+	
+	kernel->bus.send(&msg);
+}
+
+//**********************************************************************************************************************
+// Private
+//**********************************************************************************************************************
+
+bool parseValueRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
+{
+	if(size == 0)
+	{
+		vrp_sendValues(kernel, vrp);
+		return true;
+	}
+	
+	for(uint8_t i = 0; i < size; i++)
+	{
+		for(uint8_t j = 0; j <vrp->valueSize; j++)
+		{
+			if(data[i] == vrp->value[j].channel)
+			{
+				bus_message_t msg;
+				kernel->bus.getMessageSlot(&msg);
+				kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueReport, busPriority_low);
+				
+				kernel->bus.pushByte(&msg, vrp->value[j].channel);
+				kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].value));
+				
+				kernel->bus.send(&msg);
+			}
+		}
+	}
+	
+	return true;
+}
+
+bool parseMetaDataRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
+{
+	if(size == 0)
+	{
+		vrp_sendMetaData(kernel, vrp);
+		return true;
+	}
+	for(uint8_t i = 0; i < size; i++)
+	{
+		for(uint8_t j = 0; j <vrp->valueSize; j++)
+		{
+			if(data[i] == vrp->value[j].channel)
+			{
+				bus_message_t msg;
+				kernel->bus.getMessageSlot(&msg);
+				kernel->bus.writeHeader(&msg,sourceAddress, busProtocol_valueReportProtocol, vrp_cmd_metaDataReport, busPriority_low);
+				kernel->bus.pushByte(&msg, vrp->value[j].channel);
+				uint8_t tmp = vrp->value[j].uom;
+				if(vrp->value[j].readOnly) tmp |= 0x80;
+				kernel->bus.pushByte(&msg, tmp);
+				kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].min));
+				kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].max));
+				kernel->bus.pushString(&msg,  &vrp->value[j].description[0]);
+				kernel->bus.send(&msg);
+				break;
+			}
+		}
+	}
+	
+	return true;
+}
+
+bool parseValueReport(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
 {
 	uint8_t channel = data[0];
 	
@@ -65,10 +180,11 @@ void vrp_parseValueReport(const kernel_t *kernel, uint8_t sourceAddress, const u
 			break;
 		}
 	}
+	
+	return true;
 }
 
-
-void vrp_parseValueCommand(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
+bool parseValueCommand(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
 {
 	uint8_t channel = data[0];
 	valueCommand_t command = (valueCommand_t)(data[1]&0x0F);
@@ -98,105 +214,6 @@ void vrp_parseValueCommand(const kernel_t *kernel, uint8_t sourceAddress, const 
 			break;
 		}
 	}
-}
-
-void vrp_parseMetaDataRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
-{
-	if(size == 0)
-	{
-		vrp_sendMetaData(kernel, vrp);
-		return;
-	}
-	for(uint8_t i = 0; i < size; i++)
-	{
-		for(uint8_t j = 0; j <vrp->valueSize; j++)
-		{
-			if(data[i] == vrp->value[j].channel)
-			{
-				bus_message_t msg;
-				kernel->bus.getMessageSlot(&msg);
-				kernel->bus.writeHeader(&msg,sourceAddress, busProtocol_valueReportProtocol, vrp_cmd_metaDataReport, busPriority_low);
-				kernel->bus.pushByte(&msg, vrp->value[j].channel);
-				uint8_t tmp = vrp->value[j].uom;
-				if(vrp->value[j].readOnly) tmp |= 0x80;
-				kernel->bus.pushByte(&msg, tmp);
-				kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].min));
-				kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].max));
-				kernel->bus.pushString(&msg,  &vrp->value[j].description[0]);
-				kernel->bus.send(&msg);
-				break;
-			}
-		}
-	}
-}
-
-
-void vrp_sendValues(const kernel_t *kernel, const valueReportProtocol_t* vrp)
-{
-	for(uint8_t j = 0; j <vrp->valueSize; j++)
-	{
-		vrp_sendValueReport(kernel, vrp->value[j].channel, *vrp->value[j].value);
-		/*bus_message_t msg;
-		kernel->bus.getMessageSlot(&msg);
-		kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueReport, busPriority_low);
-		
-		kernel->bus.pushByte(&msg, vrp->value[j].channel);
-		kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].value));
-		
-		kernel->bus.send(&msg);*/
-	}
-}
-
-void vrp_parseValueRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const valueReportProtocol_t* vrp)
-{
-	if(size == 0)
-	{
-		vrp_sendValues(kernel, vrp);
-		return;
-	}
 	
-	for(uint8_t i = 0; i < size; i++)
-	{
-		for(uint8_t j = 0; j <vrp->valueSize; j++)
-		{
-			if(data[i] == vrp->value[j].channel)
-			{
-				bus_message_t msg;
-				kernel->bus.getMessageSlot(&msg);
-				kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueReport, busPriority_low);
-				
-				kernel->bus.pushByte(&msg, vrp->value[j].channel);
-				kernel->bus.pushWord32(&msg, *((uint32_t*)&vrp->value[j].value));
-				
-				kernel->bus.send(&msg);
-			}
-		}
-	}
-}
-
-void vrp_sendValueReport(const kernel_t *kernel, uint8_t channel, float value)
-{
-	bus_message_t msg;
-	kernel->bus.getMessageSlot(&msg);
-
-	kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueReport, busPriority_low);
-	
-	kernel->bus.pushByte(&msg, channel);
-	kernel->bus.pushWord32(&msg, *((uint32_t*)&value));
-	
-	kernel->bus.send(&msg);
-}
-
-void vrp_sendValueCommmand(const kernel_t *kernel, uint8_t channel, valueCommand_t command, float value)
-{
-	bus_message_t msg;
-	kernel->bus.getMessageSlot(&msg);
-
-	kernel->bus.writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_valueReportProtocol, vrp_cmd_valueCommand, busPriority_normal);
-	
-	kernel->bus.pushByte(&msg, channel);
-	kernel->bus.pushByte(&msg, command);
-	kernel->bus.pushWord32(&msg, *((uint32_t*)&value));
-	
-	kernel->bus.send(&msg);
+	return true;
 }

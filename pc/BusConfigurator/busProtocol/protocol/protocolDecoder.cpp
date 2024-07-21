@@ -175,41 +175,48 @@ QString ProtocolDecoder::FileTransferCommandlName(FileTransferCommand command)
 QString ProtocolDecoder::TriggerCommandlName(TriggerCommand command)
 {
     switch(command){
-        case TP_Slot: return "Slot"; break;
-        case TP_SignalNameReport: return "Signal Name Report"; break;
-        case TP_SlotNameReport: return "Slot Name Report"; break;
-        case TP_SignalNameRequest: return "Signal Name Request"; break;
-        case TP_SlotNameRequest: return "Slot Name Request"; break;
-    }
+        case TP_Trigger : return "Trigger";
+        case TP_Reserved0 :
+        case TP_Reserved1 :
+        case TP_Reserved2 : return "Reserved";
 
+        case TP_SignalInformationReport : return "Signal Information Report";
+        case TP_SlotInformationReport : return "Slot Information Report";
+        case TP_SignalInformationRequest : return "Signal Information Request";
+        case TP_SlotInformationRequest : return "Slot Information Request";
+    }
     return "Unknown Command";
 }
 
 QString ProtocolDecoder::EventCommandlName(EventCommand command)
 {
     switch(command){
-        case EP_Slot: return "Slot"; break;
-        case EP_SignalNameReport: return "Signal Name Report"; break;
-        case EP_SlotNameReport: return "Slot Name Report"; break;
-        case EP_SignalNameRequest: return "Signal Name Request"; break;
-        case EP_SlotNameRequest: return "Slot Name Request"; break;
-        case EP_TimeoutResetRequest: return "Timeout Reset Request"; break;
-    }
+        case EP_Event : return "Event";
+        case EP_Reserved0 :
+        case EP_Reserved1 :
+        case EP_Reserved2 : return "Reserved";
 
+        case EP_SignalInformationReport : return "Signal Information Report";
+        case EP_SlotInformationReport : return "Slot Information Report";
+        case EP_SignalInformationRequest : return "Signal Information Request";
+        case EP_SlotInformationRequest : return "Slot Information Request";
+    }
     return "Unknown Command";
 }
 
 QString ProtocolDecoder::StateReportCommandlName(StateReportCommand command)
 {
     switch(command){
-        case SRP_Group0Report: return "Group 0 Report"; break;
-        case SRP_Group1Report: return "Group 1 Report"; break;
-        case SRP_IndividualStateReport: return "Individual State Report"; break;
-        case SRP_StateReportRequest: return "Report Request"; break;
-        case SRP_StateReportChannelNameReporting: return "Channel Name Reporting"; break;
-        case SRP_StateReportChannelNameRequest: return "Channel Name Request"; break;
-    }
+        case SRP_State : return "State Report";
+        case SRP_StateRequest : return "State Report Request";
+        case SRP_Reserved0 :
+        case SRP_Reserved1 : return "Reserved";
 
+        case SRP_SignalInformationReport : return "Signal Information Report";
+        case SRP_SlotInformationReport : return "Slot Information Report";
+        case SRP_SignalInformationRequest : return "Signal Information Request";
+        case SRP_SlotInformationRequest : return "Slot Information Request";
+    }
     return "Unknown Command";
 }
 

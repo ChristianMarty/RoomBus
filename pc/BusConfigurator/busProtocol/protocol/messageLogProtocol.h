@@ -10,7 +10,7 @@
 class LogMessage
 {
 public:
-    LogMessage(void){time = QDateTime::currentDateTime();}
+    LogMessage(void){receiveTime = QDateTime::currentDateTime();}
     enum MessageType:uint8_t {
         sysMessage,
         sysWarning,
@@ -22,9 +22,11 @@ public:
         appReserved
     } messageType;
 
+
     uint32_t messageCode;
     QString massage;
-    QDateTime time;
+    uint32_t tickTime;
+    QDateTime receiveTime;
 };
 
 class MessageLogProtocol : public BusProtocol

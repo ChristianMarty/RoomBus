@@ -75,7 +75,7 @@ void busDeviceWindow::updateStatus()
 
 void busDeviceWindow::on_triggerButton_clicked()
 {
-    if(_triggerWidget == nullptr) _triggerWidget = new triggerWidget(_device,this);
+    if(_triggerWidget == nullptr) _triggerWidget = new TriggerWidget(_device,this);
     if(_triggerWindow == nullptr)
     {
         _triggerWindow= new QMdiSubWindow;
@@ -86,6 +86,21 @@ void busDeviceWindow::on_triggerButton_clicked()
         _triggerWindow->show();
     }
     _triggerWindow->setFocus();
+}
+
+void busDeviceWindow::on_pushButton_event_clicked()
+{
+    if(_eventWidget == nullptr) _eventWidget = new EventWidget(_device,this);
+    if(_eventWindow == nullptr)
+    {
+        _eventWindow= new QMdiSubWindow;
+        _eventWindow->setWidget(_eventWidget);
+        _eventWindow->setAttribute(Qt::WA_DeleteOnClose);
+        _eventWindow->setWindowTitle("Event");
+        ui->mdiArea->addSubWindow(_eventWindow);
+        _eventWindow->show();
+    }
+    _eventWindow->setFocus();
 }
 
 void busDeviceWindow::on_settingsButton_clicked()
@@ -108,7 +123,7 @@ void busDeviceWindow::on_settingsButton_clicked()
 
 void busDeviceWindow::on_stateButton_clicked()
 {
-    if(_stateReportWidget == nullptr) _stateReportWidget = new stateReportWidget(_device,this);
+    if(_stateReportWidget == nullptr) _stateReportWidget = new StateReportWidget(_device,this);
     if(_stateReportWindow == nullptr)
     {
         _stateReportWindow = new QMdiSubWindow;

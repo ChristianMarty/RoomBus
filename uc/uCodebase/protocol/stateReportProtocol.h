@@ -1,17 +1,35 @@
-
+//**********************************************************************************************************************
+// FileName : stateReportProtocol.h
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 21.07.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifndef STATE_REPORT_PROTOCOL_H_
 #define STATE_REPORT_PROTOCOL_H_
 
+/* EXAMPLE *************************************************************************************************************
+
+
+***********************************************************************************************************************/
 #include "sam.h"
 #include "kernel/kernel.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 typedef enum {
-	srp_cmd_group0Report  = 0,
-	srp_cmd_group1Report  = 1,
-	srp_cmd_individualStateReport = 4,
-	srp_cmd_stateReportRequest = 5,
-	srp_cmd_stateReportChannelNameReporting = 6,
-	srp_cmd_stateReportChannelNameRequest= 7
+	srp_cmd_state,
+	srp_cmd_reserved0,
+	srp_cmd_reserved1,
+	srp_cmd_reserved2,
+	
+	srp_cmd_signalInformationReport,
+	srp_cmd_slotInformationReport,
+	
+	srp_cmd_signalInformationRequest,
+	srp_cmd_slotInformationRequest
 }srp_commands_t;
 
 typedef enum {
@@ -21,39 +39,51 @@ typedef enum {
 	srp_state_undefined = 3
 }srp_state_t;
 
-typedef struct{
-	const uint8_t channel;
-	const char *description;
-	srp_state_t * const state;
-}srp_stateReportChannel_t;
+typedef void (*srp_stateChangeAction_t)(uint16_t stateChannelNumber, srp_state_t state);
 
 typedef struct{
-	const uint8_t sourceAddress;
-	const uint8_t channel;
-	srp_state_t * const state;
-}srp_stateReport_t;
-
-typedef struct{
-	const srp_stateReport_t* states;
-	const uint8_t stateSize;
+	uint8_t sendInformationPending :1;
+	uint8_t sendSignalPending :1;
+	uint8_t reserved :6;
 	
-	const srp_stateReportChannel_t* channels;
-	const uint8_t channelSize;
+	srp_state_t state;
+	uint32_t timer;
+}srp_itemState_t;
+
+typedef struct{
+	const uint16_t channel;
+	const char *description;
+	const uint16_t interval; // in s
+}srp_stateSignal_t;
+
+typedef struct{
+	const uint16_t channel;
+	const char *description;
+	const uint16_t timeout; // in s
+	
+	const srp_stateChangeAction_t action;
+}srp_stateSlot_t;
+
+typedef struct{
+	const srp_stateSignal_t* signals;
+	const uint8_t signalSize;
+	
+	const srp_stateSlot_t* slots;
+	const uint8_t slotSize;
+	
+	srp_itemState_t *_signalState;
+	srp_itemState_t *_slotState;
 }stateReportProtocol_t;
 
-void srp_stateReportRequestAll(const kernel_t *kernel, const stateReportProtocol_t *srp);
+void srp_initialize(const stateReportProtocol_t *srp);
+void srp_mainHandler(const stateReportProtocol_t *srp);
+bool srp_receiveHandler(const stateReportProtocol_t *srp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
 
-void srp_parseGroup0Report(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp);
-void srp_parseGroup1Report(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp);
-void srp_parseIndividualStateReport(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp);
-
-void srp_receiveHandler(const kernel_t *kernel, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp);
-
-void srp_stateReportRequestHandler(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp);
-void srp_stateReportChannelNameRequestHandler(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp);
-
-void srp_sendGroupReport(const kernel_t *kernel, const stateReportProtocol_t *srp);
-
-void tsp_onStateChange_callback(const kernel_t *kernel);
+void srp_setStateByIndex(const stateReportProtocol_t *srp, uint8_t stateChannelIndex, srp_state_t state);
+srp_state_t srp_getStateByIndex(const stateReportProtocol_t *srp, uint8_t stateChannelIndex);
 
 #endif /* STATE_REPORT_PROTOCOL_H_ */
+
+#ifdef __cplusplus
+}
+#endif

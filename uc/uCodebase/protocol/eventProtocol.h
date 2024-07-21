@@ -1,37 +1,86 @@
-
+//**********************************************************************************************************************
+// FileName : eventProtocol.h
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 15.06.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifndef EVENT_SYSTEM_PROTOCOL_H_
 #define EVENT_SYSTEM_PROTOCOL_H_
 
+/* EXAMPLE *************************************************************************************************************
+
+case busProtocol_eventProtocol:		return esp_receiveHandler(kernel, &eventSystem, sourceAddress, command, data, size);
+
+const esp_eventSignal_t eventSignal[] = {
+	// Add event signal list
+	{<Channel>, <Description>, <Interval [ms]>}
+
+};
+#define eventSignalListSize (sizeof(eventSignal)/sizeof(esp_eventSignal_t))
+
+const esp_eventSlot_t eventSlots[] = {
+	// Add event slot list
+	{<Channel>, <Description>, <Interval [ms]>, <triggerAction>}
+		
+	{0x0100, "LED 3 Slot", 2000, nullptr}
+};
+#define eventSlotListSize (sizeof(eventSlots)/sizeof(esp_eventSlot_t))
+
+esp_itemState_t eventSignalStatusList[triggerSlotListSize];
+esp_itemState_t eventSlotStatusList[eventSlotListSize];
+
+const eventSystemProtocol_t eventSystem = {
+	.signals = eventSignal,
+	.signalSize = eventSignalListSize,
+	.slots = eventSlots,
+	.slotSize = eventSlotListSize,
+	._signalState = eventSignalStatusList,
+	._slotState = eventSlotStatusList
+};
+
+***********************************************************************************************************************/
 #include "sam.h"
 #include "kernel/kernel.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 typedef enum {
-	esp_cmd_eventSlot = 0,
-	esp_cmd_signalNameReport = 1,
-	esp_cmd_slotNameReport = 2,
-	esp_cmd_signalNameRequest = 3,
-	esp_cmd_slotNameRequest = 4
+	esp_cmd_event,
+	esp_cmd_reserved0,
+	esp_cmd_reserved1,
+	esp_cmd_reserved2,
+	
+	esp_cmd_signalInformationReport,
+	esp_cmd_slotInformationReport,
+	
+	esp_cmd_signalInformationRequest,
+	esp_cmd_slotInformationRequest
 }esp_commands_t;
 
-typedef void (*esp_eventAction_t)(uint8_t eventChannelNumber, bool state);
-
-typedef struct{
-	const uint8_t destinationAddress;
-	const uint8_t channel;
-	const char *description;
-}esp_eventSignal_t;
+typedef void (*esp_eventAction_t)(uint16_t eventChannelNumber, bool state);
 
 typedef struct{
 	uint32_t timer;
-	bool state;
-}esp_eventState_t;
+	
+	uint8_t state :1;
+	uint8_t sendInformationPending :1;
+	uint8_t sendSignalPending :1;
+	uint8_t reserved :5;
+}esp_itemState_t;
 
 typedef struct{
-	const uint8_t sourceAddress;
-	const uint8_t channel;
+	const uint16_t channel;
+	const char *description;
+	const uint16_t interval;
+}esp_eventSignal_t;
+
+typedef struct{
+	const uint16_t channel;
 	const char *description;
 	const uint16_t timeout;
-	esp_eventState_t* const state;
 	const esp_eventAction_t action;
 }esp_eventSlot_t;
 
@@ -41,25 +90,25 @@ typedef struct{
 
 	const esp_eventSlot_t* slots;
 	const uint8_t slotSize;
+	
+	esp_itemState_t *_signalState;
+	esp_itemState_t *_slotState;
 }eventSystemProtocol_t;
 
-void esp_init(const kernel_t *kernel, const eventSystemProtocol_t* esp);
+void esp_initialize(const eventSystemProtocol_t* esp);
+void esp_mainHandler(const eventSystemProtocol_t* esp);
+bool esp_receiveHandler(const eventSystemProtocol_t* esp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
 
-void esp_mainHandler(const kernel_t *kernel, const eventSystemProtocol_t* esp);
+void esp_setStateByIndex(const eventSystemProtocol_t* esp, uint8_t index, bool state);
+void esp_setStateByChannel(const eventSystemProtocol_t* esp, uint16_t channel, bool state);
 
-void esp_receiveHandler(const kernel_t *kernel, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size, const eventSystemProtocol_t* esp);
+bool esp_sendEventByIndex(const eventSystemProtocol_t* esp, uint8_t index);
 
-void esp_parseEvent(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool esp_getStateByIndex(const eventSystemProtocol_t* esp, uint8_t index);
+bool esp_getStateByChannel(const eventSystemProtocol_t* esp, uint16_t channel);
 
-void esp_parseSignalNameRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const esp_eventSignal_t *signalList, uint8_t signalListSize);
-
-void esp_parseSlotNameRequest(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const esp_eventSlot_t *slotList, uint8_t slotListSize);
-
-void esp_onEvent_callback(const kernel_t *kernel, uint8_t sourceAddress, uint8_t eventChannelNumber);
-
-void esp_sendEvent(const kernel_t *kernel, uint8_t destinationAddress, uint8_t *eventList, uint8_t eventListSize);
-
-void esp_sendEventSignal(const kernel_t *kernel, const esp_eventSignal_t *eventSignal);
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* EVENT_SYSTEM_PROTOCOL_H_ */

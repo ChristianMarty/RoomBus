@@ -1,175 +1,261 @@
-
-
+//**********************************************************************************************************************
+// FileName : stateReportProtocol.cpp
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 21.07.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #include "stateReportProtocol.h"
 #include "string.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void srp_receiveHandler(const kernel_t *kernel, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp)
+bool parseStateReport(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool parseStateReportSignalInformationRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool parseStateReportSlotInformationRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+
+bool sendStateReportSignalInformation(const srp_stateSignal_t *stateSignal);
+bool sendStateReportSlotInformation(const srp_stateSlot_t *stateSlot);
+void sendStateReports(const stateReportProtocol_t* srp);
+
+void srp_initialize(const stateReportProtocol_t *srp)
 {
-	switch(command)
-	{
-		case srp_cmd_group0Report :srp_parseGroup0Report(kernel,sourceAddress,data,size,srp); break;
-		case srp_cmd_stateReportRequest: srp_stateReportRequestHandler(kernel, sourceAddress, data, size, srp); break;
-		case srp_cmd_stateReportChannelNameRequest: srp_stateReportChannelNameRequestHandler(kernel, sourceAddress, data, size, srp);break;
+	for(int i = 0; i < srp->slotSize; i++){
+		kernel.tickTimer.reset(&(srp->_slotState[i].timer));
 		
+		srp->_slotState[i].sendInformationPending = false;
+		srp->_slotState[i].state = srp_state_undefined;
 	}
+	
+	for(int i = 0; i < srp->signalSize; i++){
+		kernel.tickTimer.reset(&(srp->_signalState[i].timer));
+		
+		srp->_signalState[i].sendInformationPending = false;
+		srp->_signalState[i].state = srp_state_undefined;
+	}
+	
 }
 
-void srp_stateReportRequestAll(const kernel_t *kernel, const stateReportProtocol_t *srp)
+void srp_mainHandler(const stateReportProtocol_t *srp)
 {
-	bus_message_t msg;
-	kernel->bus.getMessageSlot(&msg);
+	for(int i = 0; i < srp->signalSize; i++){
+		if(kernel.tickTimer.delay1ms(&(srp->_signalState[i].timer), srp->signals[i].interval*1000)){
+			srp->_signalState[i].sendSignalPending = true;
+		}
+	}
 	
-	uint8_t sourceAddressLast = srp->states[0].sourceAddress;
-	kernel->bus.writeHeader(&msg,sourceAddressLast, busProtocol_stateReportProtocol, srp_cmd_stateReportRequest, busPriority_low);
+	// send signal information
+	for(uint8_t i = 0;  i < srp->signalSize; i++) {
+		if(srp->_signalState[i].sendInformationPending == true) {
+			if(sendStateReportSignalInformation(&srp->signals[i])) {
+				srp->_signalState[i].sendInformationPending = false;
+			}
+			break;
+		}
+	}
 	
-	for(uint8_t j = 0; j <srp->stateSize; j++)
+	// send slot information
+	for(uint8_t i = 0;  i < srp->slotSize; i++) {
+		if(srp->_slotState[i].sendInformationPending == true){
+			if(sendStateReportSlotInformation(&srp->slots[i])) {
+				srp->_slotState[i].sendInformationPending = false;
+			}
+			break;
+		}
+	}
+	
+	sendStateReports(srp);
+}
+
+bool srp_receiveHandler(const stateReportProtocol_t *srp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
+{
+	switch(command){
+		case srp_cmd_state : return parseStateReport(srp, sourceAddress, data, size);
+		case srp_cmd_signalInformationRequest: return parseStateReportSignalInformationRequest(srp, sourceAddress, data, size);
+		case srp_cmd_slotInformationRequest: return parseStateReportSlotInformationRequest(srp, sourceAddress, data, size);
+	}
+	return false;
+}
+
+void srp_setStateByIndex(const stateReportProtocol_t *srp, uint8_t stateChannelIndex, srp_state_t state)
+{
+	if(stateChannelIndex >= srp->signalSize) return;
+	
+	srp_itemState_t *item = &srp->_signalState[stateChannelIndex];
+	
+	item->state = state;
+	item->sendSignalPending = true;
+	kernel.tickTimer.reset(&(item->timer));
+}
+
+srp_state_t srp_getStateByIndex(const stateReportProtocol_t *srp, uint8_t stateChannelIndex)
+{
+	if(stateChannelIndex >= srp->slotSize) return srp_state_undefined;
+	else return srp->_slotState[stateChannelIndex].state;	
+}
+
+//**********************************************************************************************************************
+// Private
+//**********************************************************************************************************************
+
+bool parseStateReport(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+{
+	bool found = false;
+	for(uint8_t i = 0; i < size; i+=3)
 	{
-		if(sourceAddressLast != srp->states[j].sourceAddress)
-		{
-			kernel->bus.send(&msg);
-			sourceAddressLast = srp->states[j].sourceAddress;
+		uint16_t channel = (data[i]<<8)|data[i+1];
+		srp_state_t state = (srp_state_t) data[i+2];
 			
-			kernel->bus.getMessageSlot(&msg);
-			kernel->bus.writeHeader(&msg,sourceAddressLast, busProtocol_stateReportProtocol, srp_cmd_stateReportRequest, busPriority_low);	
+		// TODO: optimize
+		for(uint8_t j = 0; j < srp->slotSize; j++){
+			
+			const srp_stateSlot_t *slot = &srp->slots[j];
+			srp_itemState_t *slotState = &srp->_slotState[j];
+			
+			if(channel == slot->channel){
+					
+				kernel.tickTimer.reset(&(slotState->timer));
+					
+				srp_state_t oldState = slotState->state;
+				slotState->state = state;
+					
+				if(slot->action != nullptr && oldState != slotState->state){
+					slot->action(slot->channel, state);
+				}
+					
+				found = true;
+				break;
+			}
 		}
-		
-		kernel->bus.pushByte(&msg, srp->states[j].channel);	
 	}
-	
-	kernel->bus.send(&msg);
-	
-	
+
+	return found;
 }
 
-
-void srp_stateReportRequestHandler(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp)
+bool parseStateReportSignalInformationRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
-	if(size == 0)
-	{
-		srp_sendGroupReport(kernel, srp);
-		return;
+	// in case size is 0 -> send all
+	if(size == 0){
+		for(uint8_t j = 0; j < srp->signalSize; j++){
+			srp->_signalState[j].sendInformationPending = true;
+		}
+		return true;
 	}
-	
+		
+	// look for requested channels
+	bool found = false;
+	for(uint8_t i = 0; i < size; i+=2)
+	{
+		uint16_t channel = (data[i]<<8)|data[i+1];
+			
+		// TODO: optimize
+		for(uint8_t j = 0; j < srp->signalSize; j++)
+		{
+			if(channel == srp->signals[j].channel)
+			{
+				srp->_signalState[j].sendInformationPending = true;
+				found = true;
+				break;
+			}
+		}
+	}
+	return found;
+}
+
+bool parseStateReportSlotInformationRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+{
+	// in case size is 0 -> send all
+	if(size == 0){
+		for(uint8_t j = 0; j < srp->slotSize; j++){
+			srp->_slotState[j].sendInformationPending = true;
+		}
+		return true;
+	}
+		
+	// look for requested channels
+	bool found = false;
+	for(uint8_t i = 0; i < size; i+=2)
+	{
+		uint16_t channel = (data[i]<<8)|data[i+1];
+			
+		// TODO: optimize
+		for(uint8_t j = 0; j < srp->slotSize; j++)
+		{
+			if(channel == srp->slots[j].channel)
+			{
+				srp->_slotState[j].sendInformationPending = true;
+				found = true;
+				break;
+			}
+		}
+	}
+	return found;
+}
+
+bool sendStateReportSignalInformation(const srp_stateSignal_t *stateSignal)
+{
 	bus_message_t msg;
-	kernel->bus.getMessageSlot(&msg);
-	kernel->bus.writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_stateReportProtocol, srp_cmd_individualStateReport, busPriority_low);
-	
-	for(uint8_t i = 0; i < size; i++)
-	{
-		for(uint8_t j = 0; j <srp->channelSize; j++)
-		{
-			if(data[i] == srp->channels[j].channel)
-			{
-				kernel->bus.pushByte(&msg, srp->channels[j].channel);
-				kernel->bus.pushByte(&msg, (uint8_t)*srp->channels[j].state);
-			}
-		}
-	}
-	
-	kernel->bus.send(&msg);
+	if(kernel.bus.getMessageSlot(&msg) == false) return false; // Abort if TX buffer full
+		
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_stateReportProtocol, srp_cmd_signalInformationReport, busPriority_low);
+	kernel.bus.pushWord16(&msg, stateSignal->channel);
+	kernel.bus.pushWord16(&msg, stateSignal->interval);
+	kernel.bus.pushString(&msg, &stateSignal->description[0]);
+	kernel.bus.send(&msg);
+		
+	return true;
 }
 
-void srp_stateReportChannelNameRequestHandler(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp)
-{
-	for(uint8_t i = 0; i < size; i++)
-	{
-		for(uint8_t j = 0; j <srp->channelSize; j++)
-		{
-			if(data[i] == srp->channels[j].channel)
-			{
-				bus_message_t msg;
-				kernel->bus.getMessageSlot(&msg);
-				kernel->bus.writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_stateReportProtocol, srp_cmd_stateReportChannelNameReporting, busPriority_low);
-				kernel->bus.pushByte(&msg, data[i]);
-				kernel->bus.pushString(&msg, &srp->channels[j].description[0]);
-				kernel->bus.send(&msg);
-				break;
-			}
-		}
-	}
-}
-
-void srp_sendGroupReport(const kernel_t *kernel, const stateReportProtocol_t *srp)
+bool sendStateReportSlotInformation(const srp_stateSlot_t *stateSlot)
 {
 	bus_message_t msg;
-	kernel->bus.getMessageSlot(&msg);
-	kernel->bus.writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_stateReportProtocol, srp_cmd_group0Report, busPriority_low);
-	
-	uint8_t temp;
-	
-	for(uint8_t i = 0; i < srp->channelSize; i += 2)
-	{
-		temp  = 0;
-		temp  = ((uint8_t)*srp->channels[i].state & 0x0F);
-		if(i+1 < srp->channelSize) temp |= (((uint8_t)*srp->channels[i+1].state & 0x0F)<<4);
-		else temp |= (((uint8_t)srp_state_undefined & 0x0F)<<4);
+	if(kernel.bus.getMessageSlot(&msg) == false) return false; // Abort if TX buffer full
 		
-		kernel->bus.pushByte(&msg, temp);
-	}
-	
-	kernel->bus.send(&msg);
-	
-	// TODO: Add support for >64 channels
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_stateReportProtocol, srp_cmd_slotInformationReport, busPriority_low);
+	kernel.bus.pushWord16(&msg, stateSlot->channel);
+	kernel.bus.pushWord16(&msg, stateSlot->timeout);
+	kernel.bus.pushString(&msg, &stateSlot->description[0]);
+	kernel.bus.send(&msg);
+		
+	return true;
 }
 
-void srp_parseGroup0Report(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp)
+void sendStateReports(const stateReportProtocol_t* srp)
 {
-	bool hasChange = false;
-	
-	for(uint8_t i = 0; i< size; i++)
-	{
-		srp_state_t state0 = (srp_state_t)(data[i]&0x0F);
-		srp_state_t state1 = (srp_state_t)((data[i]>>4)&0x0F);
+	bus_message_t msg;
+	uint8_t stateCount = 0;
 		
-		for(uint8_t j = 0; j< srp->stateSize; j++)
-		{
-			if((srp->states[j].sourceAddress == sourceAddress)&&(srp->states[j].channel == i*2))
-			{
-				if(*(srp->states[j].state) !=  state0) hasChange = true;
-				*(srp->states[j].state) = state0;
-				break;
+	for(uint8_t i = 0;  i < srp->signalSize; i++)
+	{
+		if(srp->_signalState[i].sendSignalPending == false) continue;
+			
+		if(stateCount==0){
+			if( kernel.bus.getMessageSlot(&msg) == false ){
+				return; // Abort if TX buffer full
 			}
+			kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_stateReportProtocol, srp_cmd_state, busPriority_low);
 		}
-		
-		for(uint8_t j = 0; j< srp->stateSize; j++)
-		{
-			if((srp->states[j].sourceAddress == sourceAddress)&&(srp->states[j].channel == i*2+1))
-			{
-				if(*(srp->states[j].state) !=  state1) hasChange = true;
-				*(srp->states[j].state) = state1;
-				break;
-			}
-		}
-	}
-	
-	if(hasChange) tsp_onStateChange_callback(kernel);
-}
-
-void srp_parseGroup1Report(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp)
-{
-	// TODO: Add support
-}
-
-void srp_parseIndividualStateReport(const kernel_t *kernel, uint8_t sourceAddress, const uint8_t *data, uint8_t size, const stateReportProtocol_t *srp)
-{
-	bool hasChange = false;
-	
-	for(uint8_t i = 0; i < size; i += 2)
-	{
-		uint8_t channel = data[i];
-		srp_state_t state = (srp_state_t)data[i+1];
-		
-		for(uint8_t j = 0; j< srp->stateSize; j++)
-		{
-			if((srp->states[j].sourceAddress == sourceAddress)&&(srp->states[j].channel == channel))
-			{
-				if(*srp->states[j].state !=  state) hasChange = true;
-				*srp->states[j].state = state;
-				break;
-			}
+			
+		const srp_stateSignal_t *sig = &srp->signals[i];
+		srp->_signalState[i].sendSignalPending = false;
+		kernel.bus.pushWord16(&msg, sig->channel);
+		kernel.bus.pushByte(&msg, srp->_signalState[i].state);
+			
+		stateCount++;
+			
+		if(stateCount>=21){
+			kernel.bus.send(&msg);
+			stateCount = 0;
 		}
 	}
 
-	if(hasChange) tsp_onStateChange_callback(kernel);
+	if(stateCount){
+		kernel.bus.send(&msg);
+	}
 }
+
+#ifdef __cplusplus
+}
+#endif

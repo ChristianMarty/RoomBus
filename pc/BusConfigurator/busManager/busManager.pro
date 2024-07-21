@@ -36,23 +36,26 @@ SOURCES += \
         busMonitor/busMonitor.cpp \
         busMonitor/busMonitorLine.cpp \
         echoTestWidget.cpp \
-        eventSignalLine.cpp \
-        eventWidget.cpp \
         fileTransferWidget.cpp \
         main.cpp \
         mainwindow.cpp \
         messageLogWidget.cpp \
         qualityOfServiceWindow.cpp \
-        serialBridgeWidget.cpp \
+        serialBridge/serialBridgeWidget.cpp \
         settings.cpp \
         settingsWidget.cpp \
-        stateReportLine.cpp \
-        stateReportWidget.cpp \
         tcpConnectionWidget.cpp \
-        triggerLine.cpp \
-        triggerWidget.cpp \
-        valueReportLine.cpp \
-        valueReportWidget.cpp
+        trigger/triggerSignalLine.cpp \
+        trigger/triggerSlotLine.cpp \
+        trigger/triggerWidget.cpp \
+        event/eventWidget.cpp \
+        event/eventSignalLine.cpp \
+        event/eventSlotLine.cpp \
+        state/stateReportSignalLine.cpp \
+        state/stateReportSlotLine.cpp \
+        state/stateReportWidget.cpp \
+        value/valueReportLine.cpp \
+        value/valueReportWidget.cpp
 
 HEADERS += \
         appPluginInterface.h \
@@ -62,22 +65,25 @@ HEADERS += \
         busMonitor/busMonitor.h \
         busMonitor/busMonitorLine.h \
         echoTestWidget.h \
-        eventSignalLine.h \
-        eventWidget.h \
         fileTransferWidget.h \
         mainwindow.h \
         messageLogWidget.h \
         qualityOfServiceWindow.h \
-        serialBridgeWidget.h \
+        serialBridge/serialBridgeWidget.h \
         settings.h \
         settingsWidget.h \
-        stateReportLine.h \
-        stateReportWidget.h \
         tcpConnectionWidget.h \
-        triggerLine.h \
-        triggerWidget.h \
-        valueReportLine.h \
-        valueReportWidget.h
+        trigger/triggerSignalLine.h \
+        trigger/triggerSlotLine.h \
+        trigger/triggerWidget.h \
+        event/eventWidget.h \
+        event/eventSignalLine.h \
+        event/eventSlotLine.h \
+        state/stateReportSignalLine.h \
+        state/stateReportSlotLine.h \
+        state/stateReportWidget.h \
+        value/valueReportLine.h \
+        value/valueReportWidget.h
 
 FORMS += \
         busConnectionWidget.ui \
@@ -86,21 +92,24 @@ FORMS += \
         busMonitor/busMonitor.ui \
         busMonitor/busMonitorLine.ui \
         echoTestWidget.ui \
-        eventSignalLine.ui \
-        eventWidget.ui \
         fileTransferWidget.ui \
         mainwindow.ui \
         messageLogWidget.ui \
         qualityOfServiceWindow.ui \
-        serialBridgeWidget.ui \
+        serialBridge/serialBridgeWidget.ui \
         settingsWidget.ui \
-        stateReportLine.ui \
-        stateReportWidget.ui \
         tcpConnectionWidget.ui \
-        triggerLine.ui \
-        triggerWidget.ui \
-        valueReportLine.ui \
-        valueReportWidget.ui
+        trigger/triggerSignalLine.ui \
+        trigger/triggerSlotLine.ui \
+        trigger/triggerWidget.ui \
+        event/eventWidget.ui \
+        event/eventSignalLine.ui \
+        event/eventSlotLine.ui \
+        state/stateReportSignalLine.ui \
+        state/stateReportSlotLine.ui \
+        state/stateReportWidget.ui \
+        value/valueReportLine.ui \
+        value/valueReportWidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

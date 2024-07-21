@@ -1,97 +1,113 @@
 #include "triggerProtocol.h"
 
-triggerProtocol::triggerProtocol(busDevice *device):BusProtocol(device)
+TriggerProtocol::TriggerProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void triggerProtocol::pushData(busMessage msg)
+void TriggerProtocol::pushData(busMessage msg)
 {
     if(msg.protocol == Protocol::TriggerProtocol)
     {
-        if(msg.command == 0x00) parseTriggerSignal(msg);
-        else if(msg.command == 0x01) parseTriggerSignalNameReport(msg);
-        else if(msg.command == 0x02) parseTriggerSlotNameReport(msg);
+        if(msg.command == Command::Trigger) _parseTrigger(msg);
+        else if(msg.command == Command::SignalInformationReport) _parseSignalInformationReport(msg);
+        else if(msg.command == Command::SlotInformationReport) _parseSlotInformationReport(msg);
     }
 }
 
-QList<Protocol> triggerProtocol::protocol(void)
+QList<Protocol> TriggerProtocol::protocol(void)
 {
     QList<Protocol> temp;
     temp.append(Protocol::TriggerProtocol);
     return temp;
 }
 
-void triggerProtocol::requestTriggerSignalNames(void)
+void TriggerProtocol::requestSignalInformation(void)
 {
     busMessage msg;
 
     msg.protocol = Protocol::TriggerProtocol;
-    msg.command = 0x03;
-
-   /* for (uint8_t i = 0; i<64; i++)
-    {
-        msg.data.append(static_cast<char>(i));
-    }*/
+    msg.command = Command::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
-void triggerProtocol::requestTriggerSlotNames(void)
+void TriggerProtocol::requestSlotInformation(void)
 {
     busMessage msg;
 
     msg.protocol = Protocol::TriggerProtocol;
-    msg.command = 0x04;
-
-   /* for (uint8_t i = 0; i<64; i++)
-    {
-        msg.data.append(static_cast<char>(i));
-    }*/
+    msg.command = Command::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
-void triggerProtocol::sendTrigger(QList<uint8_t>triggerChannels)
+void TriggerProtocol::sendTrigger(QList<uint16_t> triggerChannels)
 {
     busMessage msg;
 
     msg.protocol = Protocol::TriggerProtocol;
-    msg.command = 0x00;
+    msg.command = Command::Trigger;
 
     for (uint8_t i = 0; i<triggerChannels.size(); i++)
     {
-        msg.data.append(static_cast<char>(triggerChannels.at(i)));
+        uint16_t channel = triggerChannels.at(i);
+        msg.data.append(packUint16(channel));
     }
 
     sendMessage(msg);
 }
 
-void triggerProtocol::sendTrigger(uint8_t triggerChannel)
+void TriggerProtocol::sendTrigger(uint16_t triggerChannel)
 {
-   QList<uint8_t>triggerChannels;
+   QList<uint16_t>triggerChannels;
    triggerChannels.append(triggerChannel);
 
    sendTrigger(triggerChannels);
 }
 
-void triggerProtocol::reset()
+void TriggerProtocol::emulateTrigger(uint16_t triggerChannel)
 {
-    _triggerSignalNames.clear();
+
+}
+
+void TriggerProtocol::reset()
+{
     _triggerSlot.clear();
-    _triggerDestinationAddress.clear();
+    _triggerSignal.clear();
+
+    emit triggerSignalListChange();
+    emit triggerSlotListChange();
 }
 
-QMap<uint8_t, QString> triggerProtocol::triggerSignalNames() const
+QList<TriggerProtocol::TriggerSlot *> TriggerProtocol::triggerSlots()
 {
-    return _triggerSignalNames;
+    QList<TriggerProtocol::TriggerSlot *> output;
+    for(auto &item: _triggerSlot){
+        output.append(&item);
+    }
+    return output;
 }
 
-QMap<uint8_t, triggerProtocol::triggerSlot> triggerProtocol::triggerSlotMap() const
+QList<TriggerProtocol::TriggerSignal *> TriggerProtocol::triggerSignls()
+{
+    QList<TriggerProtocol::TriggerSignal *> output;
+    for(auto &item: _triggerSignal){
+        output.append(&item);
+    }
+    return output;
+}
+
+QMap<uint16_t, TriggerProtocol::TriggerSlot> TriggerProtocol::triggerSlotMap() const
 {
     return _triggerSlot;
 }
 
-void triggerProtocol::parseTriggerSignal(busMessage msg)
+QMap<uint16_t, TriggerProtocol::TriggerSignal> TriggerProtocol::triggerSignalMap() const
+{
+    return _triggerSignal;
+}
+
+void TriggerProtocol::_parseTrigger(busMessage msg)
 {
     QList<uint8_t> triggerSignals;
     
@@ -103,23 +119,23 @@ void triggerProtocol::parseTriggerSignal(busMessage msg)
     emit triggerSignalReceived(triggerSignals);
 }
 
-void triggerProtocol::parseTriggerSignalNameReport(busMessage msg)
+void TriggerProtocol::_parseSignalInformationReport(busMessage msg)
 {
-    uint8_t destinationAddress = static_cast<uint8_t>(msg.data.at(0));
-    uint8_t triggerChannel = static_cast<uint8_t>(msg.data.at(1));
-    QString name = msg.data.remove(0,2);
-    _triggerSignalNames[triggerChannel] = name;
-    _triggerDestinationAddress[triggerChannel] = destinationAddress;
+    TriggerSignal signal;
+    signal.channel = getUint16(msg.data,0);
+    signal.description = msg.data.remove(0,2);
+
+    _triggerSignal[signal.channel] = signal;
 
     emit triggerSignalListChange();
 }
 
-void triggerProtocol::parseTriggerSlotNameReport(busMessage msg)
+void TriggerProtocol::_parseSlotInformationReport(busMessage msg)
 {
-    triggerSlot slot;
-    slot.sourceAddressFiler = static_cast<uint8_t>(msg.data.at(0));
-    slot.channel = static_cast<uint8_t>(msg.data.at(1));
-    slot.name = msg.data.remove(0,2);;
+    TriggerSlot slot;
+    slot.channel = getUint16(msg.data,0);
+    slot.description = msg.data.remove(0,2);
+    slot.trigger = this;
 
     _triggerSlot[slot.channel] = slot;
 
