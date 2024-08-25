@@ -54,8 +54,9 @@ SOURCES += \
         state/stateReportSignalLine.cpp \
         state/stateReportSlotLine.cpp \
         state/stateReportWidget.cpp \
-        value/valueReportLine.cpp \
-        value/valueReportWidget.cpp
+        value/valueSignalLine.cpp \
+        value/valueSlotLine.cpp \
+        value/valueWidget.cpp
 
 HEADERS += \
         appPluginInterface.h \
@@ -82,8 +83,9 @@ HEADERS += \
         state/stateReportSignalLine.h \
         state/stateReportSlotLine.h \
         state/stateReportWidget.h \
-        value/valueReportLine.h \
-        value/valueReportWidget.h
+        value/valueSignalLine.h \
+        value/valueSlotLine.h \
+        value/valueWidget.h
 
 FORMS += \
         busConnectionWidget.ui \
@@ -108,8 +110,9 @@ FORMS += \
         state/stateReportSignalLine.ui \
         state/stateReportSlotLine.ui \
         state/stateReportWidget.ui \
-        value/valueReportLine.ui \
-        value/valueReportWidget.ui
+        value/valueSignalLine.ui \
+        value/valueSlotLine.ui \
+        value/valueWidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

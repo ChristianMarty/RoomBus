@@ -6,14 +6,15 @@
  */ 
 
 #include "sam.h"
-#include "kernel/kernel.h"
-#include "kernel/busController_IO.h"
+#include "common/kernel.h"
+#include "common/io_same51jx.h"
 
-#include "drv/SAMx5x/genericClockController.h"
+#include "driver/SAMx5x/genericClockController.h"
 
 #include "protocol/triggerProtocol.h"
 #include "protocol/eventProtocol.h"
 #include "protocol/stateReportProtocol.h"
+#include "protocol/valueReportProtocol.h"
 
 #include "utility/edgeDetect.h"
 
@@ -114,12 +115,12 @@ void led2Action(uint16_t stateChannelNumber, srp_state_t state)
 }
 
 const srp_stateSignal_t stateReportSignal[] = {
-	{0x0100, "Button 3 Signal", 1}
+	{0x0100, "Button 3 Signal", 10}
 };
 #define stateReportSignalListSize (sizeof(stateReportSignal)/sizeof(srp_stateSignal_t))
 
 const srp_stateSlot_t stateReportSlots[] = {
-	{0x0100, "LED 3 Slot", 5, led2Action}
+	{0x0100, "LED 3 Slot", 10, led2Action}
 };
 #define stateReportSlotListSize (sizeof(stateReportSlots)/sizeof(srp_stateSlot_t))
 
@@ -143,6 +144,32 @@ void trigger1Action(uint16_t triggerChannelNumber)
 	else srp_setStateByIndex(&stateReportSystem, 0, srp_state_off);
 }
 
+
+//**** Value Configuration ********************************************************************************************
+
+const vrp_valueSignal_t valueReportSignal[] = {
+	{0x0100, "Value Signal", 10, true, {.Number = 10.0}, {.Number = 20.0}, uom_number, nullptr},
+	{0x0101, "Value Signal 2", 10, false, {.Long = 0}, {.Long = 255}, uom_long, nullptr}
+};
+#define valueReportSignalListSize (sizeof(valueReportSignal)/sizeof(vrp_valueSignal_t))
+
+const vrp_valueSlot_t valueReportSlots[] = {
+	{0x0100, "Value Slot", 10, nullptr}
+};
+#define valueReportSlotListSize (sizeof(valueReportSlots)/sizeof(vrp_valueSlot_t))
+
+vrp_itemState_t valueReportSignalStatusList[valueReportSignalListSize];
+vrp_itemState_t valueReportSlotStatusList[valueReportSlotListSize];
+
+const valueReportProtocol_t valueReportSystem = {
+	.signals = valueReportSignal,
+	.signalSize = valueReportSignalListSize,
+	.slots = valueReportSlots,
+	.slotSize = valueReportSlotListSize,
+	._signalState = valueReportSignalStatusList,
+	._slotState = valueReportSlotStatusList
+};
+
 //**** onReceive Configuration ****************************************************************************************
 
 bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
@@ -152,6 +179,7 @@ bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, c
 		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
 		case busProtocol_eventProtocol:			return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
 		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateReportSystem, sourceAddress, command, data, size);
+		case busProtocol_valueReportProtocol:	return vrp_receiveHandler(&valueReportSystem, sourceAddress, command, data, size);
 	}
 	return false;
 }
@@ -159,6 +187,9 @@ bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, c
 edgeDetect_t button[4];
 bool led3;
 bool led4;
+
+uint32_t valueTimer;
+vrp_valueData_t val1;
 int main(void)
 {
 	// App Init Code
@@ -189,6 +220,10 @@ int main(void)
 		tsp_initialize(&triggerSystem);
 		esp_initialize(&eventSystem);
 		srp_initialize(&stateReportSystem);
+		vrp_initialize(&valueReportSystem);
+		
+		kernel.tickTimer.reset(&valueTimer);
+		val1.Number = 0;
 		
 		kernel.appSignals->appReady = true;
 	}
@@ -200,6 +235,7 @@ int main(void)
 		tsp_mainHandler(&triggerSystem);
 		esp_mainHandler(&eventSystem);
 		srp_mainHandler(&stateReportSystem);
+		vrp_mainHandler(&valueReportSystem);
 		
 		if(ed_onFalling(&button[0], pin_getInput(BUTTON1))){
 			uint8_t triggerList[] = {0};
@@ -225,6 +261,11 @@ int main(void)
 		srp_state_t state = srp_getStateByIndex(&stateReportSystem, 0);
 		if(state == srp_state_on)pin_setOutput(LED1, !true);
 		else pin_setOutput(LED1, !false);
+		
+		if(kernel.tickTimer.delay1ms(&valueTimer, 1000)){
+			val1.Number += 1.7;
+			vrp_sendValueReport(&valueReportSystem, 0x0100, val1);
+		}
 	}
 	
 	// App deinit code

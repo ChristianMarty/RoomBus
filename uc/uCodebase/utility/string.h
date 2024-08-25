@@ -36,4 +36,4 @@ char *string_append(char *str1, const char *str2);
 	}
 #endif
 
-#endif /* STRING2_H_ */places
+#endif /* STRING2_H_ */

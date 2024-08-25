@@ -75,7 +75,7 @@ void busDeviceWindow::updateStatus()
 
 void busDeviceWindow::on_triggerButton_clicked()
 {
-    if(_triggerWidget == nullptr) _triggerWidget = new TriggerWidget(_device,this);
+    if(_triggerWidget == nullptr) _triggerWidget = new TriggerWidget(_device, this);
     if(_triggerWindow == nullptr)
     {
         _triggerWindow= new QMdiSubWindow;
@@ -90,7 +90,7 @@ void busDeviceWindow::on_triggerButton_clicked()
 
 void busDeviceWindow::on_pushButton_event_clicked()
 {
-    if(_eventWidget == nullptr) _eventWidget = new EventWidget(_device,this);
+    if(_eventWidget == nullptr) _eventWidget = new EventWidget(_device, this);
     if(_eventWindow == nullptr)
     {
         _eventWindow= new QMdiSubWindow;
@@ -105,7 +105,7 @@ void busDeviceWindow::on_pushButton_event_clicked()
 
 void busDeviceWindow::on_settingsButton_clicked()
 {
-    if(_settingsWidget == nullptr) _settingsWidget = new settingsWidget(_device,this);
+    if(_settingsWidget == nullptr) _settingsWidget = new settingsWidget(_device, this);
     if(_settingsWindow == nullptr)
     {
         _settingsWindow = new QMdiSubWindow;
@@ -123,7 +123,7 @@ void busDeviceWindow::on_settingsButton_clicked()
 
 void busDeviceWindow::on_stateButton_clicked()
 {
-    if(_stateReportWidget == nullptr) _stateReportWidget = new StateReportWidget(_device,this);
+    if(_stateReportWidget == nullptr) _stateReportWidget = new StateReportWidget(_device, this);
     if(_stateReportWindow == nullptr)
     {
         _stateReportWindow = new QMdiSubWindow;
@@ -140,7 +140,7 @@ void busDeviceWindow::on_stateButton_clicked()
 
 void busDeviceWindow::on_echoButton_clicked()
 {    
-    if(_echoWidget == nullptr) _echoWidget = new echoTestWidget(_device,this);
+    if(_echoWidget == nullptr) _echoWidget = new echoTestWidget(_device, this);
     if(_echoWindow == nullptr)
     {
         _echoWindow = new QMdiSubWindow;
@@ -155,7 +155,7 @@ void busDeviceWindow::on_echoButton_clicked()
 
 void busDeviceWindow::on_valueButton_clicked()
 {
-    if(_valueReportWidget == nullptr) _valueReportWidget = new valueReportWidget(_device,this);
+    if(_valueReportWidget == nullptr) _valueReportWidget = new ValueWidget(_device, this);
     if(_valueReportWindow == nullptr)
     {
         _valueReportWindow = new QMdiSubWindow;
@@ -171,7 +171,7 @@ void busDeviceWindow::on_valueButton_clicked()
 
 void busDeviceWindow::on_fileButton_clicked()
 {
-    if(_fileTransferWidget == nullptr) _fileTransferWidget = new fileTransferWidget(_device,this);
+    if(_fileTransferWidget == nullptr) _fileTransferWidget = new fileTransferWidget(_device, this);
     if(_fileTransferWindow == nullptr)
     {
         _fileTransferWindow = new QMdiSubWindow;

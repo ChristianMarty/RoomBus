@@ -36,7 +36,7 @@ SOURCES += \
         protocol/serialBridgeProtocol.cpp \
         protocol/stateReportProtocol.cpp \
         protocol/triggerProtocol.cpp \
-        protocol/valueReportProtocol.cpp \
+        protocol/valueProtocol.cpp \
         serialBridge.cpp
 
 HEADERS += \
@@ -55,7 +55,7 @@ HEADERS += \
         protocol/serialBridgeProtocol.h \
         protocol/stateReportProtocol.h \
         protocol/triggerProtocol.h \
-        protocol/valueReportProtocol.h \
+        protocol/valueProtocol.h \
         serialBridge.h
 unix {
     target.path = /usr/lib

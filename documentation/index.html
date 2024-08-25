@@ -1666,12 +1666,15 @@
             <th style="width: 100px;">Byte</th>
             <th>0</th>
             <th>1</th>
-            <th>2+n</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
         </tr>
         <tr>
             <th>Data</th>
             <td colspan="2">Value Channel Number</td>
-            <td>Value</td>
+            <td colspan="4">Value</td>
         </tr>
     </table>
 
@@ -1681,85 +1684,132 @@
             <th style="width: 100px;">Byte</th>
             <th>0</th>
             <th>1</th>
-            <th>2+n</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
         </tr>
         <tr>
             <th>Data</th>
             <td colspan="2">Value Channel Number</td>
-            <td>Value</td>
+            <td>Operation Id</td>
+            <td colspan="4">Value</td>
         </tr>
     </table>
+</document-page>
 
-    <h5>Commands - old</h5>
+<document-page>
+    <h5>Operation</h5>
     <table>
         <tr>
-            <th>Index</th>
+            <th>Id</th>
             <th>Description</th>
-            <th>Has Data</th>
+            <th>Limit enforcement</th>
+            <th>Datatype</th>
         </tr>
         <tr>
-            <td>0</td>
+            <td>0x00</td>
             <td>Set value to minimum</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
-            <td>1</td>
+            <td>0x01</td>
             <td>Set value to maximum</td>
             <td>-</td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>Invert / Complement</td>
             <td>-</td>
         </tr>
         <tr>
-            <td>3</td>
-            <td>Set to value x</td>
-            <td>x</td>
-        </tr>
-        <tr>
-            <td>4</td>
-            <td>Add int 8 x</td>
-            <td>x</td>
-        </tr>
-        <tr>
-            <td>5</td>
-            <td>Add int 16 x</td>
-            <td>x</td>
-        </tr>
-        <tr>
-            <td>6</td>
-            <td>Add int 32 x</td>
-            <td>x</td>
-        </tr>
-        <tr>
-            <td>7</td>
-            <td>Add int 64 x</td>
-            <td>x</td>
+            <td>0x02</td>
+            <td>Invert / Complement</td>
+            <td>-</td>
+            <td>-</td>
         </tr>
 
         <tr>
-            <td></td>
-            <td>Bitweise AND </td>
-            <td></td>
+            <th colspan="4"></th>
         </tr>
         <tr>
-            <td></td>
-            <td>Bitweise OR </td>
-            <td></td>
+            <th colspan="4"></th>
         </tr>
         <tr>
-            <td></td>
-            <td>Bitweise XOR </td>
-            <td></td>
+            <td>0x10</td>
+            <td>Set value</td>
+            <td>Reject</td>
+            <td>Long</td>
         </tr>
         <tr>
-            <td></td>
-            <td>Bitweise Invert </td>
-            <td></td>
+            <td>0x11</td>
+            <td>Set value</td>
+            <td>Clamp</td>
+            <td>Long</td>
+        </tr>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <td>0x20</td>
+            <td>Add value</td>
+            <td>Reject</td>
+            <td>Long</td>
+        </tr>
+        <tr>
+            <td>0x21</td>
+            <td>Add value</td>
+            <td>Clamp</td>
+            <td>Long</td>
+        </tr>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <td>0x30</td>
+            <td>Subtract value</td>
+            <td>Reject</td>
+            <td>Long</td>
+        </tr>
+        <tr>
+            <td>0x31</td>
+            <td>Subtract value</td>
+            <td>Clamp</td>
+            <td>Long</td>
+        </tr>
+       
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <td>0x40</td>
+            <td>Set value</td>
+            <td>Reject</td>
+            <td>Number</td>
+        </tr>
+        <tr>
+            <td>0x41</td>
+            <td>Set value</td>
+            <td>Clamp</td>
+            <td>Number</td>
+        </tr>
+        <tr>
+            <th colspan="4"></th>
+        </tr>
+        <tr>
+            <td>0x50</td>
+            <td>Add  value</td>
+            <td>Reject</td>
+            <td>Number</td>
+        </tr>
+        <tr>
+            <td>0x51</td>
+            <td>Add  value</td>
+            <td>Clamp</td>
+            <td>Number</td>
         </tr>
     </table>
-
 </document-page>
 
 <document-page>
@@ -1777,7 +1827,7 @@
         </tr>
         <tr>
             <th>Data</th>
-            <td colspan="2">State Channel Number</td>
+            <td colspan="2">Value Channel Number</td>
         </tr>
     </table>
     <h5>Value Signal Information Report</h5>
@@ -1788,12 +1838,27 @@
             <th>0</th>
             <th>1</th>
             <th>2</th>
-            <th>3+n</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th>8</th>
+            <th>9</th>
+            <th>10</th>
+            <th>11</th>
+            <th>12</th>
+            <th>13</th>
+            <th>14+n</th>
         </tr>
         <tr>
             <th>Data</th>
-            <td colspan="2">State Channel Number</td>
-            <td>Unit of Measurement</td>
+            <td colspan="2">Value Channel Number</td>
+            <td colspan="2">Interval</td>
+            <td>RO</td>
+            <td>UoM</td>
+            <td colspan="4">Minimum</td>
+            <td colspan="4">Maximum</td>
             <td>Channel Name</td>
         </tr>
     </table>
@@ -1806,12 +1871,16 @@
             <th>0</th>
             <th>1</th>
             <th>2</th>
-            <th>3+n</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6+n</th>
         </tr>
         <tr>
             <th>Data</th>
-            <td colspan="2">State Channel Number</td>
-            <td>Unit of Measurement</td>
+            <td colspan="2">Value Channel Number</td>
+            <td colspan="2">Timeout</td>
+            <td colspan="2">Unit of Measurement</td>
             <td>Channel Name</td>
         </tr>
     </table>
@@ -1826,227 +1895,156 @@
             <th>Symbol</th>
             <th>Description</th>
             <th>Data Type</th>
-            <th>Size [Byte]</th>
             <th>Note</th>
         </tr>
         <tr>
             <td>0x00</td>
             <td></td>
-            <td>Generic Boolean</td>
-            <td>Bool</td>
-            <td>1</td>
+            <td>Generic Long</td>
+            <td>Long</td>
             <td></td>
         </tr>
         <tr>
             <td>0x01</td>
             <td></td>
-            <td>Generic String</td>
-            <td>String</td>
-            <td>1-64</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x02</td>
-            <td></td>
-            <td>Generic Byte</td>
-            <td>Byte</td>
-            <td>1</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x03</td>
-            <td></td>
-            <td>Generic Integer</td>
-            <td>Integer</td>
-            <td>2</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x04</td>
-            <td></td>
-            <td>Generic Long</td>
-            <td>Long</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x05</td>
-            <td></td>
-            <td>Generic sByte</td>
-            <td>sByte</td>
-            <td>1</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x06</td>
-            <td></td>
-            <td>Generic sInteger</td>
-            <td>sInteger</td>
-            <td>2</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x07</td>
-            <td></td>
-            <td>Generic sLong</td>
-            <td>sLong</td>
-            <td>4</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x08</td>
-            <td></td>
             <td>Generic Number</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
-
         <tr>
-            <td>0x09</td>
-            <td></td>
-            <td>State</td>
-            <td>Byte</td>
-            <td>1</td>
-            <td>See chapter "State Code"</td>
-        </tr>
-        <tr>
-            <td colspan="6"></td>
+            <td colspan="5"></td>
         </tr>
         <tr>
             <td>0x10</td>
             <td></td>
             <td>Absolute Time</td>
             <td>Long</td>
-            <td>4</td>
             <td>Unix time as 32 bit unsigned int</td>
         </tr>
         <tr>
             <td>0x11</td>
-            <td>s</td>
-            <td>Relative Time</td>
-            <td>Number</td>
-            <td>4</td>
             <td></td>
+            <td>Time of Day</td>
+            <td>Long</td>
+            <td>Milliseconds since midnight</td>
         </tr>
         <tr>
             <td>0x12</td>
-            <td>°C</td>
-            <td>Temperature</td>
-            <td>Number</td>
-            <td>4</td>
             <td></td>
+            <td>Date</td>
+            <td>Long</td>
+            <td>tbd</td>
         </tr>
         <tr>
             <td>0x13</td>
-            <td>%</td>
-            <td>Rel. Humidity</td>
+            <td>s</td>
+            <td>Relative Time</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
             <td>0x14</td>
-            <td>kPa</td>
-            <td>Pressure</td>
+            <td>°C</td>
+            <td>Temperature</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
             <td>0x15</td>
+            <td>%</td>
+            <td>Rel. Humidity</td>
+            <td>Number</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>kPa</td>
+            <td>Pressure</td>
+            <td>Number</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
             <td>V</td>
             <td>Voltage</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x16</td>
+            <td></td>
             <td>A</td>
             <td>Current</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x17</td>
+            <td></td>
             <td>W</td>
             <td>Power</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x18</td>
+            <td></td>
             <td></td>
             <td>Power Factor</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x19</td>
+            <td></td>
             <td>Hz</td>
             <td>Frequency</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x1A</td>
+            <td></td>
             <td>kWh</td>
             <td>Energy</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x1B</td>
+            <td></td>
             <td>Ω</td>
             <td>Resistance</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x1C</td>
+            <td></td>
             <td>F</td>
             <td>Capacitance</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x1D</td>
+            <td></td>
             <td>N</td>
             <td>Force</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x1E</td>
+            <td></td>
             <td>kg</td>
             <td>Weight</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x1F</td>
+            <td></td>
             <td>m</td>
             <td>Length</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
         <tr>
-            <td>0x20</td>
+            <td></td>
             <td>m/s</td>
             <td>Speed</td>
             <td>Number</td>
-            <td>4</td>
             <td></td>
         </tr>
     </table>

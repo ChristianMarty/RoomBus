@@ -20,6 +20,7 @@ signals:
 
 private slots:
     void on_signalStateChnage(uint16_t channel, StateReportProtocol::SignalState newState);
+
 private:
     Ui::StateReportSignalLineWidget *ui;
 

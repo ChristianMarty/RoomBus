@@ -8,7 +8,7 @@
 #include "trigger/triggerWidget.h"
 #include "event/eventWidget.h"
 #include "state/stateReportWidget.h"
-#include "value/valueReportWidget.h"
+#include "value/valueWidget.h"
 #include "fileTransferWidget.h"
 #include "echoTestWidget.h"
 
@@ -68,7 +68,7 @@ private:
     TriggerWidget *_triggerWidget = nullptr;
     EventWidget *_eventWidget = nullptr;
     StateReportWidget *_stateReportWidget = nullptr;
-    valueReportWidget *_valueReportWidget = nullptr;
+    ValueWidget *_valueReportWidget = nullptr;
     fileTransferWidget *_fileTransferWidget = nullptr;
 
     SerialBridgeWidget *_tinyLoaderWidget = nullptr;
