@@ -6,8 +6,8 @@
  */ 
 
 
-#include "drv/SAMx5x/system.h"
-#include "drv/SAMx5x/fuse.h"
+#include "driver/SAMx5x/system.h"
+#include "driver/SAMx5x/fuse.h"
 #include "protocol/messageLogProtocol.h"
 
 void system_init(void)

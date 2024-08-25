@@ -1,13 +1,12 @@
-/*
- * bus.c
- *
- * Created: 11.09.2018 22:34:27
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : bus.c
+// FilePath : uCodebase/kernel/
+// Author   : Christian Marty
+// Date		: 11.09.2018
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include "bus.h"
 #include "utility/string.h"
-
 
 #ifdef __cplusplus
 extern "C" {

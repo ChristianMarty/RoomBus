@@ -8,7 +8,7 @@
 #ifndef MESSAGE_LOG_PROTOCOL_H_
 #define MESSAGE_LOG_PROTOCOL_H_
 
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 
 #ifdef __cplusplus
 extern "C" {

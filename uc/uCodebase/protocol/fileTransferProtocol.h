@@ -8,7 +8,7 @@
 #ifndef FILE_TRANSFER_PROTOCOL_H_
 #define FILE_TRANSFER_PROTOCOL_H_
 
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 #include "kernel/littleFS/lfs.h"
 
 #ifdef __cplusplus

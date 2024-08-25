@@ -10,7 +10,7 @@
 #define BUS_CONTROLLER2_IO_H_
 
 #include "sam.h"
-#include "drv/SAMx5x/pin.h"
+#include "driver/SAMx5x/pin.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus

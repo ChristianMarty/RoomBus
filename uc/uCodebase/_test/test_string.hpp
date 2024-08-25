@@ -51,25 +51,25 @@ TEST_CASE( "Test string_int8ToHex", "[string_int8ToHex]" ) {
 
     SECTION("Test 1") {
         char str[] = "          ";
-        string_int8ToHex(0x32,str);
+        string_uInt8ToHex(0x32,str);
         REQUIRE(match_string(str,"32",10));
     }
 
     SECTION("Test 2") {
         char str[] = "          ";
-        string_int8ToHex(0x00,str);
+        string_uInt8ToHex(0x00,str);
         REQUIRE(match_string(str,"00",10));
     }
 
     SECTION("Test 3") {
         char str[] = "          ";
-        string_int8ToHex(0xFF,str);
+        string_uInt8ToHex(0xFF,str);
         REQUIRE(match_string(str,"FF",10));
     }
 
     SECTION("Test 4") {
         char str[] = "          ";
-        string_int8ToHex(0xA9,str);
+        string_uInt8ToHex(0xA9,str);
         REQUIRE(match_string(str,"A9",10));
     }
 }

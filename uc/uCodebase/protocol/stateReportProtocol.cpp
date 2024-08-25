@@ -6,13 +6,13 @@
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
 #include "stateReportProtocol.h"
-#include "string.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 bool parseStateReport(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool parseStateRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 bool parseStateReportSignalInformationRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 bool parseStateReportSlotInformationRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 
@@ -72,7 +72,8 @@ void srp_mainHandler(const stateReportProtocol_t *srp)
 bool srp_receiveHandler(const stateReportProtocol_t *srp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
 {
 	switch(command){
-		case srp_cmd_state : return parseStateReport(srp, sourceAddress, data, size);
+		case srp_cmd_state: return parseStateReport(srp, sourceAddress, data, size);
+		case srp_cmd_stateRequest: return parseStateRequest(srp, sourceAddress, data, size);
 		case srp_cmd_signalInformationRequest: return parseStateReportSignalInformationRequest(srp, sourceAddress, data, size);
 		case srp_cmd_slotInformationRequest: return parseStateReportSlotInformationRequest(srp, sourceAddress, data, size);
 	}
@@ -132,6 +133,37 @@ bool parseStateReport(const stateReportProtocol_t* srp, uint8_t sourceAddress, c
 	}
 
 	return found;
+}
+
+bool parseStateRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+{
+	// in case size is 0 -> send all
+	if(size == 0){
+		for(uint8_t j = 0; j < srp->signalSize; j++){
+			srp->_signalState[j].sendSignalPending = true;
+		}
+		return true;
+	}
+	
+	// look for requested channels
+	bool found = false;
+	for(uint8_t i = 0; i < size; i+=2)
+	{
+		uint16_t channel = (data[i]<<8)|data[i+1];
+			
+		// TODO: optimize
+		for(uint8_t j = 0; j < srp->signalSize; j++)
+		{
+			if(channel == srp->signals[j].channel)
+			{
+				srp->_signalState[j].sendSignalPending = true;
+				found = true;
+				break;
+			}
+		}
+	}
+	return found;
+	
 }
 
 bool parseStateReportSignalInformationRequest(const stateReportProtocol_t* srp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)

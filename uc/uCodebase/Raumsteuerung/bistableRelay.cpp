@@ -40,18 +40,18 @@ bsRelay_state_t bsRelay_state(bsRelay_t *relay)
 	return 	relay->relayState;
 }
 
-void bsRelay_handler(const kernel_t *kernel, bsRelay_t *relay)
+void bsRelay_handler(bsRelay_t *relay)
 {
 	switch(relay->relayStep)
 	{
 		case bsRelay_idle:		break;
 		case bsRelay_initOn :	relay->relayState = bsRelay_transitioning;
 								relay->relayStep = bsRelay_turnOn;
-								kernel->tickTimer.reset(&relay->pulsTimer);
+								kernel.tickTimer.reset(&relay->pulsTimer);
 								break;
 								
 		case bsRelay_turnOn :	pin_setOutput(relay->onPinPortNr,relay->onPinNr, true);
-								if(kernel->tickTimer.delay1ms(&relay->pulsTimer, RELAIS_SWITCH_ON_TIME)) relay->relayStep = bsRelay_isOn;
+								if(kernel.tickTimer.delay1ms(&relay->pulsTimer, RELAIS_SWITCH_ON_TIME)) relay->relayStep = bsRelay_isOn;
 								break;
 								
 		case bsRelay_isOn	:   relay->relayState = bsRelay_on;
@@ -62,12 +62,12 @@ void bsRelay_handler(const kernel_t *kernel, bsRelay_t *relay)
 								
 		case bsRelay_initOff:	relay->relayState = bsRelay_transitioning;
 								relay->relayStep = bsRelay_turnOff;
-								kernel->tickTimer.reset(&relay->pulsTimer);
+								kernel.tickTimer.reset(&relay->pulsTimer);
 								break;
 		
 				
 		case bsRelay_turnOff:   pin_setOutput(relay->offPinPortNr,relay->offPinNr, true);
-								if(kernel->tickTimer.delay1ms(&relay->pulsTimer, RELAIS_SWITCH_OFF_TIME)) relay->relayStep = bsRelay_isOff;
+								if(kernel.tickTimer.delay1ms(&relay->pulsTimer, RELAIS_SWITCH_OFF_TIME)) relay->relayStep = bsRelay_isOff;
 								break;
 				
 		case bsRelay_isOff	:	relay->relayState = bsRelay_off;

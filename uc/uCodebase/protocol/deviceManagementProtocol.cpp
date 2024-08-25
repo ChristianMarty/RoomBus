@@ -7,10 +7,10 @@
 //**********************************************************************************************************************
 
 #include "protocol/deviceManagementProtocol.h"
-#include "drv/SAMx5x/sysTickTimer.h"
-#include "drv/SAMx5x/eeprom.h"
-#include "drv/SAMx5x/flash.h"
-#include "drv/SAMx5x/system.h"
+#include "driver/SAMx5x/tickTimer.h"
+#include "driver/SAMx5x/eeprom.h"
+#include "driver/SAMx5x/flash.h"
+#include "driver/SAMx5x/system.h"
 #include "utility/string.h"
 #include "kernel/firmwareUpdate.h"
 #include "utility/pack.h"
@@ -96,12 +96,12 @@ void dmp_init(uint8_t *appName, sysControlData_t *sysControl, sysStatusData_t *s
 
 void dmp_handler(void)
 {
-	if(sysTick_delay1ms(&heartbeatTimer,(heartbeatIntervalTime*1000)))
+	if(tickTimer_delay1ms(&heartbeatTimer,(heartbeatIntervalTime*1000)))
 	{
 		dmp_sendHeartbeat();
 	}
 	
-	if(sysTick_delay1ms(&extendedHeartbeatTimer,(extendedHeartbeatIntervalTime*10000)))
+	if(tickTimer_delay1ms(&extendedHeartbeatTimer,(extendedHeartbeatIntervalTime*10000)))
 	{
 		dmp_sendExtendedHeartbeat();
 	} 
@@ -199,7 +199,7 @@ void dmp_sendHeartbeat(void)
 		bus_pushWord32(&msg, status); 
 		bus_send(&msg);
 		
-		sysTick_resetDelayCounter(&heartbeatTimer);
+		tickTimer_reset(&heartbeatTimer);
 	}
 }
 
@@ -236,7 +236,7 @@ void dmp_sendSystemInfo(void)
 		bus_pushWord32(&msg, *(uint32_t*)0x00806018); //Serial Number Word 3
 		bus_send(&msg);
 		
-		sysTick_resetDelayCounter(&extendedHeartbeatTimer);
+		tickTimer_reset(&extendedHeartbeatTimer);
 	}
 }
 

@@ -6,7 +6,6 @@
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
 #include "eventProtocol.h"
-#include "string.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -6,7 +6,7 @@
  */ 
 
 #include "systemControl.h"
-#include "drv/SAMx5x/system.h"
+#include "driver/SAMx5x/system.h"
 
 
 void systemControl_init(systemControl_t *self, sysSavedSettings_t *settings)

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#define TEST_RUN
+
 #include "catch2/catch.hpp"
 #include "_test_helper.hpp"
 
@@ -17,6 +17,12 @@
 #include "test_softCRC.hpp"
 
 #include "test_bytearray.hpp"
+
+#include "test_perlin.hpp"
+
+#include "test_tickTimer.hpp"
+
+#include "test_valueReportProtocol.hpp"
 
 
 

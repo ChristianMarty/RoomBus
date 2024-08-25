@@ -1,11 +1,10 @@
-/*
- * system.h
- *
- * Created: 12.01.2019 21:38:44
- *  Author: Christian
- */ 
-
-
+//**********************************************************************************************************************
+// FileName : kernel.h
+// FilePath : protocol/
+// Author   : Christian Marty
+// Date		: 16.08.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifndef APP_DEFINES_H_
 #define APP_DEFINES_H_
 
@@ -13,9 +12,10 @@
 extern "C" {
 #endif
 
-#include "littleFS/lfs.h"
-#include "kernel/busDefines.h"
-#include "drv/SAMx5x/genericClockController.h"
+#include "typedef.h"
+
+#include "kernel/littleFS/lfs.h"
+#include "driver/SAMx5x/genericClockController.h"
 
 // BUS Special Addresses
 #define BROADCAST BUS_BROADCAST_ADDRESS

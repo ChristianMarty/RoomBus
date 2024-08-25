@@ -14,22 +14,23 @@
 #include "protocol/messageLogProtocol.h"
 #include "protocol/fileTransferProtocol.h"
 
+#include "common/kernel.h"
+
 #include "kernel/bus.h"
-#include "kernel/kernel.h"
 #include "kernel/standardIO.h"
 #include "kernel/systemControl.h"
 #include "kernel/dataSystem.h"
 
-#include "drv/SAMx5x/sysTickTimer.h"
-#include "drv/SAMx5x/interrupt.h"
-#include "drv/SAMx5x/system.h"
-#include "drv/SAMx5x/pin.h"
-#include "drv/SAMx5x/uart.h"
-#include "drv/SAMx5x/genericClockController.h"
-#include "drv/SAMx5x/rand.h"
-#include "drv/SAMx5x/wdt.h"
-#include "drv/SAMx5x/dma.h"
-#include "drv/SAMx5x/eeprom.h"
+#include "driver/SAMx5x/tickTimer.h"
+#include "driver/SAMx5x/interrupt.h"
+#include "driver/SAMx5x/system.h"
+#include "driver/SAMx5x/pin.h"
+#include "driver/SAMx5x/uart.h"
+#include "driver/SAMx5x/genericClockController.h"
+#include "driver/SAMx5x/rand.h"
+#include "driver/SAMx5x/wdt.h"
+#include "driver/SAMx5x/dma.h"
+#include "driver/SAMx5x/eeprom.h"
 
 #include "utility/string.h"
 #include "utility/softCRC.h"
@@ -155,7 +156,7 @@ bool checkAppValid(void)
 
 void bus_onTransmitt(void)
 {
-	sysTick_resetDelayCounter(&redLedTimer);
+	tickTimer_reset(&redLedTimer);
 	ledRed = true;
 }
 
@@ -202,12 +203,12 @@ int main(void)
 	system_configure();
 	
 	system_init();
-	sysTick_init(120000000);
+	tickTimer_init(120000000);
 	stdIO_init();
 	
 	nvic_init();
-	nvic_assignInterruptHandler(SysTick_IRQn,sysTick_interruptHandler);
-	nvic_assignInterruptHandler(CAN0_IRQn,bus_interrupt);
+	nvic_assignInterruptHandler(SysTick_IRQn, tickTimer_interruptHandler);
+	nvic_assignInterruptHandler(CAN0_IRQn, bus_interrupt);
 	
 	wdt_init(wdt_earlyWarningHandler);
 	
@@ -240,7 +241,7 @@ int main(void)
 	sysSavedSettings.reg = eeporm_readByte(&eememSysSavedSettings);
 	systemControl_init(&sysControlHandler,&sysSavedSettings);
 	
-	sysTick_resetDelayCounter(&sysControlTaskTick);
+	tickTimer_reset(&sysControlTaskTick);
 	
 	if(RSTC->RCAUSE.reg & 0x20) // WDT
 	{
@@ -261,8 +262,8 @@ int main(void)
 	
 	uint32_t boot_count =  dataSystem_init(&lfs);	
 	
-	kernel.tickTimer.reset = sysTick_resetDelayCounter;
-	kernel.tickTimer.delay1ms = sysTick_delay1ms;
+	kernel.tickTimer.reset = tickTimer_reset;
+	kernel.tickTimer.delay1ms = tickTimer_delay1ms;
 	kernel.bus.getMessageSlot = bus_getMessageSlot;
 	kernel.bus.pushByte = bus_pushByte;
 	kernel.bus.pushWord16 = bus_pushWord16;
@@ -351,7 +352,7 @@ int main(void)
 		}
 		
 		// 500ms Task
-		if(sysTick_delay1ms(&sysControlTaskTick,500))
+		if(tickTimer_delay1ms(&sysControlTaskTick,500))
 		{	
 			if(watchdogWarningConter > 0) watchdogWarningConter--;
 			
@@ -416,13 +417,13 @@ int main(void)
 		{
 			sysStatus.bit.appRuning  = true;
 			
-			volatile uint16_t startTick = sysTick_getTick_us();
-			volatile uint32_t startTime = sysTick_getTickTime();
+			volatile uint16_t startTick = tickTimer_getTick_us();
+			volatile uint32_t startTime = tickTimer_getTickTime();
 			
 			appHead->appRun();
 			
-			volatile uint32_t endTime = sysTick_getTickTime();
-			volatile uint16_t endTick = sysTick_getTick_us();
+			volatile uint32_t endTime = tickTimer_getTickTime();
+			volatile uint16_t endTick = tickTimer_getTick_us();
 			
 			appBenchmark.tick_last = (uint16_t)(endTick-startTick);
 			appBenchmark.ms_last   = (uint16_t)(endTime-startTime);
@@ -454,19 +455,19 @@ int main(void)
 		ftp_handler();
 		
 		
-		if(sysTick_delay1ms(&redLedTimer,10))
+		if(tickTimer_delay1ms(&redLedTimer,10))
 		{
 			ledRed = false;
 		}
 		
-		if(sysTick_delay1ms(&greenLedTimer,10))
+		if(tickTimer_delay1ms(&greenLedTimer,10))
 		{
 			ledGreen = false;
 		}
 
 		if(!bus_rxBufferEmpty())
 		{
-			sysTick_resetDelayCounter(&greenLedTimer);
+			tickTimer_reset(&greenLedTimer);
 			
 			uint8_t rxIndex = bus_getRxFrameIndex();
 			can_rxFrame_t *rx = bus_getRxFrame(rxIndex);

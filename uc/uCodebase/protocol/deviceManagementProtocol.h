@@ -9,12 +9,13 @@
 #define DEVICE_MANAGEMENT_PROTOCOL_H_
 
 #include "sam.h"
-#include "kernel/busDefines.h"
+#include "common/kernel.h"
+
 #include "kernel/systemControl.h"
 #include "kernel/bus.h"
-#include "kernel/kernel.h"
 
-#include "drv/SAMx5x/system.h"
+
+#include "driver/SAMx5x/system.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -9,7 +9,7 @@
 #ifndef GENERICCLOCKCONTROLLER_H_
 #define GENERICCLOCKCONTROLLER_H_
 
-#include "sam.h"
+#include "common/typedef.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,7 +17,6 @@ extern "C" {
 	
 
 typedef enum {
-	
 	GCLK_SRC_XOSC0,
 	GCLK_SRC_XOSC1,
 	GCLK_SRC_GCLK_IN,

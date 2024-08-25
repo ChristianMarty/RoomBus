@@ -1,0 +1,57 @@
+//**********************************************************************************************************************
+// FileName : typedef.c
+// FilePath : uCodebase/common/
+// Author   : Christian Marty
+// Date		: 26.05.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#ifndef TYPEDEF_H_
+#define TYPEDEF_H_
+
+#include <stdint.h>
+#include <stdbool.h>
+#include "main.h"
+#ifndef TEST_RUN
+	#include "sam.h"
+#endif
+
+#define BUS_BROADCAST_ADDRESS 127
+
+typedef enum {
+	busProtocol_deviceManagementProtocol = 0,
+	busProtocol_logging = 1,
+	busProtocol_fileTransferProtocol = 2,
+	
+	busProtocol_triggerProtocol = 8, 
+	busProtocol_eventProtocol = 9,
+	busProtocol_stateReportProtocol = 10,
+	busProtocol_valueReportProtocol = 11,
+	busProtocol_serialBridgeProtocol = 12
+}busProtocol_t;
+
+typedef enum {
+	busPriority_reserved = 0,
+	busPriority_high = 1,
+	busPriority_normal = 2,
+	busPriority_low = 3
+} busPriority_t;
+
+#ifndef TEST_RUN
+
+typedef struct {
+	uint8_t length; // the length of the data in the buffer
+	uint8_t bufferIndex; // the index of the selected buffer
+}bus_message_t;
+
+#else
+typedef struct {
+    uint8_t destinationAddress;
+    busProtocol_t protocol;
+    uint8_t command;
+    busPriority_t priority;
+    uint8_t data[64];
+    uint8_t length;
+}bus_message_t;
+#endif
+
+#endif /* TYPEDEF_H_ */

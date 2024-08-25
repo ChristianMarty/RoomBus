@@ -196,77 +196,89 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\dma.c">
+    <Compile Include="..\..\uCodebase\common\io_same51jx.h">
       <SubType>compile</SubType>
-      <Link>drv\dma.c</Link>
+      <Link>common\io_same51jx.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\dma.h">
+    <Compile Include="..\..\uCodebase\common\kernel.h">
       <SubType>compile</SubType>
-      <Link>drv\dma.h</Link>
+      <Link>common\kernel.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\eeprom.h">
+    <Compile Include="..\..\uCodebase\common\typedef.h">
       <SubType>compile</SubType>
-      <Link>drv\eeprom.h</Link>
+      <Link>common\typedef.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\flash.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\dma.c">
       <SubType>compile</SubType>
-      <Link>drv\flash.h</Link>
+      <Link>driver\dma.c</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\fuse.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\dma.h">
       <SubType>compile</SubType>
-      <Link>drv\fuse.h</Link>
+      <Link>driver\dma.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\genericClockController.c">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\eeprom.h">
       <SubType>compile</SubType>
-      <Link>drv\genericClockController.c</Link>
+      <Link>driver\eeprom.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\genericClockController.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\flash.h">
       <SubType>compile</SubType>
-      <Link>drv\genericClockController.h</Link>
+      <Link>driver\flash.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\interrupt.c">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\fuse.h">
       <SubType>compile</SubType>
-      <Link>drv\interrupt.c</Link>
+      <Link>driver\fuse.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\interrupt.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\genericClockController.c">
       <SubType>compile</SubType>
-      <Link>drv\interrupt.h</Link>
+      <Link>driver\genericClockController.c</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\pin.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\genericClockController.h">
       <SubType>compile</SubType>
-      <Link>drv\pin.h</Link>
+      <Link>driver\genericClockController.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\qspi.c">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\interrupt.c">
       <SubType>compile</SubType>
-      <Link>drv\qspi.c</Link>
+      <Link>driver\interrupt.c</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\qspi.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\interrupt.h">
       <SubType>compile</SubType>
-      <Link>drv\qspi.h</Link>
+      <Link>driver\interrupt.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\rand.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\pin.h">
       <SubType>compile</SubType>
-      <Link>drv\rand.h</Link>
+      <Link>driver\pin.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\system.c">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\qspi.c">
       <SubType>compile</SubType>
-      <Link>drv\system.c</Link>
+      <Link>driver\qspi.c</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\system.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\qspi.h">
       <SubType>compile</SubType>
-      <Link>drv\system.h</Link>
+      <Link>driver\qspi.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\sysTickTimer.c">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\rand.h">
       <SubType>compile</SubType>
-      <Link>drv\sysTickTimer.c</Link>
+      <Link>driver\rand.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\sysTickTimer.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\system.c">
       <SubType>compile</SubType>
-      <Link>drv\sysTickTimer.h</Link>
+      <Link>driver\system.c</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\wdt.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\system.h">
       <SubType>compile</SubType>
-      <Link>drv\wdt.h</Link>
+      <Link>driver\system.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\tickTimer.c">
+      <SubType>compile</SubType>
+      <Link>driver\tickTimer.c</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\tickTimer.h">
+      <SubType>compile</SubType>
+      <Link>driver\tickTimer.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\wdt.h">
+      <SubType>compile</SubType>
+      <Link>driver\wdt.h</Link>
     </Compile>
     <Compile Include="..\..\uCodebase\kernel\bus.c">
       <SubType>compile</SubType>
@@ -275,10 +287,6 @@
     <Compile Include="..\..\uCodebase\kernel\bus.h">
       <SubType>compile</SubType>
       <Link>kernel\bus.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\kernel\busController_IO.h">
-      <SubType>compile</SubType>
-      <Link>kernel\busController_IO.h</Link>
     </Compile>
     <Compile Include="..\..\uCodebase\kernel\busDefines.h">
       <SubType>compile</SubType>
@@ -299,10 +307,6 @@
     <Compile Include="..\..\uCodebase\kernel\firmwareUpdate.h">
       <SubType>compile</SubType>
       <Link>kernel\firmwareUpdate.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\kernel\kernel.h">
-      <SubType>compile</SubType>
-      <Link>kernel\kernel.h</Link>
     </Compile>
     <Compile Include="..\..\uCodebase\kernel\littleFS\lfs.c">
       <SubType>compile</SubType>
@@ -395,10 +399,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Device_Startup\" />
-    <Folder Include="drv" />
+    <Folder Include="driver" />
     <Folder Include="kernel\littleFs" />
     <Folder Include="lib" />
     <Folder Include="kernel" />
+    <Folder Include="common" />
     <Folder Include="protocol" />
   </ItemGroup>
   <ItemGroup>

@@ -45,6 +45,6 @@ void bsRelay_set(bsRelay_t *relay, bool state);
 void bsRelay_toggle(bsRelay_t *relay);
 bsRelay_state_t bsRelay_state(bsRelay_t *relay);
 
-void bsRelay_handler(const kernel_t *kernel, bsRelay_t *relay);
+void bsRelay_handler(bsRelay_t *relay);
 
 #endif /* BISTABLE_RELAY_H_ */

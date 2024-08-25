@@ -8,9 +8,9 @@
 #ifndef BUS_H_
 #define BUS_H_
 
-#include "busDefines.h"
+#include "common/typedef.h"
 
-#include "sam.h"
+
 #include <stdbool.h>
 
 #ifdef __cplusplus

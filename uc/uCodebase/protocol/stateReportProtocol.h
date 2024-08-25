@@ -13,7 +13,7 @@
 
 ***********************************************************************************************************************/
 #include "sam.h"
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,9 +21,9 @@ extern "C" {
 	
 typedef enum {
 	srp_cmd_state,
+	srp_cmd_stateRequest,
 	srp_cmd_reserved0,
 	srp_cmd_reserved1,
-	srp_cmd_reserved2,
 	
 	srp_cmd_signalInformationReport,
 	srp_cmd_slotInformationReport,

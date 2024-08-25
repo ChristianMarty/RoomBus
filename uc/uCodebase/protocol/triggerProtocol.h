@@ -38,7 +38,7 @@ const triggerSystemProtocol_t triggerSystem = {
 
 ***********************************************************************************************************************/
 #include "sam.h"
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -41,7 +41,7 @@ const eventSystemProtocol_t eventSystem = {
 
 ***********************************************************************************************************************/
 #include "sam.h"
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 
 #ifdef __cplusplus
 extern "C" {

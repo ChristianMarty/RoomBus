@@ -7,8 +7,9 @@
 
 #include "protocol/deviceManagementProtocol.h"
 #include "kernel/firmwareUpdate.h"
-#include "drv/SAMx5x/flash.h"
 #include "kernel/systemControl.h"
+
+#include "driver/SAMx5x/flash.h"
 
 #ifdef __cplusplus
 extern "C" {

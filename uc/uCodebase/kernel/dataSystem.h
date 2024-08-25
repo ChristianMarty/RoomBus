@@ -17,7 +17,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "drv/SAMx5x/qspi.h"
+#include "driver/SAMx5x/qspi.h"
 
 uint32_t dataSystem_init(lfs_t *lfs);
 
