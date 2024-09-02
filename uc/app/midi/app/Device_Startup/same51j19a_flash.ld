@@ -37,7 +37,8 @@ MEMORY
 {
   ahdr     (rx)  : ORIGIN = 0x00010000, LENGTH = 0x00000064
   rom      (rx)  : ORIGIN = 0x00010064, LENGTH = 0x00077F9C
-  ram      (rwx) : ORIGIN = 0x20004000, LENGTH = 0x0002C000
+  kc       (rx)  : ORIGIN = 0x2000FE00, LENGTH = 0x00000200
+  ram      (rwx) : ORIGIN = 0x20010000, LENGTH = 0x00020000
   bkupram  (rwx) : ORIGIN = 0x47000000, LENGTH = 0x00002000
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
 }
@@ -52,6 +53,12 @@ SECTIONS
 	{
 		KEEP(*(.appHeader))
 	} > ahdr
+
+	.kernelCall (NOLOAD):
+	{
+		*(.kernelCall*)
+	} > kc
+
     .text :
     {
         . = ALIGN(4);

@@ -516,8 +516,8 @@ void Reset_Handler(void)
         }
 
         /* Set the vector table base address */
-        //pSrc = (uint32_t *) & _sfixed;
-        //SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
+     //   pSrc = (uint32_t *) & _sfixed;
+     //   SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
 
 #if __FPU_USED
         /* Enable FPU */
@@ -527,13 +527,13 @@ void Reset_Handler(void)
 #endif
 
         /* Initialize the C library */
-       // __libc_init_array();
+  /*      __libc_init_array();
 
         /* Branch to main function */
-       // main();
+   //     main();
 
         /* Infinite loop */
-       // while (1);
+      //  while (1);
 }
 
 /**

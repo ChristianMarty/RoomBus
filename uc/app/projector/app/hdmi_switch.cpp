@@ -1,5 +1,5 @@
 #include "hdmi_switch.h"
-#include "Raumsteuerung/necIr.h"
+#include "interface/necIr.h"
 
 
 
@@ -46,16 +46,16 @@ void hdmi_setMatrix(uint8_t out, uint8_t in)
 	else if(out == 'B') hdmi_cmd = b[in];
 }
 
-void hdmi_turnOff(const kernel_t *kernel)
+void hdmi_turnOff(void)
 {
 	hdmi_state = hdmi_state_switchOff;
 }
 
-bool hdmi_getSwitchOn(const kernel_t *kernel)
+bool hdmi_getSwitchOn(void)
 {
 	if(hdmi_state == hdmi_state_switchOn)
 	{
-		kernel->tickTimer.reset(&hdmi_turnOnTimer);
+		kernel.tickTimer.reset(&hdmi_turnOnTimer);
 		hdmi_state = hdmi_state_turnOn;
 		return true;
 	}
@@ -63,7 +63,7 @@ bool hdmi_getSwitchOn(const kernel_t *kernel)
 	return false;
 }
 
-bool hdmi_getSwitchOff(const kernel_t *kernel)
+bool hdmi_getSwitchOff(void)
 {
 	if(hdmi_state == hdmi_state_switchOff)
 	{
@@ -74,20 +74,20 @@ bool hdmi_getSwitchOff(const kernel_t *kernel)
 	return false;
 }
 
-void hdmi_init(const kernel_t *kernel, pin_port_t portNr, uint8_t pinNr)
+void hdmi_init(pin_port_t portNr, uint8_t pinNr)
 {
-	kernel->tickTimer.reset(&repeatTimer);
-	kernel->tickTimer.reset(&hdmi_turnOnTimer);
+	kernel.tickTimer.reset(&repeatTimer);
+	kernel.tickTimer.reset(&hdmi_turnOnTimer);
 	hdmi_state = hdmi_state_off;
 	
-	necIR_init(kernel, portNr, pinNr);
+	necIR_init(portNr, pinNr);
 }
 
-void hdmi_handler(const kernel_t *kernel)
+void hdmi_handler(void)
 {
 	if(hdmi_state == hdmi_state_turnOn)
 	{
-		if(kernel->tickTimer.delay1ms(&hdmi_turnOnTimer, TURN_ON_TIME))
+		if(kernel.tickTimer.delay1ms(&hdmi_turnOnTimer, TURN_ON_TIME))
 		{
 			hdmi_state = hdmi_state_on;
 		}
@@ -98,13 +98,13 @@ void hdmi_handler(const kernel_t *kernel)
 		if(hdmi_tx_counter == 0)
 		{
 			hdmi_tx_counter ++;
-			kernel->tickTimer.reset(&repeatTimer);
+			kernel.tickTimer.reset(&repeatTimer);
 		}
 		else if(hdmi_tx_counter < NR_OF_REPETITIONS+1)
 		{
-			if(kernel->tickTimer.delay1ms(&repeatTimer, REPETITION_DELAY))
+			if(kernel.tickTimer.delay1ms(&repeatTimer, REPETITION_DELAY))
 			{
-				necIR_transmitCode(kernel, 0x00, hdmi_cmd);
+				necIR_transmitCode(0x00, hdmi_cmd);
 				hdmi_tx_counter++;
 			}
 		}	

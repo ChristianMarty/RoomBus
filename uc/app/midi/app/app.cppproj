@@ -60,64 +60,64 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <ArmGccCpp>
-  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
-  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
-  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
-  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
-  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
-  <armgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>NDEBUG</Value>
-    </ListValues>
-  </armgcc.compiler.symbols.DefSymbols>
-  <armgcc.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcc.compiler.directories.IncludePaths>
-  <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
-  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-  <armgcccpp.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>NDEBUG</Value>
-    </ListValues>
-  </armgcccpp.compiler.symbols.DefSymbols>
-  <armgcccpp.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcccpp.compiler.directories.IncludePaths>
-  <armgcccpp.compiler.optimization.level>Optimize for size (-Os)</armgcccpp.compiler.optimization.level>
-  <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
-  <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-  <armgcccpp.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </armgcccpp.linker.libraries.Libraries>
-  <armgcccpp.linker.libraries.LibrarySearchPaths>
-    <ListValues>
-      <Value>%24(ProjectDir)\Device_Startup</Value>
-    </ListValues>
-  </armgcccpp.linker.libraries.LibrarySearchPaths>
-  <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-  <armgcccpp.linker.miscellaneous.LinkerFlags>-Tsame51j19a_flash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
-  <armgcccpp.assembler.general.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcccpp.assembler.general.IncludePaths>
-  <armgcccpp.preprocessingassembler.general.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcccpp.preprocessingassembler.general.IncludePaths>
-</ArmGccCpp>
+        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+        <armgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>NDEBUG</Value>
+          </ListValues>
+        </armgcc.compiler.symbols.DefSymbols>
+        <armgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
+        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+        <armgcccpp.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>NDEBUG</Value>
+          </ListValues>
+        </armgcccpp.compiler.symbols.DefSymbols>
+        <armgcccpp.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcccpp.compiler.directories.IncludePaths>
+        <armgcccpp.compiler.optimization.level>Optimize for size (-Os)</armgcccpp.compiler.optimization.level>
+        <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
+        <armgcccpp.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </armgcccpp.linker.libraries.Libraries>
+        <armgcccpp.linker.libraries.LibrarySearchPaths>
+          <ListValues>
+            <Value>%24(ProjectDir)\Device_Startup</Value>
+          </ListValues>
+        </armgcccpp.linker.libraries.LibrarySearchPaths>
+        <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <armgcccpp.linker.miscellaneous.LinkerFlags>-Tsame51j19a_flash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcccpp.assembler.general.IncludePaths>
+        <armgcccpp.preprocessingassembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcccpp.preprocessingassembler.general.IncludePaths>
+      </ArmGccCpp>
     </ToolchainSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -135,7 +135,8 @@
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>../../../../codebase</Value>
+      <Value>..</Value>
+      <Value>../../../../uCodebase</Value>
       <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
     </ListValues>
@@ -151,7 +152,8 @@
   </armgcccpp.compiler.symbols.DefSymbols>
   <armgcccpp.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>../../../../codebase</Value>
+      <Value>..</Value>
+      <Value>../../../../uCodebase</Value>
       <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
     </ListValues>
@@ -196,65 +198,69 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\codebase\drv\SAMx5x\genericClockController.c">
+    <Compile Include="..\..\..\uCodebase\addOn\midiModul.cpp">
       <SubType>compile</SubType>
-      <Link>drv\genericClockController.c</Link>
+      <Link>addOn\midiModul.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\drv\SAMx5x\genericClockController.h">
+    <Compile Include="..\..\..\uCodebase\addOn\midiModul.h">
       <SubType>compile</SubType>
-      <Link>drv\genericClockController.h</Link>
+      <Link>addOn\midiModul.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\drv\SAMx5x\pin.h">
+    <Compile Include="..\..\..\uCodebase\common\io_same51jx.h">
       <SubType>compile</SubType>
-      <Link>pin.h</Link>
+      <Link>common\io_same51jx.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\drv\SAMx5x\timer.c">
+    <Compile Include="..\..\..\uCodebase\common\kernel.h">
       <SubType>compile</SubType>
-      <Link>drv\timer.c</Link>
+      <Link>common\kernel.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\drv\SAMx5x\timer.h">
+    <Compile Include="..\..\..\uCodebase\common\typedef.h">
       <SubType>compile</SubType>
-      <Link>drv\timer.h</Link>
+      <Link>common\typedef.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\drv\SAMx5x\uart.cpp">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\genericClockController.c">
       <SubType>compile</SubType>
-      <Link>drv\uart.cpp</Link>
+      <Link>driver\genericClockController.c</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\drv\SAMx5x\uart.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\genericClockController.h">
       <SubType>compile</SubType>
-      <Link>drv\uart.h</Link>
+      <Link>driver\genericClockController.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\kernel\busController_IO.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\pin.h">
       <SubType>compile</SubType>
-      <Link>busController_IO.h</Link>
+      <Link>driver\pin.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\kernel\kernel.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\timer.c">
       <SubType>compile</SubType>
-      <Link>kernel.h</Link>
+      <Link>driver\timer.c</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\Raumsteuerung\midi.cpp">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\timer.h">
       <SubType>compile</SubType>
-      <Link>lib\midi.cpp</Link>
+      <Link>driver\timer.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\Raumsteuerung\midi.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\uart.cpp">
       <SubType>compile</SubType>
-      <Link>lib\midi.h</Link>
+      <Link>driver\uart.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\Raumsteuerung\valueReportProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\uart.h">
       <SubType>compile</SubType>
-      <Link>lib\valueReportProtocol.cpp</Link>
+      <Link>driver\uart.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\Raumsteuerung\valueReportProtocol.h">
+    <Compile Include="..\..\..\uCodebase\interface\midi.cpp">
       <SubType>compile</SubType>
-      <Link>lib\valueReportProtocol.h</Link>
+      <Link>interface\midi.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\utility\string.c">
+    <Compile Include="..\..\..\uCodebase\interface\midi.h">
       <SubType>compile</SubType>
-      <Link>lib\string.c</Link>
+      <Link>interface\midi.h</Link>
     </Compile>
-    <Compile Include="..\..\..\codebase\utility\string.h">
+    <Compile Include="..\..\..\uCodebase\protocol\valueReportProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>lib\string.h</Link>
+      <Link>protocol\valueReportProtocol.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\uCodebase\protocol\valueReportProtocol.h">
+      <SubType>compile</SubType>
+      <Link>protocol\valueReportProtocol.h</Link>
     </Compile>
     <Compile Include="Device_Startup\startup_same51.c">
       <SubType>compile</SubType>
@@ -262,11 +268,18 @@
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="main.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Device_Startup\" />
-    <Folder Include="drv" />
     <Folder Include="lib" />
+    <Folder Include="addOn" />
+    <Folder Include="common" />
+    <Folder Include="driver" />
+    <Folder Include="interface" />
+    <Folder Include="protocol" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\same51j19a_flash.ld">

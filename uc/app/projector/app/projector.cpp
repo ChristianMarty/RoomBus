@@ -1,6 +1,6 @@
 #include "projector.h"
-#include "drv/SAMx5x/uart.h"
-#include "drv/SAMx5x/pin.h"
+#include "driver/SAMx5x/uart.h"
+#include "driver/SAMx5x/pin.h"
 
 uart_c uartCom;
 
@@ -118,25 +118,25 @@ void projector_parseData(uint8_t *data, uint8_t size)
 	cmdLastState = cmdCurrentState;
 }
 
-void projector_init(const kernel_t *kernel)
+void projector_init(void)
 {
-	uartCom.initUart(kernel->clk_16MHz, SERCOM5, 9600, uart_c::none);
+	uartCom.initUart(kernel.clk_16MHz, SERCOM5, 9600, uart_c::none);
 	
 	// Uart
 	pin_enablePeripheralMux(PIN_PORT_B,16,PIN_FUNCTION_C);
 	pin_enablePeripheralMux(PIN_PORT_B,17,PIN_FUNCTION_C);
-	kernel->nvic.assignInterruptHandler(SERCOM5_2_IRQn,uart_onRx);
-	kernel->nvic.assignInterruptHandler(SERCOM5_1_IRQn,uart_onTx);
+	kernel.nvic.assignInterruptHandler(SERCOM5_2_IRQn,uart_onRx);
+	kernel.nvic.assignInterruptHandler(SERCOM5_1_IRQn,uart_onTx);
 	
 	pin_enableOutput(IO_D17);
 	pin_setOutput(IO_D17,true);
 	
-	kernel->tickTimer.reset(&timeoutTimer);
-	kernel->tickTimer.reset(&statusUpdateTimer);
-	kernel->tickTimer.reset(&com_timer);
+	kernel.tickTimer.reset(&timeoutTimer);
+	kernel.tickTimer.reset(&statusUpdateTimer);
+	kernel.tickTimer.reset(&com_timer);
 	
-	kernel->tickTimer.reset(&projector_turnOnTimer);
-	kernel->tickTimer.reset(&projector_turnOffTimer);
+	kernel.tickTimer.reset(&projector_turnOnTimer);
+	kernel.tickTimer.reset(&projector_turnOffTimer);
 	
 	onOff_state = projector_off;
 	onOff_state_old = projector_on;
@@ -150,7 +150,7 @@ void projector_init(const kernel_t *kernel)
 	projector_statusRequest = false;
 }
 
-void projector_handler(const kernel_t *kernel)
+void projector_handler(void)
 {
 	if(dataReady) 
 	{
@@ -160,7 +160,7 @@ void projector_handler(const kernel_t *kernel)
 		projector_online = true;
 	}
 	
-	if(projector_statusRequest && kernel->tickTimer.delay1ms(&timeoutTimer, COM_TIMEOUT))
+	if(projector_statusRequest && kernel.tickTimer.delay1ms(&timeoutTimer, COM_TIMEOUT))
 	{
 		 projector_online = false;
 		 projector_statusRequest = false;
@@ -168,7 +168,7 @@ void projector_handler(const kernel_t *kernel)
 	
 	if(onOff_state == projector_cmd_off) projector_blankState = false;
 
-	if(kernel->tickTimer.delay1ms(&com_timer, 100))
+	if(kernel.tickTimer.delay1ms(&com_timer, 100))
 	{
 		cmdLastState = cmdCurrentState;
 		
@@ -206,10 +206,10 @@ void projector_handler(const kernel_t *kernel)
 	
 	if(cmdCurrentState == projector_cmd_idel)
 	{
-		if(kernel->tickTimer.delay1ms(&statusUpdateTimer, 5000))
+		if(kernel.tickTimer.delay1ms(&statusUpdateTimer, 5000))
 		{
 			projector_statusRequest = true;
-			kernel->tickTimer.reset(&timeoutTimer);
+			kernel.tickTimer.reset(&timeoutTimer);
 			
 			static uint8_t statusUpdateStep = 0;
 			
@@ -242,12 +242,12 @@ void projector_handler(const kernel_t *kernel)
 			}
 		}
 	
-		if(projector_powerState == false) kernel->tickTimer.reset(&projector_turnOnTimer);
-		if(projector_powerState == true)  kernel->tickTimer.reset(&projector_turnOffTimer);
+		if(projector_powerState == false) kernel.tickTimer.reset(&projector_turnOnTimer);
+		if(projector_powerState == true)  kernel.tickTimer.reset(&projector_turnOffTimer);
 	
 		if((projector_powerState == true) && (projector_powerState_old == false))
 		{
-			if(kernel->tickTimer.delay1ms(&projector_turnOnTimer, TURN_ON_TIME))
+			if(kernel.tickTimer.delay1ms(&projector_turnOnTimer, TURN_ON_TIME))
 			{
 				onOff_state = projector_on;
 				projector_powerState_old = projector_powerState;
@@ -259,7 +259,7 @@ void projector_handler(const kernel_t *kernel)
 		}
 		else if((projector_powerState == false) && (projector_powerState_old == true))
 		{
-			if(kernel->tickTimer.delay1ms(&projector_turnOffTimer, TURN_OFF_TIME))
+			if(kernel.tickTimer.delay1ms(&projector_turnOffTimer, TURN_OFF_TIME))
 			{
 				onOff_state = projector_switchOff;
 				projector_powerState_old = projector_powerState;

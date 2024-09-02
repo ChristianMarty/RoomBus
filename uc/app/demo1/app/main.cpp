@@ -239,7 +239,7 @@ int main(void)
 		
 		if(ed_onFalling(&button[0], pin_getInput(BUTTON1))){
 			uint8_t triggerList[] = {0};
-			tsp_sendTriggerByIndex(&triggerSystem, &triggerList[0], sizeof(triggerList));
+			tsp_sendTriggersByIndex(&triggerSystem, &triggerList[0], sizeof(triggerList));
 		}
 		
 		if(ed_onFalling(&button[1], pin_getInput(BUTTON2))){

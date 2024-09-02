@@ -1,20 +1,22 @@
-/*
- * app.cpp
- *
- * Created: 20.04.2019 20:05:30
- * Author : Christian
- */ 
+//**********************************************************************************************************************
+// FileName : main.cpp
+// FilePath :
+// Author   : Christian Marty
+// Date		: 20.04.2019
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#include "main.h"
 
-#include "sam.h"
-#include "kernel/kernel.h"
-#include "kernel/busController_IO.h"
+#include "common/kernel.h"
 
-#include "drv/SAMx5x/genericClockController.h"
+#include "protocol/triggerProtocol.h"
+#include "protocol/stateReportProtocol.h"
 
-#include "Raumsteuerung/stateReportProtocol.h"
-#include "Raumsteuerung/triggerProtocol.h"
+#include "driver/SAMx5x/pin.h"
 
-#include "Raumsteuerung/nextion.h"
+#include "utility/edgeDetect.h"
+
+#include "peripheral/nextion.h"
 
 int main(const kernel_t *kernel);
 void onReceive(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
@@ -79,6 +81,7 @@ touchEventAction_t touchEventAction[] = {
 };
 #define touchEventListSize (sizeof(touchEventAction)/sizeof(touchEventAction_t))
 
+//**** State Configuration ********************************************************************************************
 const srp_stateReport_t stateReports[] = {
 	{LOADSWITCH_ADDRESS, 0x01, &stateList[0] },
 	{LOADSWITCH_ADDRESS, 0x02, &stateList[1] },
@@ -101,6 +104,14 @@ const srp_stateReport_t stateReports[] = {
 };
 #define stateReportListSize (sizeof(stateReports)/sizeof(srp_stateReport_t))
 
+const stateReportProtocol_t stateSystem = {
+	.states = stateReports,
+	.stateSize = stateReportListSize,
+	.channels = nullptr,
+	.channelSize = 0
+};
+
+//**** Trigger Configuration ******************************************************************************************
 const tsp_triggerSignal_t triggerSignals[] = {
 	{ 0, LOADSWITCH_ADDRESS, 0x06, "Button 1"},
 	{ 1, LOADSWITCH_ADDRESS, 0x09, "Button 2"},
@@ -132,24 +143,19 @@ const triggerSlotProtocol_t triggerSystem = {
 	._slotsStatus = nullptr
 };
 
-const stateReportProtocol_t stateReport = {
-	.states = stateReports,
-	.stateSize = stateReportListSize,
-	.channels = nullptr,
-	.channelSize = 0
-};
 
-void onReceive(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
+//*********************************************************************************************************************
+
+bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
 {
-	switch(protocol)
-	{
-		//case busProtocol_triggerProtocol:		tsp_receiveHandler(kernel, sourceAddress, command,data, size, &triggerSystem);	break;
-		case busProtocol_stateReportProtocol:	srp_receiveHandler(kernel, sourceAddress, command,data, size, &stateReport);	break;
+	switch(protocol){
+		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
+		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
+		default: return false;
 	}
-	
 }
 
-void nextion_onTouchEvent_callback(const kernel_t *kernel, uint8_t page, uint8_t component)
+void nextion_onTouchEvent_callback(uint8_t page, uint8_t component)
 {	
 	for(uint8_t i = 0; i< touchEventListSize; i++)
 	{
@@ -161,7 +167,7 @@ void nextion_onTouchEvent_callback(const kernel_t *kernel, uint8_t page, uint8_t
 	kernel->tickTimer.reset(&displayOnTimer);
 }
 
-void stdEventHandler(const kernel_t *kernel, uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state)
+void stdEventHandler(uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state)
 {
 	uint8_t indexList[triggerSignalListSize];
 	uint8_t indexSize = 0;
@@ -186,7 +192,7 @@ void stdEventHandler(const kernel_t *kernel, uint8_t index, uint8_t page, uint8_
 		}
 //	}
 	
-	if(indexSize) tep_sendTriggerByGroup(kernel, &indexList[0], indexSize, triggerSignals, triggerSignalListSize);
+	if(indexSize) tep_sendTriggerByGroup(&indexList[0], indexSize, triggerSignals, triggerSignalListSize);
 }
 
 void hdmiMatrixHandler(const kernel_t *kernel, uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state)
@@ -196,7 +202,7 @@ void hdmiMatrixHandler(const kernel_t *kernel, uint8_t index, uint8_t page, uint
 	if(*state == srp_state_on) indexList[0] = 9;
 	else indexList[0] = index;
 	
-	tep_sendTriggerByGroup(kernel, &indexList[0], 1, triggerSignals, triggerSignalListSize);
+	tep_sendTriggerByGroup(&indexList[0], 1, triggerSignals, triggerSignalListSize);
 }
 
 void tsp_onStateChange_callback(const kernel_t *kernel)
@@ -216,17 +222,15 @@ void display_off(void)
 
 uint16_t i = 0;
 
-int main(const kernel_t *kernel)
+int main()
 {
-	//_kernel = kernel;
-	
 	// App Init Code
-	if(kernel->kernelSignals->initApp)
+	if(kernel.kernelSignals->initApp)
 	{
 		Reset_Handler();
 		
-		kernel->tickTimer.reset(&displayOnTimer);
-		kernel->tickTimer.reset(&displayComTimer);
+		kernel.tickTimer.reset(&displayOnTimer);
+		kernel.tickTimer.reset(&displayComTimer);
 		
 		pin_enableInput(IO_D04);
 		pin_enableInput(IO_D05);
@@ -238,24 +242,26 @@ int main(const kernel_t *kernel)
 		
 		nextion_init(kernel);
 		
-		srp_stateReportRequestAll(kernel, &stateReport);
-		
 		display_off();
 		
-		kernel->appSignals->appReady = true;		
+		tsp_initialize(&triggerSystem);
+		srp_initialize(&stateSystem);
+		
+		
+		kernel.appSignals->appReady = true;		
 		
 	}
 
 //----- Main -------------------------------------------------------------------------------------------------	
 	
-	if(kernel->appSignals->appReady == true)
+	if(kernel.appSignals->appReady == true)
 	{	
 		if(!pin_getInput(IO_D06)) displayPage = 1;
 		else if(!pin_getInput(IO_D07)) displayPage = 2;
 		else if(!pin_getInput(IO_D04)) displayPage = 3;
 		else if(!pin_getInput(IO_D05)) displayPage = 4;
 				
-		if(kernel->tickTimer.delay1ms(&displayOnTimer,DISPLAY_TIMEOUT))
+		if(kernel.tickTimer.delay1ms(&displayOnTimer,DISPLAY_TIMEOUT))
 		{
 			if(displayPage != 0)
 			{
@@ -268,7 +274,7 @@ int main(const kernel_t *kernel)
 		
 		if(displayPageOld != displayPage)
 		{
-			kernel->tickTimer.reset(&displayOnTimer);
+			kernel.tickTimer.reset(&displayOnTimer);
 			statusChanged = true;
 		}
 		
@@ -278,7 +284,7 @@ int main(const kernel_t *kernel)
  		if(statusChanged && displayPage != 0)
 		{
 			
-			if(kernel->tickTimer.delay1ms(&displayComTimer,4))
+			if(kernel.tickTimer.delay1ms(&displayComTimer,4))
 			{
 				if(i == 0)
 				{
@@ -322,10 +328,10 @@ int main(const kernel_t *kernel)
 	}
 	
 	// App Deinit code
-    if(kernel->kernelSignals->shutdownApp)
+    if(kernel.kernelSignals->shutdownApp)
     {
 		//kernel->eemem_write(&ememData[0]);
-		kernel->appSignals->shutdownReady = true;
+		kernel.appSignals->shutdownReady = true;
     }
 	
 }

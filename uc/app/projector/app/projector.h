@@ -2,9 +2,8 @@
 #define PROJECTOR_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
-
-#include "kernel/busController_IO.h"
+#include "common/kernel.h"
+#include "common/io_same51jx.h"
 
 typedef enum{
 	projector_on,
@@ -18,9 +17,9 @@ typedef enum{
 	
 } projector_onOff_state_t;
 
-void projector_init(const kernel_t *kernel);
+void projector_init(void);
 
-void projector_handler(const kernel_t *kernel);
+void projector_handler(void);
 
 void projector_onOff(bool on);
 

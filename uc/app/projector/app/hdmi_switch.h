@@ -2,19 +2,19 @@
 #define HDMI_MATRIX_SWITCH_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
-#include "kernel/busController_IO.h"
+#include "common/kernel.h"
+#include "common/io_same51jx.h"
 
-void hdmi_init(const kernel_t *kernel, pin_port_t portNr, uint8_t pinNr);
+void hdmi_init(pin_port_t portNr, uint8_t pinNr);
 
-void hdmi_handler(const kernel_t *kernel);
+void hdmi_handler(void);
 
 void hdmi_setMatrix(uint8_t out, uint8_t in);
 
-void hdmi_turnOff(const kernel_t *kernel);
+void hdmi_turnOff(void);
 
-bool hdmi_getSwitchOn(const kernel_t *kernel);
-bool hdmi_getSwitchOff(const kernel_t *kernel);
+bool hdmi_getSwitchOn(void);
+bool hdmi_getSwitchOff(void);
 
 
 #endif /* HDMI_MATRIX_SWITCH_H_ */

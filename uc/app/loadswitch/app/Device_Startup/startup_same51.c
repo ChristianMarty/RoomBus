@@ -498,42 +498,42 @@ const DeviceVectors exception_table = {
  */
 void Reset_Handler(void)
 {
-	uint32_t *pSrc, *pDest;
+        uint32_t *pSrc, *pDest;
 
-	/* Initialize the relocate segment */
-	pSrc = &_etext;
-	pDest = &_srelocate;
+        /* Initialize the relocate segment */
+        pSrc = &_etext;
+        pDest = &_srelocate;
 
-	if (pSrc != pDest) {
-		for (; pDest < &_erelocate;) {
-			*pDest++ = *pSrc++;
-		}
-	}
+        if (pSrc != pDest) {
+                for (; pDest < &_erelocate;) {
+                        *pDest++ = *pSrc++;
+                }
+        }
 
-	/* Clear the zero segment */
-	for (pDest = &_szero; pDest < &_ezero;) {
-		*pDest++ = 0;
-	}
+        /* Clear the zero segment */
+        for (pDest = &_szero; pDest < &_ezero;) {
+                *pDest++ = 0;
+        }
 
-	/* Set the vector table base address */
-	//pSrc = (uint32_t *) & _sfixed;
-	//SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
+        /* Set the vector table base address */
+      //  pSrc = (uint32_t *) & _sfixed;
+     //   SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
 
-	#if __FPU_USED
-	/* Enable FPU */
-	SCB->CPACR |=  (0xFu << 20);
-	__DSB();
-	__ISB();
-	#endif
+#if __FPU_USED
+        /* Enable FPU */
+        SCB->CPACR |=  (0xFu << 20);
+        __DSB();
+        __ISB();
+#endif
 
-	/* Initialize the C library */
-	__libc_init_array();
+        /* Initialize the C library */
+        __libc_init_array();
 
-	/* Branch to main function */
-	// main();
+        /* Branch to main function */
+    //    main();
 
-	/* Infinite loop */
-	//while (1);
+        /* Infinite loop */
+     //   while (1);
 }
 
 /**

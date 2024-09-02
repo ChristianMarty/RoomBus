@@ -1,118 +1,123 @@
-/*
- * app.cpp
- *
- * Created: 20.04.2019 20:05:30
- * Author : Christian
- */ 
+//**********************************************************************************************************************
+// FileName : main.cpp
+// FilePath :
+// Author   : Christian Marty
+// Date		: 20.04.2019
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#include "main.h"
 
+#include "common/kernel.h"
 
-#include "sam.h"
-#include "kernel/kernel.h"
-#include "kernel/busController_IO.h"
+#include "protocol/valueReportProtocol.h"
 
-#include "drv/SAMx5x/uart.h"
-#include "drv/SAMx5x/pin.h"
+#include "driver/SAMx5x/pin.h"
+
+#include "addOn/midiModul.h"
 #include "utility/string.h"
-#include "Raumsteuerung/midi.h"
 
-#include "Raumsteuerung/valueReportProtocol.h"
-
-int main(const kernel_t *kernel);
-void onReceive(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
-kernel_t const *_kernel;
+int main(void);
+bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
+kernel_t kernel __attribute__((section(".kernelCall")));
 
 __attribute__((section(".appHeader"))) appHead_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
-/*appName[60]*/ "Midi Test",
+/*appName[60]*/ "Midi Controller",
 /*main		 */ main,
 /*onRx		 */ onReceive
 };
 
-
-uint8_t ememData[256];
-
-float volume;
-
-void vrp_valueChange(uint8_t index)
+//**** Value Configuration ********************************************************************************************
+void vrp_valueChange(uint16_t valueChannelNumber, vrp_valueData_t value)
 {
-	vrp_sendValueReport(_kernel,0,volume);
-	midi_sendControllerChange(0x00,70,(uint8_t)volume);
+	midiModul_sendControllerChange(midiModul_output_t::midiModul_output_2, 0x00,  0, (uint8_t)value.Long); // Update BCF2200
+	midiModul_sendControllerChange(midiModul_output_t::midiModul_output_1, 0x00, 70, (uint8_t)value.Long); // Update X32 Volume
 }
 
-vrp_valueItem_t valueItemList[]={
-	{ 0x00, false, ((float)(0.0f)), ((float)(127.0f)), &volume, UOM_RAW_FLOAT, "Main Volume",vrp_valueChange}
+const vrp_valueSignal_t valueSignals[] = {
+	{0x00, "Main Volume", 60, false, {.Long = 0}, {.Long = 127}, uom_long, vrp_valueChange}
 };
-#define valueItemListSize (sizeof(valueItemList)/sizeof(vrp_valueItem_t)) 
+#define valueSignalListSize (sizeof(valueSignals)/sizeof(vrp_valueSignal_t))
 
-valueReportProtocol_t valueReportProtocol=
-{
-	.value = valueItemList,
-	.valueSize = valueItemListSize
+vrp_itemState_t valueSignalStateList[valueSignalListSize];
+
+const valueReportProtocol_t valueSystem = {
+	.signals = valueSignals,
+	.signalSize = valueSignalListSize,
+	.slots = nullptr,
+	.slotSize = 0,
+	._signalState = valueSignalStateList,
+	._slotState = nullptr
 };
+
 
 uint8_t val;
-
+uint8_t val2;
 void midi_controllerChangeChange(uint8_t index)
 {
-	float temp = (float)val;
-	
-	if(temp != volume) 
+	if(val != valueSignalStateList[0].value.Long) 
 	{
-		vrp_sendValueReport(_kernel,0,temp);
-		volume = temp;
+		
+		midiModul_sendControllerChange(midiModul_output_t::midiModul_output_2, 0x00, 0, val); // Update BCF2200
+		vrp_sendValueReport(&valueSystem, 0, {.Long = val});
 	}
 }
 
-midi_controllerChange_t midiControllerChange[]={
-	{ 0x00, 70, &val,midi_controllerChangeChange}	
-};
-#define midiControllerChangeSize (sizeof(midiControllerChange)/sizeof(midi_controllerChange_t)) 
 
-midi_t midi={
-	.controllerChange =midiControllerChange,
-	.controllerChangeSize = midiControllerChangeSize
-};
-
-void onReceive(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
+void midi_controllerChangeChange_2(uint8_t index)
 {
-	if(protocol == busProtocol_valueReportProtocol) vrp_receiveHandler(kernel,sourceAddress,command,data,size,&valueReportProtocol);
+	midiModul_sendControllerChange(midiModul_output_t::midiModul_output_1, 0x00, 70, val2); // Update X32 Volume
+}
+
+midi_controllerChange_t midiControllerChange_1[]={
+	{ 0x00, 70, &val, midi_controllerChangeChange}	
+};
+
+midi_controllerChange_t midiControllerChange_2[]={
+	{ 0x00, 0, &val2, midi_controllerChangeChange_2}
+};
+
+midiModul_t midiModul={
+	.controllerChange_1 = midiControllerChange_1,
+	.controllerChangeSize_1 = (sizeof(midiControllerChange_1)/sizeof(midi_controllerChange_t)), 
+	
+	.controllerChange_2 = midiControllerChange_2,
+	.controllerChangeSize_2 = (sizeof(midiControllerChange_2)/sizeof(midi_controllerChange_t))
+	
+};
+
+bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
+{
+	switch(protocol){
+		case busProtocol_valueReportProtocol:	return vrp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
+		default: return false;
+	}
 }
 
 
-int main(const kernel_t *kernel)
+int main(void)
 {
-	_kernel = kernel;
-	
 	// App init Code
-	if(kernel->kernelSignals->initApp)
+	if(kernel.kernelSignals->initApp)
 	{
 		Reset_Handler();
-		
-		midi_init(kernel, SERCOM5);
-		
-		// Uart
-		pin_enablePeripheralMux(IO_D12, PIN_FUNCTION_C);
-		pin_enablePeripheralMux(IO_D13, PIN_FUNCTION_C);
-		kernel->nvic.assignInterruptHandler(SERCOM5_2_IRQn,midi_onRx);
-		kernel->nvic.assignInterruptHandler(SERCOM5_1_IRQn,midi_onTx);
-
-		kernel->appSignals->appReady = true;
+		midiModul_init(&midiModul);
+		kernel.appSignals->appReady = true;
 	}
 
 	// Main code here
-	if(kernel->appSignals->appReady == true)
+	if(kernel.appSignals->appReady == true)
 	{
-		midi_handler(kernel,&midi);
-		
+		midiModul_handler();
 	}
 	
 	// App deinit code
-    if(kernel->kernelSignals->shutdownApp)
+    if(kernel.kernelSignals->shutdownApp)
     {
 		//kernel->eemem_write(&ememData[0]);
-		kernel->appSignals->shutdownReady = true;
+		kernel.appSignals->shutdownReady = true;
     }
 }
