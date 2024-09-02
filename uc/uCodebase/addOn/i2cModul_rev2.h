@@ -2,13 +2,11 @@
 #ifndef I2C_MODUL_H_
 #define I2C_MODUL_H_
 
-#include "sam.h"
-#include "kernel/kernel.h"
-#include "drv/SAMx5x/pin.h"
-#include "kernel/busController_IO.h"
+#include "common/kernel.h"
 
-void i2cModul_init(const kernel_t *kernel);
-void i2cModul_handler(const kernel_t *kernel);
+
+void i2cModul_init(void);
+void i2cModul_handler(void);
 
 static inline void i2cModul_xpEnable(bool enable)
 {

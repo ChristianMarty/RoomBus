@@ -1,12 +1,13 @@
 
 #include "addOn/encoderSwitch.h"
 
-#include "drv/SAMx5x/pin.h"
-#include "kernel/busController_IO.h"
 
-void encoderSwitch_init(encoderSwitch_t *encoderSwitch, const kernel_t *kernel)
+#include "driver/SAMx5x/pin.h"
+#include "common/kernel.h"
+
+void encoderSwitch_init(encoderSwitch_t *encoderSwitch)
 {
-	kernel->tickTimer.reset(&encoderSwitch->readTimer);
+	kernel.tickTimer.reset(&encoderSwitch->readTimer);
 	encoderSwitch->hasChange = true;
 	
 	encoderSwitch->rxBuffer[0] = 0;
@@ -16,14 +17,13 @@ void encoderSwitch_init(encoderSwitch_t *encoderSwitch, const kernel_t *kernel)
 	encoderSwitch->rxBuffer[4] = 0;
 	encoderSwitch->rxBuffer[5] = 0;
 	encoderSwitch->rxBuffer[6] = 0;
-	
 }
 
-void encoderSwitch_handler(encoderSwitch_t *encoderSwitch, const kernel_t *kernel)
+void encoderSwitch_handler(encoderSwitch_t *encoderSwitch)
 {
 	if(!encoderSwitch->i2c->busy())
 	{
- 		if(kernel->tickTimer.delay1ms(&encoderSwitch->readTimer, 100))
+ 		if(kernel.tickTimer.delay1ms(&encoderSwitch->readTimer, 100))
 		{
 			encoderSwitch->i2cTransaction = encoderSwitch->i2c->transaction(encoderSwitch->address, 0x00, 0, 0, &encoderSwitch->rxBuffer[0], 7, 0);
 		}

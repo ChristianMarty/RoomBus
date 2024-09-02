@@ -3,8 +3,8 @@
 #define I2C_MASTER_H_
 
 #include "sam.h"
-#include "drv/SAMx5x/genericClockController.h"
-#include "kernel/kernel.h"
+#include "driver/SAMx5x/genericClockController.h"
+#include "common/kernel.h"
 
 #define  I2C_MASTER_TIMEOUT 1000
 
@@ -14,7 +14,7 @@ class i2cMaster_c
 	
 	typedef uint8_t i2c_transactionNumber_t;
 	
-	void init(const kernel_t *kernel, Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor, bool fourWire);
+	void init(Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor, bool fourWire);
 	void handler(void);
 	
 	i2c_transactionNumber_t transaction(uint8_t address, uint8_t command, uint8_t* txData, uint8_t txSize, uint8_t* rxData, uint8_t rxSize, i2c_transactionNumber_t transactionNumber);
@@ -34,7 +34,7 @@ class i2cMaster_c
 	i2c_transactionNumber_t getNextTransactionNumber(void);
 	void closeTransaction(i2c_transactionNumber_t transactionNumber);
 	
-	private:
+private:
 	
 	typedef enum {idel,txAddress,txCommand,txData,rxData,unreachable,error} i2cMaster_status_t;
 	
@@ -58,8 +58,7 @@ class i2cMaster_c
 	i2c_transactionNumber_t _transactionNumber;
 	
 	i2c_transactionNumber_t _lastTransactionNumber;
-	
-	const kernel_t *_kernel;
+
 	gclk_generator_t _clkGenerator;
 	
 	uint32_t _timeoutTimer;

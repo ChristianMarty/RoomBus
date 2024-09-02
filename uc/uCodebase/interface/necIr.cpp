@@ -1,6 +1,6 @@
 
 #include "necIr.h"
-#include "drv/SAMx5x/timer.h"
+#include "driver/SAMx5x/timer.h"
 
 uint8_t msg[69];
 volatile uint8_t txPos;
@@ -28,11 +28,11 @@ void necIR_timer_interrupt(void)
 	}
 }
 
-void necIR_init(const kernel_t *kernel, pin_port_t portNr, uint8_t pinNr)
+void necIR_init(pin_port_t portNr, uint8_t pinNr)
 {
-	timer_init(TC0, kernel->clk_16MHz, TIMER_DIV256, false);
+	timer_init(TC0, kernel.clk_16MHz, TIMER_DIV256, false);
 	
-	kernel->nvic.assignInterruptHandler(TC0_IRQn, necIR_timer_interrupt);
+	kernel.nvic.assignInterruptHandler(TC0_IRQn, necIR_timer_interrupt);
 	timer_capture0Interrupt(TC0, true);
 	
 	_portNr = portNr;
@@ -49,7 +49,7 @@ bool necIR_busy(void)
 	return (txPos < sizeof(msg));
 }
 
-void necIR_transmitCode(const kernel_t *kernel, uint8_t customCode, uint8_t dataCode)
+void necIR_transmitCode(uint8_t customCode, uint8_t dataCode)
 {	
 	msg[0] = 16;
 	msg[1] = 8;

@@ -1,23 +1,32 @@
-
-#include "addOn/i2cModul_rev2.h"
-#include "drv/SAMx5x/i2cMaster.h"
-#include "drv/SAMx5x/pin.h"
-#include "kernel/busController_IO.h"
-
+//**********************************************************************************************************************
+// FileName : buttonSwitch.h
+// FilePath : addOn/
+// Author   : Christian Marty
+// Date		: 01.09.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #include "buttonSwitch.h"
 
-void buttonSwitch_init(buttonSwitch_t *buttonSwitch, const kernel_t *kernel)
+#include "common/kernel.h"
+#include "common/io_same51jx.h"
+
+#include "driver/SAMx5x/i2cMaster.h"
+#include "driver/SAMx5x/pin.h"
+
+#include "addOn/i2cModul_rev2.h"
+
+
+void buttonSwitch_init(buttonSwitch_t *buttonSwitch)
 {
 	buttonSwitch->state = buttonSwitch_state_init;
 	buttonSwitch->button = 0x00;
 }
 
-
-void buttonSwitch_handler(buttonSwitch_t *buttonSwitch, const kernel_t *kernel)
+void buttonSwitch_handler(buttonSwitch_t *buttonSwitch)
 {
 	if(!buttonSwitch->i2c->busy())
 	{
-		 if(kernel->tickTimer.delay1ms(&buttonSwitch->readTimer, 100))
+		 if(kernel.tickTimer.delay1ms(&buttonSwitch->readTimer, 100))
 		 {
 			if(buttonSwitch->state == buttonSwitch_state_init)
 			{

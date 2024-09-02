@@ -3,8 +3,9 @@
 #define BISTABLE_RELAY_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
-#include "drv/SAMx5x/pin.h"
+#include "common/typedef.h"
+#include "common/kernel.h"
+#include "driver/SAMx5x/pin.h"
 
 #define RELAIS_SWITCH_ON_TIME 125
 #define RELAIS_SWITCH_OFF_TIME 125

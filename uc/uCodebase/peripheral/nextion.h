@@ -3,7 +3,7 @@
 #define NEXTION_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 
 
 void nextion_init(const kernel_t *kernel);

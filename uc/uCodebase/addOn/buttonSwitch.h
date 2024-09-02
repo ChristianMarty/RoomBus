@@ -2,10 +2,8 @@
 #ifndef BUTTON_SWITCH_MODUL_H_
 #define BUTTON_SWITCH_MODUL_H_
 
-#include "sam.h"
-#include "kernel/kernel.h"
-#include "drv/SAMx5x/pin.h"
-#include "kernel/busController_IO.h"
+#include "common/kernel.h"
+#include "driver/SAMx5x/i2cMaster.h"
 
 typedef enum {
 	buttonSwitch_state_init = 0, 
@@ -39,8 +37,8 @@ typedef struct{
 }buttonSwitch_t;
 
 
-void buttonSwitch_init(buttonSwitch_t *buttonSwitch, const kernel_t *kernel);
-void buttonSwitch_handler(buttonSwitch_t *buttonSwitch, const kernel_t *kernel);
+void buttonSwitch_init(buttonSwitch_t *buttonSwitch);
+void buttonSwitch_handler(buttonSwitch_t *buttonSwitch);
 
 void buttonSwitch_setLed(buttonSwitch_t *buttonSwitch, uint8_t ledIndex, bool status);
 void buttonSwitch_setLeds(buttonSwitch_t *buttonSwitch, uint8_t ledStatus);

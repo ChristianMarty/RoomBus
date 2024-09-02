@@ -106,9 +106,38 @@ bool vrp_sendValueReport(const valueReportProtocol_t* vrp, uint16_t channel, vrp
 	return false;
 }
 
-bool vrp_sendValueCommand(const valueReportProtocol_t* vrp, uint16_t channel, vrp_valueData_t value)
+bool vrp_sendValueCommandByChannel(const valueReportProtocol_t* vrp, uint16_t channel, vrp_valueCommands_t command, vrp_valueData_t value)
 {
 	return false;
+}
+
+bool vrp_sendValueCommandByIndex(const valueReportProtocol_t* vrp, uint8_t index, vrp_valueCommands_t command, vrp_valueData_t value)
+{
+	bus_message_t msg;
+	if(!kernel.bus.getMessageSlot(&msg)) return false; // Abort if TX buffer full
+	
+	vrp_valueSlot_t slot = vrp->slots[index];
+	vrp_itemState_t state  = vrp->_slotState[index];
+		
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueReportProtocol, vrp_cmd_valueCommand, busPriority_normal);
+	kernel.bus.pushWord16(&msg, slot.channel);
+	kernel.bus.pushByte(&msg, command);
+	kernel.bus.pushWord32(&msg, value.Long);
+	
+	kernel.bus.send(&msg);
+		
+	return true;
+}
+
+vrp_valueData_t vrp_valueByIndex(const valueReportProtocol_t* vrp, uint8_t index)
+{
+	if(vrp->slotSize < index){
+		vrp_valueData_t value; 
+		value.Long= 0; 
+		return value;
+	}
+	return vrp->_slotState[index].value;
+	
 }
 //**********************************************************************************************************************
 // Private

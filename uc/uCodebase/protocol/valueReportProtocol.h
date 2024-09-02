@@ -147,7 +147,11 @@ void vrp_mainHandler(const valueReportProtocol_t* vrp);
 bool vrp_receiveHandler(const valueReportProtocol_t* vrp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
 
 bool vrp_sendValueReport(const valueReportProtocol_t* vrp, uint16_t channel, vrp_valueData_t value);
-bool vrp_sendValueCommand(const valueReportProtocol_t* vrp, uint16_t channel, vrp_valueData_t value);
+
+bool vrp_sendValueCommandByChannel(const valueReportProtocol_t* vrp, uint16_t channel, vrp_valueCommands_t command, vrp_valueData_t value);
+bool vrp_sendValueCommandByIndex(const valueReportProtocol_t* vrp, uint8_t index, vrp_valueCommands_t command, vrp_valueData_t value);
+
+vrp_valueData_t vrp_valueByIndex(const valueReportProtocol_t* vrp, uint8_t index);
 
 vrp_unitType_t vrp_uomToType(vrp_uom_t uom);
 vrp_valueData_t vrp_convertDataUnitType(vrp_unitType_t inputType, vrp_unitType_t outputType, vrp_valueData_t input);

@@ -11,8 +11,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "main.h"
+
 #ifndef TEST_RUN
 	#include "sam.h"
+	#include "driver/SAMx5x/pin.h"
 #endif
 
 #define BUS_BROADCAST_ADDRESS 127

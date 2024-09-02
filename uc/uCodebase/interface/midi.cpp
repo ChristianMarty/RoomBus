@@ -2,12 +2,12 @@
 #include "midi.h"
 
 
-void midi_init(const kernel_t *kernel, midi_t *midi)
+void midi_init(midi_t *midi)
 {
-	midi->uartCom.initUart(kernel->clk_16MHz, midi->sercom_p, 31250, uart_c::none);
+	midi->uartCom.initUart(kernel.clk_16MHz, midi->sercom_p, 31250, uart_c::none);
 }
 
-void midi_handler(const kernel_t *kernel, midi_t *midi)
+void midi_handler(midi_t *midi)
 {
 	if((midi->rxIndex == midi->rxMsgSize) && (midi->rxIndex!= 0))
 	{

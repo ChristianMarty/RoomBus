@@ -1,8 +1,8 @@
 
 
-#include "Raumsteuerung/nextion.h"
-#include "drv/SAMx5x/pin.h"
-#include "drv/SAMx5x/uart.h"
+#include "nextion.h"
+#include "driver/SAMx5x/pin.h"
+#include "driver/SAMx5x/uart.h"
 
 uart_c uartCom;
 uint8_t txBuffer[32];

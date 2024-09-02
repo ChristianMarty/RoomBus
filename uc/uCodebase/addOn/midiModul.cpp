@@ -1,6 +1,6 @@
 
-#include "drv/SAMx5x/pin.h"
-#include "kernel/busController_IO.h"
+#include "driver/SAMx5x/pin.h"
+#include "common/io_same51jx.h"
 
 #include "midiModul.h"
 
@@ -27,7 +27,7 @@ void midi_2_onTx(void)
 	midi_onTx(&midi_2);
 }
 
-void midiModul_init(const kernel_t *kernel,const midiModul_t *midiModul)
+void midiModul_init(const midiModul_t *midiModul)
 {
 	midi_1.sercom_p = SERCOM5;
 	midi_2.sercom_p = SERCOM2;
@@ -38,28 +38,27 @@ void midiModul_init(const kernel_t *kernel,const midiModul_t *midiModul)
 	midi_2.controllerChange = midiModul->controllerChange_2;
 	midi_2.controllerChangeSize = midiModul->controllerChangeSize_2;
 	
-	midi_init(kernel, &midi_1);
-	midi_init(kernel, &midi_2);	
+	midi_init(&midi_1);
+	midi_init(&midi_2);	
 	
 	pin_enablePeripheralMux(IO_D12, PIN_FUNCTION_C);
 	pin_enablePeripheralMux(IO_D13, PIN_FUNCTION_C);
-	kernel->nvic.assignInterruptHandler(SERCOM5_2_IRQn,midi_1_onRx);
-	kernel->nvic.assignInterruptHandler(SERCOM5_1_IRQn,midi_1_onTx);
+	kernel.nvic.assignInterruptHandler(SERCOM5_2_IRQn,midi_1_onRx);
+	kernel.nvic.assignInterruptHandler(SERCOM5_1_IRQn,midi_1_onTx);
 	
 	pin_enablePeripheralMux(IO_D04, PIN_FUNCTION_C);
 	pin_enablePeripheralMux(IO_D05, PIN_FUNCTION_C);
-	kernel->nvic.assignInterruptHandler(SERCOM2_2_IRQn,midi_2_onRx);
-	kernel->nvic.assignInterruptHandler(SERCOM2_1_IRQn,midi_2_onTx);
+	kernel.nvic.assignInterruptHandler(SERCOM2_2_IRQn,midi_2_onRx);
+	kernel.nvic.assignInterruptHandler(SERCOM2_1_IRQn,midi_2_onTx);
 	
 	pin_enableOutput(IO_D17);
-	pin_setOutput(IO_D17, true);
-	
+	pin_setOutput(IO_D17, true);	
 }
 
-void midiModul_handler(const kernel_t *kernel)
+void midiModul_handler(void)
 {
-	midi_handler(kernel,&midi_1);
-	midi_handler(kernel,&midi_2);	
+	midi_handler(&midi_1);
+	midi_handler(&midi_2);	
 }
 
 void midiModul_sendControllerChange(midiModul_output_t output, uint8_t channel, uint8_t command, uint8_t value)

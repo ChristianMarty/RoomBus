@@ -5,14 +5,15 @@
 // Date		: 16.08.2024
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
-#ifndef APP_DEFINES_H_
-#define APP_DEFINES_H_
+#ifndef KERNEL_INTERFACE_H_
+#define KERNEL_INTERFACE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "typedef.h"
+#include "sam.h"
 
 #include "kernel/littleFS/lfs.h"
 #include "driver/SAMx5x/genericClockController.h"
@@ -162,7 +163,7 @@ typedef struct {
 #ifdef __cplusplus
 }
 #endif
-#endif /* APP_DEFINES_H_ */
+#endif /* KERNEL_INTERFACE_H_ */
 
 
 #ifndef KERNEL_H_

@@ -5,11 +5,10 @@
 #include "sercom.h"
 
 
-void i2cMaster_c::init(const kernel_t *kernel, Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor, bool fourWire)
+void i2cMaster_c::init(Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor, bool fourWire)
 {
 	sercom_initClock(clkGenerator,sercom_p);
-	
-	_kernel = kernel;
+
 	_sercom_p = sercom_p;
 	_clkGenerator = clkGenerator;
 	
@@ -34,12 +33,12 @@ void i2cMaster_c::init(const kernel_t *kernel, Sercom *sercom_p, gclk_generator_
 	kernel->nvic.assignInterruptHandler(SERCOM1_1_IRQn,(interruptHandler_t)&i2cMaster_c::SbInterrupt);
 	kernel->nvic.assignInterruptHandler(SERCOM1_3_IRQn,(interruptHandler_t)&i2cMaster_c::ErrorInterrupt);//*/
 	
-	_kernel->tickTimer.reset(&_timeoutTimer);
+	kernel.tickTimer.reset(&_timeoutTimer);
 }
 
 void i2cMaster_c::handler(void)
 {
-	if(_kernel->tickTimer.delay1ms(&_timeoutTimer,I2C_MASTER_TIMEOUT))
+	if(kernel.tickTimer.delay1ms(&_timeoutTimer,I2C_MASTER_TIMEOUT))
 	{
 		if(_status != i2cMaster_status_t::idel) _status = i2cMaster_status_t::error;
 	}
@@ -65,7 +64,7 @@ i2cMaster_c::i2c_transactionNumber_t i2cMaster_c::getNextTransactionNumber(void)
 
 void i2cMaster_c::reset(void)
 {
-	init(_kernel,_sercom_p,_clkGenerator,_clockDevisor,false);
+	init(_sercom_p,_clkGenerator,_clockDevisor,false);
 }
 
 void i2cMaster_c::resetError(void)
@@ -119,7 +118,7 @@ i2cMaster_c::i2c_transactionNumber_t i2cMaster_c::transaction(uint8_t address, u
 
 void i2cMaster_c::MbInterrupt(void)
 {
-	_kernel->tickTimer.reset(&_timeoutTimer);
+	kernel.tickTimer.reset(&_timeoutTimer);
 	
 	if(_sercom_p->I2CM.STATUS.bit.RXNACK)
 	{
@@ -172,7 +171,7 @@ void i2cMaster_c::MbInterrupt(void)
 
 void i2cMaster_c::SbInterrupt(void)
 {
-	_kernel->tickTimer.reset(&_timeoutTimer);
+	kernel.tickTimer.reset(&_timeoutTimer);
 	
 	if(_status == i2cMaster_status_t::rxData)
 	{
@@ -200,5 +199,5 @@ void i2cMaster_c::SbInterrupt(void)
 
 void i2cMaster_c::ErrorInterrupt(void)
 {
-	init(_kernel,_sercom_p,_clkGenerator,_clockDevisor,false);
+	init(_sercom_p,_clkGenerator,_clockDevisor,false);
 }

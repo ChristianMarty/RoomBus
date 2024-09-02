@@ -67,12 +67,20 @@ bool  tsp_receiveHandler(const triggerSystemProtocol_t* tsp, uint8_t sourceAddre
 	return false;
 }
 
-void tsp_sendTriggerByIndex(const triggerSystemProtocol_t* tsp, const uint8_t *indexList, uint8_t indexListLength)
+
+void tsp_sendTriggersByIndex(const triggerSystemProtocol_t* tsp, const uint8_t *indexList, uint8_t indexListLength)
 {
 	for(uint8_t i = 0; i < indexListLength; i++)
 	{
 		tsp->_signalState[indexList[i]].sendTriggerPending = true;
 	}
+}
+
+bool tsp_sendTriggerByIndex(const triggerSystemProtocol_t* tsp, uint8_t index)
+{
+	if(tsp->signalSize < index) return false;
+	tsp->_signalState[index].sendTriggerPending = true;
+	return true;
 }
 
 //**********************************************************************************************************************

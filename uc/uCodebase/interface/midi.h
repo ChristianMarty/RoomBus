@@ -3,8 +3,8 @@
 #define MIDI_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
-#include "drv/SAMx5x/uart.h"
+#include "common/kernel.h"
+#include "driver/SAMx5x/uart.h"
 
 typedef void (*midi_controllerChangeChange_t)(uint8_t index);
 
@@ -31,8 +31,8 @@ typedef struct{
 	
 }midi_t;
 
-void midi_init(const kernel_t *kernel, midi_t *midi);
-void midi_handler(const kernel_t *kernel, midi_t *midi);
+void midi_init(midi_t *midi);
+void midi_handler(midi_t *midi);
 
 bool midi_sendControllerChange(midi_t *midi, uint8_t channel, uint8_t command, uint8_t value);
 

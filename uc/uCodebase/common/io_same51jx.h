@@ -1,21 +1,19 @@
-/*
- * BUS-Controller2.h
- *
- * Created: 15.02.2019 00:01:24
- *  Author: Christian
- */ 
-
-
-#ifndef BUS_CONTROLLER2_IO_H_
-#define BUS_CONTROLLER2_IO_H_
-
-#include "sam.h"
-#include "driver/SAMx5x/pin.h"
-#include <stdbool.h>
+//**********************************************************************************************************************
+// FileName : io_same51jx.h
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 15.02.2019
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#ifndef IO_SAME51Jx_H_
+#define IO_SAME51Jx_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+	
+#include "typedef.h"
+
 
 #define IO_A00 PIN_PORT_A,02
 #define IO_A01 PIN_PORT_A,03
@@ -90,4 +88,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif /* BUS_CONTROLLER2_IO_H_ */
+#endif /* IO_SAME51Jx_H_ */
