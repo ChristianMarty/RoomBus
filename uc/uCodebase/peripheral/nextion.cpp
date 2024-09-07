@@ -1,91 +1,159 @@
-
-
+//**********************************************************************************************************************
+// FileName : nextion.h
+// FilePath : peripheral/
+// Author   : Christian Marty
+// Date		: 05.09.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #include "nextion.h"
-#include "driver/SAMx5x/pin.h"
-#include "driver/SAMx5x/uart.h"
 
-uart_c uartCom;
-uint8_t txBuffer[32];
+void nextion_resetComRx(nextion_t *nextion);
+bool nextion_sendCommand(nextion_t *nextion, uint8_t *command);
+void nextion_onTouchEventHandler(nextion_t *nextion, uint8_t page, uint8_t component);
 
-uint8_t rxBuffer[32];
-uint8_t rxCounter;
+void nextion_updatetPage(nextion_t *nextion);
+void nextion_updateButtonState(nextion_t *nextion, uint8_t index);
 
-uint8_t ffCounter;
-
-void rxParse(const kernel_t *kernel, uint8_t *data, uint8_t size);
-
-void uart_onRx(void)
+void nextion_init(nextion_t *nextion)
 {
-	uint8_t data = uartCom.RxInterrupt();
+	nextion->displayOff();
+	nextion->_state = nextion_state_off;
+	kernel.tickTimer.reset(&nextion->_displayOnTimer);
+	kernel.tickTimer.reset(&nextion->_displayComTimer);
 	
-	rxBuffer[rxCounter] = data;
-	rxCounter++;
-	
-	if(data != 0xFF) ffCounter = 0;
-	else ffCounter ++;
-	
-	if(rxCounter > sizeof(rxBuffer)) // If buffer overflow -> reset rx buffer
-	{
-		rxCounter = 0;
-		ffCounter = 0;
+	for(uint8_t i = 0; i < nextion->touchEventActionSize; i++){
+		nextion->buttonState[i].state = 0;
+		nextion->buttonState[i].oldState = nextion->buttonState[i].state;
 	}
 }
 
-void uart_onTx(void)
+void nextion_handler(nextion_t *nextion)
 {
-	uartCom.TxInterrupt();
-}
-
-void nextion_handler(const kernel_t *kernel)
-{
-	if(ffCounter == 3)
-	{
-		rxParse(kernel, &rxBuffer[0],rxCounter-3);
-		nextion_resetCom();
+	if(nextion->_ffCounter == 3){
+		if(nextion->_rxBuffer[0] == 0x65 && nextion->_rxBuffer[3] == 0x01){
+			kernel.tickTimer.reset(&nextion->_displayOnTimer);
+			nextion_onTouchEventHandler(nextion, nextion->_rxBuffer[1], nextion->_rxBuffer[2]);
+		}
+		nextion_resetComRx(nextion);
 	}
-}
-
-void rxParse(const kernel_t *kernel, uint8_t *data, uint8_t size)
-{
-	if(data[0] == 0x65 && data[3] == 0x01)
-	{
-		nextion_onTouchEvent_callback(kernel, data[1],data[2]);
-	}
-}
-
-void nextion_resetCom(void)
-{
-	ffCounter = 0;
-	rxCounter = 0;	
-}
-
-void nextion_init(const kernel_t *kernel)
-{
-	uartCom.initUart(kernel->clk_16MHz, SERCOM5, 115200, uart_c::none);
 	
-	// Uart
-	pin_enablePeripheralMux(PIN_PORT_B,16,PIN_FUNCTION_C);
-	pin_enablePeripheralMux(PIN_PORT_B,17,PIN_FUNCTION_C);
-	kernel->nvic.assignInterruptHandler(SERCOM5_2_IRQn,uart_onRx);
-	kernel->nvic.assignInterruptHandler(SERCOM5_1_IRQn,uart_onTx);
+	if(nextion->_txCounter && !nextion->uart->txBusy()){
+		nextion->uart->sendData(&nextion->_txBuffer[0], nextion->_txCounter);
+		nextion->_txCounter = 0;
+	}
+	
+	if(nextion->_state == nextion_state_on && kernel.tickTimer.delay1ms(&nextion->_displayOnTimer, nextion_displayTimeout)){
+		nextion->displayOff();
+		nextion->_currentPage = 0;
+		nextion->_lastPage = nextion->_currentPage;
+	}
+	
+	if(nextion->_currentPage != 0 && nextion->_state == nextion_state_off){
+		nextion->displayOn();
+		nextion->_state = nextion_state_waitForOn;
+		kernel.tickTimer.reset(&nextion->_displayOnTimer);
+	}
+	
+	if(nextion->_state == nextion_state_waitForOn && kernel.tickTimer.delay1ms(&nextion->_displayOnTimer, 150)){
+		nextion->_state = nextion_state_on;
+		nextion_resetComRx(nextion);
+		nextion_updatetPage(nextion);
+		nextion->_lastPage = nextion->_currentPage;
+		kernel.tickTimer.reset(&nextion->_displayOnTimer);
+	}
+	
+	if(nextion->_state == nextion_state_on){
+		nextion_updatetPage(nextion);
+		for(uint8_t i = 0; i < nextion->touchEventActionSize; i++){
+			if(nextion->_currentPage == nextion->touchEventAction[i].page){
+				nextion_updateButtonState(nextion, i);
+			}
+		}
+	}
 }
 
-void nextion_sendCommand(const kernel_t *kernel, uint8_t *command)
+void nextion_rxHandler(nextion_t *nextion, uint8_t byte)
 {
-	uint8_t i = 0;
-	while(command[i] != 0)
-	{
-		txBuffer[i] = command[i];
-		i++;
-		if(i >= sizeof(txBuffer)-3) break;
-	}
-	txBuffer[i] = 0xFF;
-	i++;
-	txBuffer[i] = 0xFF;
-	i++;
-	txBuffer[i] = 0xFF;
-	i++;
+	nextion->_rxBuffer[nextion->_rxCounter] = byte;
+	nextion->_rxCounter++;
 	
-	while(uartCom.txBusy());
-	uartCom.sendData(&txBuffer[0],i);
+	if(byte != 0xFF) nextion->_ffCounter = 0;
+	else nextion->_ffCounter  ++;
+	
+	// If buffer overflow -> reset rx buffer
+	if(nextion->_rxCounter > sizeof(nextion->_rxBuffer)) {
+		nextion_resetComRx(nextion);
+	}
+}
+
+void nextion_resetComRx(nextion_t *nextion)
+{
+	nextion->_rxCounter = 0;
+	nextion->_ffCounter = 0;
+}
+
+bool nextion_sendCommand(nextion_t *nextion, uint8_t *command)
+{
+	while(command[nextion->_txCounter] != 0){
+		nextion->_txBuffer[nextion->_txCounter] = command[nextion->_txCounter];
+		nextion->_txCounter++;
+		if(nextion->_txCounter+3 >= sizeof(nextion->_txBuffer)){
+			return false;
+		}
+	}
+	nextion->_txBuffer[nextion->_txCounter] = 0xFF;
+	nextion->_txCounter++;
+	nextion->_txBuffer[nextion->_txCounter] = 0xFF;
+	nextion->_txCounter++;
+	nextion->_txBuffer[nextion->_txCounter] = 0xFF;
+	nextion->_txCounter++;
+	
+	return true;
 }	
+
+void nextion_onTouchEventHandler(nextion_t *nextion, uint8_t page, uint8_t component)
+{
+	for(uint8_t i = 0; i< nextion->touchEventActionSize; i++){
+		if(nextion->touchEventAction[i].page == page && nextion->touchEventAction[i].component == component){
+			nextion->touchEventAction[i].eventHandler(i, page, component);
+		}
+	}
+}
+
+void nextion_setPage(nextion_t *nextion, uint8_t page)
+{
+	nextion->_lastPage = nextion->_currentPage;
+	nextion->_currentPage = page;
+}
+
+void nextion_updatetPage(nextion_t *nextion)
+{
+	if(nextion->_lastPage == nextion->_currentPage) return;
+	
+	uint8_t temp[] = "page _";
+	temp[5] = nextion->_currentPage+0x30;
+	nextion_sendCommand(nextion, temp);
+	
+	for(uint8_t i = 0; i < nextion->touchEventActionSize; i++){
+		if(nextion->_currentPage == nextion->touchEventAction[i].page){
+			nextion->buttonState[i].oldState = !nextion->buttonState[i].state;
+		}
+	}
+}
+
+void nextion_updateButtonState(nextion_t *nextion, uint8_t index)
+{
+	if(nextion->buttonState[index].state == nextion->buttonState[index].oldState) return;
+	
+	uint8_t temp[] = "bt_.val=_";
+	temp[2] = nextion->touchEventAction[index].objName[2];
+	
+	if(nextion->buttonState[index].state){
+		temp[8] = '1';
+	}else{
+		temp[8] = '0';
+	}
+	if(nextion_sendCommand(nextion, temp)){
+		nextion->buttonState[index].oldState = 	nextion->buttonState[index].state;
+	}
+}

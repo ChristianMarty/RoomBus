@@ -1,85 +1,79 @@
 //**********************************************************************************************************************
-// FileName : buttonSwitch.h
+// FileName : buttonSwitch.cpp
 // FilePath : addOn/
 // Author   : Christian Marty
-// Date		: 01.09.2024
+// Date		: 05.09.2024
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
 #include "buttonSwitch.h"
 
-#include "common/kernel.h"
-#include "common/io_same51jx.h"
-
-#include "driver/SAMx5x/i2cMaster.h"
-#include "driver/SAMx5x/pin.h"
-
-#include "addOn/i2cModul_rev2.h"
-
-
 void buttonSwitch_init(buttonSwitch_t *buttonSwitch)
 {
-	buttonSwitch->state = buttonSwitch_state_init;
-	buttonSwitch->button = 0x00;
+	buttonSwitch->_state = buttonSwitch_state_init;
+	buttonSwitch->_userInput.current = 0x00;
+	buttonSwitch->_userInput.old = buttonSwitch->_userInput.current;
 }
 
 void buttonSwitch_handler(buttonSwitch_t *buttonSwitch)
 {
 	if(!buttonSwitch->i2c->busy())
 	{
-		 if(kernel.tickTimer.delay1ms(&buttonSwitch->readTimer, 100))
+		 if(kernel.tickTimer.delay1ms(&buttonSwitch->_readTimer, buttonSwitch_readInterval))
 		 {
-			if(buttonSwitch->state == buttonSwitch_state_init)
+			if(buttonSwitch->_state == buttonSwitch_state_init)
 			{
 				uint8_t temp = 0x03;
-				buttonSwitch->i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address,06,&temp,1,0,0,0);
-				buttonSwitch->state = buttonSwitch_state_init_pending;
+				buttonSwitch->_i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address, 0x06, &temp, 1, 0, 0, 0);
+				buttonSwitch->_state = buttonSwitch_state_init_pending;
 			}
-			else if(buttonSwitch->state == buttonSwitch_state_run)
+			else if(buttonSwitch->_state == buttonSwitch_state_run)
 			{
-				buttonSwitch->i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address, 0x01, 0, 0, &buttonSwitch->rxBuffer[0], 1, 0);
+				buttonSwitch->_i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address, 0x01, 0, 0, &buttonSwitch->_rxBuffer[0], sizeof(buttonSwitch->_rxBuffer), 0);
 			}	
 		}
-		else if(buttonSwitch->state == buttonSwitch_state_run && buttonSwitch->hasChange == true)
+		else if(buttonSwitch->_state == buttonSwitch_state_run && (buttonSwitch->_ledOld != buttonSwitch->_led))
 		{
-			buttonSwitch->i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address,0x02,&buttonSwitch->led,1,0,0,0);
-			buttonSwitch->hasChange = false;
+			buttonSwitch->_i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address, 0x02, &buttonSwitch->_led, 1, 0, 0, 0);
+			buttonSwitch->_ledOld= buttonSwitch->_led;
 		}
 	}
 	
-	if(buttonSwitch->i2c->getCurrentTransactionNumber() == buttonSwitch->i2cTransaction)
+	if(buttonSwitch->i2c->getCurrentTransactionNumber() == buttonSwitch->_i2cTransaction)
 	{
 		if(buttonSwitch->i2c->isUnreachable() )
 		{
-			buttonSwitch->state = buttonSwitch_state_init;
-			buttonSwitch->i2c->closeTransaction(buttonSwitch->i2cTransaction);
+			buttonSwitch->_state = buttonSwitch_state_init;
+			buttonSwitch->i2c->closeTransaction(buttonSwitch->_i2cTransaction);
 		}
 		else if( !buttonSwitch->i2c->busy())
 		{
-			if(buttonSwitch->state == buttonSwitch_state_run)
+			if(buttonSwitch->_state == buttonSwitch_state_run)
 			{
-				buttonSwitch->button = ((~buttonSwitch->rxBuffer[0] >> 2) & 0x3F);
+				buttonSwitch->_userInput.current = ((~buttonSwitch->_rxBuffer[0] >> 2) & 0x3F);
 			}
 			
-			if(buttonSwitch->state == buttonSwitch_state_init_pending)
+			if(buttonSwitch->_state == buttonSwitch_state_init_pending)
 			{
-				buttonSwitch->state = buttonSwitch_state_run; // Discard first reading, since it is likely wrong
+				buttonSwitch->_state = buttonSwitch_state_run; // Discard first reading, since it is likely wrong
 			}
 			
-			buttonSwitch->i2c->closeTransaction(buttonSwitch->i2cTransaction);
+			buttonSwitch->i2c->closeTransaction(buttonSwitch->_i2cTransaction);
 		}
 	}
 }
 
-void buttonSwitch_setLed(buttonSwitch_t *buttonSwitch, uint8_t ledIndex, bool status)
+void buttonSwitch_setLed(buttonSwitch_t *buttonSwitch, uint8_t ledIndex, bool state)
 {
-	if(status)  buttonSwitch->led &= ~(0x80>>ledIndex);
-	else buttonSwitch->led |= (0x80>>ledIndex);
+	buttonSwitch->_ledOld= buttonSwitch->_led;
 	
-	buttonSwitch->hasChange = true;
+	if(state)  buttonSwitch->_led &= ~(0x80>>ledIndex);
+	else buttonSwitch->_led |= (0x80>>ledIndex);
 }
 
 void buttonSwitch_setLeds(buttonSwitch_t *buttonSwitch, uint8_t leds)
 {
+	buttonSwitch->_ledOld= buttonSwitch->_led;
+	
 	leds &= 0x3F;
 	uint8_t temp = 0;
 	
@@ -93,14 +87,18 @@ void buttonSwitch_setLeds(buttonSwitch_t *buttonSwitch, uint8_t leds)
 	}
 	
 	temp = (temp<<1);
-	buttonSwitch->led = ~temp;
-	
-	buttonSwitch->hasChange = true;
+	buttonSwitch->_led = ~temp;
 }
 
 void buttonSwitch_toggleLed(buttonSwitch_t *buttonSwitch, uint8_t ledIndex)
 {
-	buttonSwitch->led ^= (1<<ledIndex);
-	
-	buttonSwitch->hasChange = true;
+	buttonSwitch->_ledOld= buttonSwitch->_led;
+	buttonSwitch->_led ^= (1<<ledIndex);
+}
+
+buttonSwitch_userInput_t buttonSwitch_getUserInput(buttonSwitch_t *buttonSwitch)
+{
+	buttonSwitch_userInput_t output = buttonSwitch->_userInput;
+	buttonSwitch->_userInput.old = buttonSwitch->_userInput.current;
+	return output;
 }

@@ -18,9 +18,9 @@
 
 #include "peripheral/nextion.h"
 
-int main(const kernel_t *kernel);
-void onReceive(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
-kernel_t const *_kernel;
+int main(void);
+bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
+kernel_t kernel __attribute__((section(".kernelCall")));
 
 __attribute__((section(".appHeader"))) appHead_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
@@ -32,122 +32,129 @@ __attribute__((section(".appHeader"))) appHead_t appHead ={
 /*onRx		 */ onReceive
 };
 
-#define LOADSWITCH_ADDRESS 0x02
-#define PROJECTOR_ADDRESS 0x05
-#define SCREEN_ADDRESS PROJECTOR_ADDRESS
+void stdEventHandler(uint8_t index, uint8_t page, uint8_t component);
+void hdmiMatrixHandler(uint8_t index, uint8_t page, uint8_t component);
 
-#define DISPLAY_TIMEOUT 10000
-
-uint32_t displayOnTimer;
-uint32_t displayComTimer;
-uint8_t displayPage;
-uint8_t displayPageOld;
-volatile bool statusChanged = false;
-
-typedef void (*touchEventHandler_t)(const kernel_t *kernel, uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state);
-
-typedef struct  {
-	uint8_t page;
-	uint8_t component;
-	uint8_t objName[4];
-	srp_state_t * const state;
-	touchEventHandler_t eventHandler;
-}touchEventAction_t;
-
-void stdEventHandler(const kernel_t *kernel, uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state);
-void hdmiMatrixHandler(const kernel_t *kernel, uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state);
-
-srp_state_t stateList[16];
-
-touchEventAction_t touchEventAction[] = {
-	{ 1, 1, "bt0", &stateList[0], stdEventHandler},
-	{ 1, 2, "bt1", &stateList[1], stdEventHandler},
-	{ 1, 3, "bt2", &stateList[2], stdEventHandler},
+const nextion_touchEventAction_t touchEventAction[] = {
+	{ 1, 1, "bt0", stdEventHandler},
+	{ 1, 2, "bt1", stdEventHandler},
+	{ 1, 3, "bt2", stdEventHandler},
 		
-	{ 2, 1, "bt0", &stateList[3], stdEventHandler},
-	{ 2, 2, "bt1", &stateList[4], stdEventHandler},
-	{ 2, 3, "bt2", &stateList[5], hdmiMatrixHandler},
-	{ 2, 4, "bt3", &stateList[6], hdmiMatrixHandler},
-	{ 2, 5, "bt4", &stateList[7], hdmiMatrixHandler},
-	{ 2, 6, "bt5", &stateList[8], hdmiMatrixHandler},
+	{ 2, 1, "bt0", stdEventHandler},
+	{ 2, 2, "bt1", stdEventHandler},
+	{ 2, 3, "bt2", hdmiMatrixHandler},
+	{ 2, 4, "bt3", hdmiMatrixHandler},
+	{ 2, 5, "bt4", hdmiMatrixHandler},
+	{ 2, 6, "bt5", hdmiMatrixHandler},
 		
-	{ 3, 1, "bt0", &stateList[9], stdEventHandler},
-	{ 3, 2, "bt1", &stateList[10], stdEventHandler},
-	{ 3, 3, "bt2", &stateList[11], stdEventHandler},
-	{ 3, 4, "bt3", &stateList[12], stdEventHandler},
-	{ 3, 5, "bt4", &stateList[13], stdEventHandler},
+	{ 3, 1, "bt0", stdEventHandler},
+	{ 3, 2, "bt1", stdEventHandler},
+	{ 3, 3, "bt2", stdEventHandler},
+	{ 3, 4, "bt3", stdEventHandler},
+	{ 3, 5, "bt4", stdEventHandler},
 	
-	{ 4, 1, "bt1", &stateList[14], stdEventHandler}
+	{ 4, 1, "bt1", stdEventHandler}
 };
-#define touchEventListSize (sizeof(touchEventAction)/sizeof(touchEventAction_t))
+#define touchEventListSize (sizeof(touchEventAction)/sizeof(nextion_touchEventAction_t))
+nextion_buttonState_t stateList[touchEventListSize];
+
+void displayOn(void)
+{
+	pin_setOutput(IO_D17, true);
+}
+
+void displayOff(void)
+{
+	pin_setOutput(IO_D17, false);
+}
+
+uart_c uart_0;
+nextion_t nextion_0 = {
+	.touchEventAction = touchEventAction,
+	.buttonState = stateList,
+	.touchEventActionSize = touchEventListSize,
+	.uart = &uart_0,
+	.displayOn = displayOn,
+	.displayOff = displayOff
+};
+
+void uart_onTx(void){
+	uart_0.TxInterrupt();
+}
+
+void uart_onRx(void){
+	nextion_rxHandler(&nextion_0, uart_0.RxInterrupt());
+}
 
 //**** State Configuration ********************************************************************************************
-const srp_stateReport_t stateReports[] = {
-	{LOADSWITCH_ADDRESS, 0x01, &stateList[0] },
-	{LOADSWITCH_ADDRESS, 0x02, &stateList[1] },
-	{LOADSWITCH_ADDRESS, 0x03, &stateList[2] },
-		
-	{PROJECTOR_ADDRESS, 0x00, &stateList[3] },
-	{PROJECTOR_ADDRESS, 0x01, &stateList[4] },
-	{PROJECTOR_ADDRESS, 0x02, &stateList[5] },
-	{PROJECTOR_ADDRESS, 0x03, &stateList[6] },
-	{PROJECTOR_ADDRESS, 0x04, &stateList[7] },
-	{PROJECTOR_ADDRESS, 0x05, &stateList[8] },
-		
-	{SCREEN_ADDRESS, 0x06, &stateList[9] },
-	{SCREEN_ADDRESS, 0x07, &stateList[10] },
-	{SCREEN_ADDRESS, 0x08, &stateList[11] },
-	{SCREEN_ADDRESS, 0x09, &stateList[12] },
-	{SCREEN_ADDRESS, 0x0A, &stateList[13] },
-		
-	{LOADSWITCH_ADDRESS, 0x12, &stateList[14] },
-};
-#define stateReportListSize (sizeof(stateReports)/sizeof(srp_stateReport_t))
 
+#define SLOT_TIMEOUT 10
+void stateChangeAction(uint16_t stateChannelNumber, srp_state_t state)
+{
+	
+	
+}
+
+const srp_stateSlot_t stateSlots[] = {
+	{ 0x02, "Light 1", SLOT_TIMEOUT, stateChangeAction },
+	{ 0x03, "Light 2", SLOT_TIMEOUT, stateChangeAction },
+	{ 0x04, "Light 3", SLOT_TIMEOUT, stateChangeAction },
+		
+	{ 0x29, "Amp Power", SLOT_TIMEOUT, stateChangeAction },	
+	
+	{ 0x80, "Projector Power", SLOT_TIMEOUT, stateChangeAction },
+	{ 0x81, "Projector Blackout", SLOT_TIMEOUT, stateChangeAction },
+	{ 0x82, "HDMI 1 (PC)", SLOT_TIMEOUT, stateChangeAction },
+	{ 0x83, "HDMI 2 (MP)", SLOT_TIMEOUT, stateChangeAction },
+	{ 0x84, "HDMI 3", SLOT_TIMEOUT, stateChangeAction },
+	{ 0x85, "HDMI 4", SLOT_TIMEOUT, stateChangeAction }
+};
+#define stateReportSlotListSize (sizeof(stateSlots)/sizeof(srp_stateSlot_t))
+
+srp_itemState_t stateReportSlotStatusList[stateReportSlotListSize];
 const stateReportProtocol_t stateSystem = {
-	.states = stateReports,
-	.stateSize = stateReportListSize,
-	.channels = nullptr,
-	.channelSize = 0
+	.signals = nullptr,
+	.signalSize = 0,
+	.slots = stateSlots,
+	.slotSize = stateReportSlotListSize,
+	._signalState = nullptr,
+	._slotState = stateReportSlotStatusList
 };
 
 //**** Trigger Configuration ******************************************************************************************
+
 const tsp_triggerSignal_t triggerSignals[] = {
-	{ 0, LOADSWITCH_ADDRESS, 0x06, "Button 1"},
-	{ 1, LOADSWITCH_ADDRESS, 0x09, "Button 2"},
-	{ 2, LOADSWITCH_ADDRESS, 0x0C, "Button 3"},
+	{ 0x06, "Button 1"},
+	{ 0x09, "Button 2"},
+	{ 0x0C, "Button 3"},
 		
-	{ 3, PROJECTOR_ADDRESS, 0x02, "Projector On/Off"},
-	{ 4, PROJECTOR_ADDRESS, 0x05, "Projector Blackout"},
-	{ 5, PROJECTOR_ADDRESS, 0x06, "HDMI Out A - In 1"},
-	{ 6, PROJECTOR_ADDRESS, 0x07, "HDMI Out A - In 2"},
-	{ 7, PROJECTOR_ADDRESS, 0x08, "HDMI Out A - In 3"},
-	{ 8, PROJECTOR_ADDRESS, 0x09, "HDMI Out A - In 4"},
-	{ 9, PROJECTOR_ADDRESS, 0x0E, "HDMI Off"},
+	{ 0x5E, "Amp"},		
 			
-	{10, SCREEN_ADDRESS, 0x10, "No Screen"},
-	{11, SCREEN_ADDRESS, 0x11, "Screen 16:9"},
-	{12, SCREEN_ADDRESS, 0x12, "Screen Up"},
-	{13, SCREEN_ADDRESS, 0x13, "Screen Down"},
-	//{14, SCREEN_ADDRESS, 0x14, "Screen Stop"},
+	{ 0x82, "Projector On/Off"},
+	{ 0x85, "Projector Blackout"},
 		
-	{14, LOADSWITCH_ADDRESS, 0x40, "Amp"},	
+	{ 0x86, "HDMI Out A - In 1"},
+	{ 0x87, "HDMI Out A - In 2"},
+	{ 0x88, "HDMI Out A - In 3"},
+	{ 0x89, "HDMI Out A - In 4"},
+	{ 0x8E, "HDMI Off"}
 };
 #define triggerSignalListSize (sizeof(triggerSignals)/sizeof(tsp_triggerSignal_t))
 
-const triggerSlotProtocol_t triggerSystem = {
+tsp_itemState_t triggerSignalStateList[triggerSignalListSize];
+
+const triggerSystemProtocol_t triggerSystem = {	
 	.signals = triggerSignals,
 	.signalSize = triggerSignalListSize,
 	.slots = nullptr,
 	.slotSize = 0,
-	._slotsStatus = nullptr
+	._signalState = triggerSignalStateList,
+	._slotState = nullptr
 };
 
 
 //*********************************************************************************************************************
-
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
-{
+bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size){
 	switch(protocol){
 		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
 		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
@@ -155,83 +162,48 @@ bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, c
 	}
 }
 
-void nextion_onTouchEvent_callback(uint8_t page, uint8_t component)
-{	
-	for(uint8_t i = 0; i< touchEventListSize; i++)
-	{
-		if(touchEventAction[i].page == page && touchEventAction[i].component == component)
-		{
-			touchEventAction[i].eventHandler(kernel, i, page, component, touchEventAction[i].state);
-		}
-	}
-	kernel->tickTimer.reset(&displayOnTimer);
-}
-
-void stdEventHandler(uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state)
+void stdEventHandler(uint8_t index, uint8_t page, uint8_t component)
 {
-	uint8_t indexList[triggerSignalListSize];
-	uint8_t indexSize = 0;
+	uint8_t triggerIndex = 0xFF;
 	
-	//for(uint8_t i = 0; i< touchEventListSize; i++)
-	//{
-		if(touchEventAction[index].page == page && touchEventAction[index].component == component)
-		{
-			/*if(index > 4 && index < 9 && state == false)
-			{
-				indexList[indexSize] = 9;
-			}
-			else
-			{
-				if(index>9)indexList[indexSize] = index+1;
-				else indexList[indexSize] = index;
-				
-			}*/
-			
-			indexList[indexSize] = index;
-			indexSize++;
-		}
-//	}
+	if(page == 1){
+		if(component == 1) triggerIndex = 0;
+		else if(component == 2) triggerIndex = 1;
+		else if(component == 3) triggerIndex = 2;
+	}else if(page == 2){
+		if(component == 1) triggerIndex = 4;
+		else if(component == 2) triggerIndex = 5;
+	}else if(page == 4){
+		if(component == 1) triggerIndex = 3;
+	}	
 	
-	if(indexSize) tep_sendTriggerByGroup(&indexList[0], indexSize, triggerSignals, triggerSignalListSize);
+	tsp_sendTriggerByIndex(&triggerSystem, triggerIndex);
 }
 
-void hdmiMatrixHandler(const kernel_t *kernel, uint8_t index, uint8_t page, uint8_t component, srp_state_t * const state)
+void hdmiMatrixHandler(uint8_t index, uint8_t page, uint8_t component)
 {
-	uint8_t indexList[1];
+	if(page != 2) return;
 	
-	if(*state == srp_state_on) indexList[0] = 9;
-	else indexList[0] = index;
+	uint8_t triggerIndex = 0xFF;
 	
-	tep_sendTriggerByGroup(&indexList[0], 1, triggerSignals, triggerSignalListSize);
+	bool state = nextion_0.buttonState[index].state;
+	
+	if(state) triggerIndex = 10;
+	else if(component == 3) triggerIndex = 6;
+	else if(component == 4) triggerIndex = 7;
+	else if(component == 5) triggerIndex = 8;
+	else if(component == 6) triggerIndex = 9;
+	
+	tsp_sendTriggerByIndex(&triggerSystem, triggerIndex);
 }
-
-void tsp_onStateChange_callback(const kernel_t *kernel)
-{
-	statusChanged = true;
-}
-
-void display_on(void)
-{
-	pin_setOutput(IO_D17,true);	
-}
-
-void display_off(void)
-{
-	pin_setOutput(IO_D17,false);	
-}
-
-uint16_t i = 0;
 
 int main()
 {
-	// App Init Code
+	// App initialize Code
 	if(kernel.kernelSignals->initApp)
 	{
 		Reset_Handler();
-		
-		kernel.tickTimer.reset(&displayOnTimer);
-		kernel.tickTimer.reset(&displayComTimer);
-		
+
 		pin_enableInput(IO_D04);
 		pin_enableInput(IO_D05);
 		pin_enableInput(IO_D06);
@@ -240,97 +212,51 @@ int main()
 		pin_enableOutput(IO_D17);
 		pin_setOutput(IO_D17,true);	
 		
-		nextion_init(kernel);
+		// Uart
+		uart_0.initUart(kernel.clk_16MHz, SERCOM5, 115200, uart_c::none);
+		pin_enablePeripheralMux(PIN_PORT_B, 16, PIN_FUNCTION_C);
+		pin_enablePeripheralMux(PIN_PORT_B, 17, PIN_FUNCTION_C);
+		kernel.nvic.assignInterruptHandler(SERCOM5_2_IRQn, uart_onRx);
+		kernel.nvic.assignInterruptHandler(SERCOM5_1_IRQn, uart_onTx);
 		
-		display_off();
-		
+		nextion_init(&nextion_0);
 		tsp_initialize(&triggerSystem);
 		srp_initialize(&stateSystem);
 		
-		
 		kernel.appSignals->appReady = true;		
-		
 	}
 
-//----- Main -------------------------------------------------------------------------------------------------	
-	
+	// Main app
 	if(kernel.appSignals->appReady == true)
 	{	
-		if(!pin_getInput(IO_D06)) displayPage = 1;
-		else if(!pin_getInput(IO_D07)) displayPage = 2;
-		else if(!pin_getInput(IO_D04)) displayPage = 3;
-		else if(!pin_getInput(IO_D05)) displayPage = 4;
-				
-		if(kernel.tickTimer.delay1ms(&displayOnTimer,DISPLAY_TIMEOUT))
-		{
-			if(displayPage != 0)
-			{
-				displayPage = 0;
-				displayPageOld = 0;
-				i = 0;
-				display_off();
-			}
-		}
+		if(!pin_getInput(IO_D06)) nextion_setPage(&nextion_0, 1);
+		else if(!pin_getInput(IO_D07)) nextion_setPage(&nextion_0, 2);
+		else if(!pin_getInput(IO_D04)) nextion_setPage(&nextion_0, 3);
+		else if(!pin_getInput(IO_D05)) nextion_setPage(&nextion_0, 4);
 		
-		if(displayPageOld != displayPage)
-		{
-			kernel.tickTimer.reset(&displayOnTimer);
-			statusChanged = true;
-		}
+		nextion_handler(&nextion_0);
 		
-		nextion_handler(kernel);
+		tsp_mainHandler(&triggerSystem);
+		srp_mainHandler(&stateSystem);
 		
-//----- Update Display ---------------------------------------------------------------------------------------		
- 		if(statusChanged && displayPage != 0)
-		{
-			
-			if(kernel.tickTimer.delay1ms(&displayComTimer,4))
-			{
-				if(i == 0)
-				{
-					display_on();
-				}
-				else if(i <49)
-				{
-					// Wait for turn on
-				}
-				else if(i == 49)
-				{
-					nextion_resetCom();
-					
-					if(displayPageOld != displayPage)
-					{	
-						uint8_t temp[] = "page 0";
-						temp[5] = displayPage +0x30;
-						nextion_sendCommand(kernel, temp);
-						displayPageOld = displayPage;
-					}		
-				}
-				else if(touchEventAction[i-50].page == displayPage)
-				{
-					
-					uint8_t temp[] = "bt0.val=1";
-					temp[2] = touchEventAction[i-50].objName[2];
-					if(*(touchEventAction[i-50].state) == srp_state_on)temp[8] = '1'; 
-					else if(*(touchEventAction[i-50].state) == srp_state_off)temp[8] = '0';
-					nextion_sendCommand(kernel, temp);
-				}
-					
-				i++;
-
-				if(i >= (touchEventListSize+50))
-				{
-					i = 0;
-					statusChanged = false;
-				}
-			}
- 		} 
+		// Update button state
+		nextion_0.buttonState[0].state = stateReportSlotStatusList[0].state == srp_state_on ? true : false; 
+		nextion_0.buttonState[1].state = stateReportSlotStatusList[1].state == srp_state_on ? true : false; 
+		nextion_0.buttonState[2].state = stateReportSlotStatusList[2].state == srp_state_on ? true : false; 
+		
+		nextion_0.buttonState[14].state = stateReportSlotStatusList[3].state == srp_state_on ? true : false;
+		
+		nextion_0.buttonState[3].state = stateReportSlotStatusList[4].state == srp_state_on ? true : false;
+		nextion_0.buttonState[4].state = stateReportSlotStatusList[5].state == srp_state_on ? true : false;
+		nextion_0.buttonState[5].state = stateReportSlotStatusList[6].state == srp_state_on ? true : false;
+		nextion_0.buttonState[6].state = stateReportSlotStatusList[7].state == srp_state_on ? true : false;
+		nextion_0.buttonState[7].state = stateReportSlotStatusList[8].state == srp_state_on ? true : false;
+		nextion_0.buttonState[8].state = stateReportSlotStatusList[9].state == srp_state_on ? true : false;
 	}
 	
-	// App Deinit code
+	// App de-initialize code
     if(kernel.kernelSignals->shutdownApp)
     {
-		//kernel->eemem_write(&ememData[0]);
 		kernel.appSignals->shutdownReady = true;
     }
 	
