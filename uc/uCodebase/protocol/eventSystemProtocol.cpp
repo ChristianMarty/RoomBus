@@ -132,7 +132,7 @@ bool esp_sendEventByIndex(const eventSystemProtocol_t* esp, uint8_t index)
 	esp_eventSignal_t sig = esp->signals[index];
 	esp_itemState_t sigState = esp->_signalState[index];
 	
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventProtocol, esp_cmd_event, busPriority_low);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventSystemProtocol, esp_cmd_event, busPriority_low);
 	kernel.bus.pushWord16(&msg, sig.channel);
 	kernel.bus.send(&msg);
 	
@@ -147,7 +147,7 @@ bool _esp_sendEventSignalInformation(const esp_eventSignal_t *eventSignal)
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 	
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventProtocol, esp_cmd_signalInformationReport, busPriority_low);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventSystemProtocol, esp_cmd_signalInformationReport, busPriority_low);
 	kernel.bus.pushWord16(&msg, eventSignal->channel);
 	kernel.bus.pushWord16(&msg, eventSignal->interval);
 	kernel.bus.pushString(&msg, &eventSignal->description[0]);
@@ -161,7 +161,7 @@ bool _esp_sendEventSlotInformation(const esp_eventSlot_t *eventSlot)
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 	
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventProtocol, esp_cmd_slotInformationReport, busPriority_low);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventSystemProtocol, esp_cmd_slotInformationReport, busPriority_low);
 	kernel.bus.pushWord16(&msg, eventSlot->channel);
 	kernel.bus.pushWord16(&msg, eventSlot->timeout);
 	kernel.bus.pushString(&msg, &eventSlot->description[0]);
@@ -213,7 +213,7 @@ void _esp_sendEvents(const eventSystemProtocol_t* esp)
 			if( kernel.bus.getMessageSlot(&msg) == false ){
 				return; // Abort if TX buffer full
 			}
-			kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventProtocol, esp_cmd_event, busPriority_low);
+			kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventSystemProtocol, esp_cmd_event, busPriority_low);
 		}
 		
 		const esp_eventSignal_t *sig = &esp->signals[i];

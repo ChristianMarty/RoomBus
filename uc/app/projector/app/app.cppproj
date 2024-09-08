@@ -246,29 +246,29 @@
       <SubType>compile</SubType>
       <Link>interface\necIr.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\eventProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\protocol\eventSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>protocol\eventProtocol.cpp</Link>
+      <Link>protocol\eventSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\eventProtocol.h">
+    <Compile Include="..\..\..\uCodebase\protocol\eventSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>protocol\eventProtocol.h</Link>
+      <Link>protocol\eventSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\stateReportProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\protocol\stateSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>protocol\stateReportProtocol.cpp</Link>
+      <Link>protocol\stateSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\stateReportProtocol.h">
+    <Compile Include="..\..\..\uCodebase\protocol\stateSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>protocol\stateReportProtocol.h</Link>
+      <Link>protocol\stateSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\triggerProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\protocol\triggerSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>protocol\triggerProtocol.cpp</Link>
+      <Link>protocol\triggerSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\triggerProtocol.h">
+    <Compile Include="..\..\..\uCodebase\protocol\triggerSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>protocol\triggerProtocol.h</Link>
+      <Link>protocol\triggerSystemProtocol.h</Link>
     </Compile>
     <Compile Include="..\..\..\uCodebase\utility\bistableRelay.cpp">
       <SubType>compile</SubType>

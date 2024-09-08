@@ -7,8 +7,8 @@
 
 
 #include "sam.h"
-#include "drv/SAMx5x/flash.h"
-#include "drv/SAMx5x/wdt.h"
+#include "driver/SAMx5x/flash.h"
+#include "driver/SAMx5x/wdt.h"
 
 #define KERNEL_START_ADDRESS 0x00000000
 #define NEW_KERNEL_START_ADDRESS  ((FLASH_SIZE/2) + (KERNEL_START_ADDRESS/2))

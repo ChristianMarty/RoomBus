@@ -6,7 +6,6 @@
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
 #include "buttonSwitch.h"
-
 void buttonSwitch_init(buttonSwitch_t *buttonSwitch)
 {
 	buttonSwitch->_state = buttonSwitch_state_init;
@@ -22,8 +21,8 @@ void buttonSwitch_handler(buttonSwitch_t *buttonSwitch)
 		 {
 			if(buttonSwitch->_state == buttonSwitch_state_init)
 			{
-				uint8_t temp = 0x03;
-				buttonSwitch->_i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address, 0x06, &temp, 1, 0, 0, 0);
+				buttonSwitch->_byteBuffer = 0x03;
+				buttonSwitch->_i2cTransaction = buttonSwitch->i2c->transaction(buttonSwitch->address, 0x06, &buttonSwitch->_byteBuffer, 1, 0, 0, 0);
 				buttonSwitch->_state = buttonSwitch_state_init_pending;
 			}
 			else if(buttonSwitch->_state == buttonSwitch_state_run)
@@ -64,9 +63,7 @@ void buttonSwitch_handler(buttonSwitch_t *buttonSwitch)
 
 void buttonSwitch_setLed(buttonSwitch_t *buttonSwitch, uint8_t ledIndex, bool state)
 {
-	buttonSwitch->_ledOld= buttonSwitch->_led;
-	
-	if(state)  buttonSwitch->_led &= ~(0x80>>ledIndex);
+	if(state) buttonSwitch->_led &= ~(0x80>>ledIndex);
 	else buttonSwitch->_led |= (0x80>>ledIndex);
 }
 

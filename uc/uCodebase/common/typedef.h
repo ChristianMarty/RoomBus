@@ -24,10 +24,10 @@ typedef enum {
 	busProtocol_logging = 1,
 	busProtocol_fileTransferProtocol = 2,
 	
-	busProtocol_triggerProtocol = 8, 
-	busProtocol_eventProtocol = 9,
-	busProtocol_stateReportProtocol = 10,
-	busProtocol_valueReportProtocol = 11,
+	busProtocol_triggerSystemProtocol = 8, 
+	busProtocol_eventSystemProtocol = 9,
+	busProtocol_stateSystemProtocol = 10,
+	busProtocol_valueSystemProtocol = 11,
 	busProtocol_serialBridgeProtocol = 12
 }busProtocol_t;
 
@@ -46,6 +46,7 @@ typedef struct {
 }bus_message_t;
 
 #else
+
 typedef struct {
     uint8_t destinationAddress;
     busProtocol_t protocol;
@@ -54,6 +55,7 @@ typedef struct {
     uint8_t data[64];
     uint8_t length;
 }bus_message_t;
+
 #endif
 
 #endif /* TYPEDEF_H_ */

@@ -149,11 +149,11 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\flash.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\flash.h">
       <SubType>compile</SubType>
       <Link>flash.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\drv\SAMx5x\wdt.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\wdt.h">
       <SubType>compile</SubType>
       <Link>wdt.h</Link>
     </Compile>

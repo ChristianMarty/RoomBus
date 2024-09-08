@@ -254,13 +254,13 @@
       <SubType>compile</SubType>
       <Link>interface\midi.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\valueReportProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\protocol\valueSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>protocol\valueReportProtocol.cpp</Link>
+      <Link>protocol\valueSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\valueReportProtocol.h">
+    <Compile Include="..\..\..\uCodebase\protocol\valueSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>protocol\valueReportProtocol.h</Link>
+      <Link>protocol\valueSystemProtocol.h</Link>
     </Compile>
     <Compile Include="Device_Startup\startup_same51.c">
       <SubType>compile</SubType>

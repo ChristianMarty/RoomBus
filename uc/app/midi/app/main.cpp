@@ -9,7 +9,7 @@
 
 #include "common/kernel.h"
 
-#include "protocol/valueReportProtocol.h"
+#include "protocol/valueSystemProtocol.h"
 
 #include "driver/SAMx5x/pin.h"
 
@@ -31,20 +31,20 @@ __attribute__((section(".appHeader"))) appHead_t appHead ={
 };
 
 //**** Value Configuration ********************************************************************************************
-void vrp_valueChange(uint16_t valueChannelNumber, vrp_valueData_t value)
+void vrp_valueChange(uint16_t valueChannelNumber, vsp_valueData_t value)
 {
 	midiModul_sendControllerChange(midiModul_output_t::midiModul_output_2, 0x00,  0, (uint8_t)value.Long); // Update BCF2200
 	midiModul_sendControllerChange(midiModul_output_t::midiModul_output_1, 0x00, 70, (uint8_t)value.Long); // Update X32 Volume
 }
 
-const vrp_valueSignal_t valueSignals[] = {
-	{0x00, "Main Volume", 60, false, {.Long = 0}, {.Long = 127}, uom_long, vrp_valueChange}
+const vsp_valueSignal_t valueSignals[] = {
+	{0x01, "Main Volume", 60, false, {.Long = 0}, {.Long = 127}, vsp_uom_long, vrp_valueChange}
 };
-#define valueSignalListSize (sizeof(valueSignals)/sizeof(vrp_valueSignal_t))
+#define valueSignalListSize (sizeof(valueSignals)/sizeof(vsp_valueSignal_t))
 
-vrp_itemState_t valueSignalStateList[valueSignalListSize];
+vsp_itemState_t valueSignalStateList[valueSignalListSize];
 
-const valueReportProtocol_t valueSystem = {
+const valueSystemProtocol_t valueSystem = {
 	.signals = valueSignals,
 	.signalSize = valueSignalListSize,
 	.slots = nullptr,
@@ -60,9 +60,8 @@ void midi_controllerChangeChange(uint8_t index)
 {
 	if(val != valueSignalStateList[0].value.Long) 
 	{
-		
 		midiModul_sendControllerChange(midiModul_output_t::midiModul_output_2, 0x00, 0, val); // Update BCF2200
-		vrp_sendValueReport(&valueSystem, 0, {.Long = val});
+		vsp_sendValueReport(&valueSystem, 0, {.Long = val});
 	}
 }
 
@@ -92,7 +91,7 @@ midiModul_t midiModul={
 bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
 {
 	switch(protocol){
-		case busProtocol_valueReportProtocol:	return vrp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
+		case busProtocol_valueSystemProtocol:	return vsp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
 		default: return false;
 	}
 }
@@ -105,6 +104,7 @@ int main(void)
 	{
 		Reset_Handler();
 		midiModul_init(&midiModul);
+		vsp_initialize(&valueSystem);
 		kernel.appSignals->appReady = true;
 	}
 
@@ -112,6 +112,7 @@ int main(void)
 	if(kernel.appSignals->appReady == true)
 	{
 		midiModul_handler();
+		vsp_mainHandler(&valueSystem);
 	}
 	
 	// App deinit code

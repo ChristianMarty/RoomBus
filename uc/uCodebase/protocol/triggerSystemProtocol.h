@@ -10,7 +10,7 @@
 
 /* EXAMPLE *************************************************************************************************************
 
-case busProtocol_triggerProtocol:		return tsp_receiveHandler(kernel, &triggerSystem, sourceAddress, command, data, size);
+case busProtocol_triggerSystemProtocol:		return tsp_receiveHandler(kernel, &triggerSystem, sourceAddress, command, data, size);
 
 const tsp_triggerSignal_t triggerSignals[] = {
 	// Add trigger signal list

@@ -9,9 +9,9 @@
 
 #include "common/kernel.h"
 
-#include "protocol/triggerProtocol.h"
-#include "protocol/valueReportProtocol.h"
-#include "protocol/stateReportProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
+#include "protocol/valueSystemProtocol.h"
+#include "protocol/stateSystemProtocol.h"
 
 #include "driver/SAMx5x/pin.h"
 #include "driver/SAMx5x/i2cMaster.h"
@@ -37,14 +37,9 @@ __attribute__((section(".appHeader"))) appHead_t appHead ={
 /*onRx		 */ onReceive
 };
 
-
-bool update = false;
-bool rxVal = false;
-
+encoderSwitch_t encoderSwitch_0;
+buttonSwitch_t buttonSwitch_0;
 i2cMaster_c i2c;
-
-edgeDetect_t buttonEdgeDetect ={.oldState = false};
-
 
 void i2cMbInterrupt(void)
 {
@@ -61,47 +56,45 @@ void i2cError(void)
 	i2c.ErrorInterrupt();
 }
 	
-	
-#define SLOT_TIMEOUT 10
-	
+
 //**** State Configuration ********************************************************************************************
-void srp_stateChange(uint16_t valueChastateChannelNumbernnelNumber, srp_state_t state)
-{
-	update = true;
-}
+#define SLOT_TIMEOUT 10
 
-const srp_stateSlot_t stateReportSlot[] = {
-	{0x01, "Button 1", SLOT_TIMEOUT, srp_stateChange},
-	{0x02, "Button 2", SLOT_TIMEOUT, srp_stateChange},
-	{0x03, "Button 3", SLOT_TIMEOUT, srp_stateChange},
-	{0x04, "Button 4", SLOT_TIMEOUT, srp_stateChange},
-	{0x05, "Button 5", SLOT_TIMEOUT, srp_stateChange},
-	{0x06, "Button 6", SLOT_TIMEOUT, srp_stateChange},
-	{0x12, "Rotary Button", SLOT_TIMEOUT, srp_stateChange}
+const ssp_stateSlot_t stateSystemSlot[] = {
+	{0x02, "Button 1", SLOT_TIMEOUT, nullptr},
+	{0x03, "Button 2", SLOT_TIMEOUT, nullptr},
+	{0x04, "Button 3", SLOT_TIMEOUT, nullptr},
+	{0x07, "Button 4", SLOT_TIMEOUT, nullptr},
+	{0x06, "Button 5", SLOT_TIMEOUT, nullptr},
+	{0x05, "Button 6", SLOT_TIMEOUT, nullptr},
+		
+	{0x29, "Rotary Button LED", SLOT_TIMEOUT, nullptr}
 };
-#define stateReportSlotListSize (sizeof(stateReportSlot)/sizeof(srp_stateSlot_t))
+#define stateSystemSlotListSize (sizeof(stateSystemSlot)/sizeof(ssp_stateSlot_t))
 
-srp_itemState_t stateReportSlotStatusList[stateReportSlotListSize];
+ssp_itemState_t stateSystemSlotStatusList[stateSystemSlotListSize];
 
-const stateReportProtocol_t stateSystem = {
+const stateSystemProtocol_t stateSystem = {
 	.signals = nullptr,
 	.signalSize = 0,
-	.slots = stateReportSlot,
-	.slotSize = stateReportSlotListSize,
+	.slots = stateSystemSlot,
+	.slotSize = stateSystemSlotListSize,
 	._signalState = nullptr,
-	._slotState = stateReportSlotStatusList
+	._slotState = stateSystemSlotStatusList
 };
 
 
 //**** Trigger Configuration ******************************************************************************************
 
 const tsp_triggerSignal_t triggerSignals[] = {
+	{ 0x06, "Button 1"},
 	{ 0x09, "Button 2"},
 	{ 0x0C, "Button 3"},
-	{ 0x0F, "Button 4"},
+	{ 0x15, "Button 4"},
 	{ 0x12, "Button 5"},
-	{ 0x15, "Button 6"},
-	{ 0x40, "Amp Button"}
+	{ 0x0F, "Button 6"},
+		
+	{ 0x5E, "Amp Button"}
 };
 #define triggerSignalListSize (sizeof(triggerSignals)/sizeof(tsp_triggerSignal_t))
 
@@ -117,19 +110,15 @@ const triggerSystemProtocol_t triggerSystem = {
 };
 
 //**** Value Configuration ********************************************************************************************
-void vrp_valueChange(uint16_t valueChannelNumber, vrp_valueData_t value)
-{
-	update = true;
-}
 
-const vrp_valueSlot_t valueSlots[] = {
-	{ 0x00, "Rotary Knob 1", SLOT_TIMEOUT, vrp_valueChange}
+const vsp_valueSlot_t valueSlots[] = {
+	{ 0x01, "Rotary Knob 1", SLOT_TIMEOUT, nullptr}
 };
-#define valueSlotListSize (sizeof(valueSlots)/sizeof(vrp_valueSlot_t))
+#define valueSlotListSize (sizeof(valueSlots)/sizeof(vsp_valueSlot_t))
 
-vrp_itemState_t valueSlotStateList[valueSlotListSize];
+vsp_itemState_t valueSlotStateList[valueSlotListSize];
 
-const valueReportProtocol_t valueSystem = {
+const valueSystemProtocol_t valueSystem = {
 	.signals = nullptr,
 	.signalSize = 0,
 	.slots = valueSlots,
@@ -143,20 +132,12 @@ const valueReportProtocol_t valueSystem = {
 bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
 {
 	switch(protocol){
-		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_valueReportProtocol:	return vrp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
-		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
+		case busProtocol_triggerSystemProtocol:	return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
+		case busProtocol_valueSystemProtocol:	return vsp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
+		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
 		default: return false;
 	}
 }
-
-encoderSwitch_t encoderSwitch_0;
-buttonSwitch_t buttonSwitch_0;
-
-uint8_t button_old;
-uint8_t ring_old;
-
-uint8_t leds_old;
 
 int main(void)
 {
@@ -194,11 +175,9 @@ int main(void)
 		buttonSwitch_0.i2c = &i2c;
 		buttonSwitch_init(&buttonSwitch_0);
 		
-		button_old = buttonSwitch_0.button;
-		
 		tsp_initialize(&triggerSystem);
-		vrp_initialize(&valueSystem);
-		srp_initialize(&stateSystem);
+		vsp_initialize(&valueSystem);
+		ssp_initialize(&stateSystem);
 				
 		kernel.appSignals->appReady = true;
 	}
@@ -207,84 +186,71 @@ int main(void)
 	if(kernel.appSignals->appReady == true)
 	{
 		tsp_mainHandler(&triggerSystem);
-		vrp_mainHandler(&valueSystem);
-		srp_mainHandler(&stateSystem);
-		
-		i2c.handler();
+		vsp_mainHandler(&valueSystem);
+		ssp_mainHandler(&stateSystem);
 		
 		encoderSwitch_handler(&encoderSwitch_0);
-	 	buttonSwitch_handler(&buttonSwitch_0);
+		buttonSwitch_handler(&buttonSwitch_0);
 		
-		uint8_t leds = 0;
-		for(uint8_t i = 0; i < 6; i++)
-		{
-			leds = (leds>>1);
-			if(srp_getStateByIndex(&stateSystem, i)== srp_state_t::srp_state_on) leds |= 0x20;
-		}
-		
-		if(leds_old != leds)
-		{
-			buttonSwitch_setLeds(&buttonSwitch_0,leds);
-			leds_old = leds;
-		}
-		
-		if(buttonSwitch_0.button != button_old && buttonSwitch_0.state == buttonSwitch_state_run)
-		{
-			uint8_t indexList[6] = {0,0,0,0,0,0};
-			uint8_t button = buttonSwitch_0.button;
-			
-			for(uint8_t i = 0; i < 6; i++)
-			{
-				if(button & 0x01) indexList[i] = 6 + i;
-				button = (button>>1);
-			}
-			
-			tsp_sendTriggersByIndex(&triggerSystem, &indexList[0], sizeof(indexList));
-			
-			button_old = buttonSwitch_0.button;
-		}
-		
-		if(update == true)
-		{
-			vrp_valueData_t value = vrp_valueByIndex(&valueSystem, 0);
-			encoderSwitch_setRingLed(&encoderSwitch_0,(uint8_t)(value.Long/8));
-			
-			if(srp_getStateByIndex(&stateSystem, 6) == srp_state_on){
-				encoderSwitch_setPowerLed(&encoderSwitch_0, true);
-			}else{
-				encoderSwitch_setPowerLed(&encoderSwitch_0, false);
-			}
-			
-			update = false;
-		}
-		
-		if(encoderSwitch_0.down){
-			vrp_valueData_t value;
-			value.Long = encoderSwitch_0.down*3;
-			
-			encoderSwitch_0.up = 0;
-			encoderSwitch_0.down = 0;
-			
-			vrp_sendValueCommandByIndex(&valueSystem, 0, vrp_vCmd_subtractLongClamp, value);
-		}else if(encoderSwitch_0.up){
-			vrp_valueData_t value;
-			value.Long = encoderSwitch_0.up*3;
-			
-			encoderSwitch_0.up = 0;
-			encoderSwitch_0.down = 0;
-			
-			vrp_sendValueCommandByIndex(&valueSystem, 0, vrp_vCmd_addLongClamp, value);
-		}
-		
-
-		if(ed_onRising(&buttonEdgeDetect, encoderSwitch_0.button))
-		{
-			tsp_sendTriggerByIndex(&triggerSystem, 5);
-		}
-		
+		// Handle I2C
+		i2c.handler();
 		if(i2c.hasError()){
 			i2c.reset();
 		}
+		
+		// Update Button LEDs
+		for(uint8_t i = 0; i < 6; i++)
+		{
+			bool led = ssp_getStateByIndex(&stateSystem, i) == ssp_state_t::srp_state_on;
+			buttonSwitch_setLed(&buttonSwitch_0, i, led);
+		}
+		
+		// Update Encoder LEDs
+		vsp_valueData_t value = vsp_valueByIndex(&valueSystem, 0);
+		encoderSwitch_setRingLed(&encoderSwitch_0, ((uint8_t)value.Long)/8);
+		
+		if(ssp_getStateByIndex(&stateSystem, 6) == srp_state_on){
+			encoderSwitch_setPowerLed(&encoderSwitch_0, true);
+		}else{
+			encoderSwitch_setPowerLed(&encoderSwitch_0, false);
+		}
+		
+		// Handle Button Change
+		buttonSwitch_userInput_t buttonInput = buttonSwitch_getUserInput(&buttonSwitch_0);
+		if(buttonInput.old != buttonInput.current)
+		{
+			uint8_t indexList[6] = {0,0,0,0,0,0};
+			uint8_t index = 0;
+			
+			for(uint8_t i = 0; i < sizeof(indexList); i++)
+			{
+				if(buttonInput.current & 0x01){
+					indexList[index] = i;
+					index++;
+				}
+				buttonInput.current = (buttonInput.current>>1);
+			}
+			
+			tsp_sendTriggersByIndex(&triggerSystem, &indexList[0], index);
+		}
+		
+		// Handle Encoder Change
+		encoderSwitch_userInput_t encoderInput = encoderSwitch_getUserInput(&encoderSwitch_0);
+		
+		if(encoderInput.down){
+			vsp_valueData_t value = {.Long = (uint32_t)(encoderInput.down*3)};
+			vsp_sendValueCommandByIndex(&valueSystem, 0, vsp_vCmd_subtractLongClamp, value);
+			
+		}else if(encoderInput.up){
+			vsp_valueData_t value = {.Long = (uint32_t)(encoderInput.up*3)};
+			vsp_sendValueCommandByIndex(&valueSystem, 0, vsp_vCmd_addLongClamp, value);
+		}
+
+		if(encoderInput.button != encoderInput.oldButton && encoderInput.button)
+		{
+			tsp_sendTriggerByIndex(&triggerSystem, 6);
+		}
+		
 	}
 	
 	// App deinit code

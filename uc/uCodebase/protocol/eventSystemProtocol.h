@@ -10,7 +10,7 @@
 
 /* EXAMPLE *************************************************************************************************************
 
-case busProtocol_eventProtocol:		return esp_receiveHandler(kernel, &eventSystem, sourceAddress, command, data, size);
+case busProtocol_eventSystemProtocol:		return esp_receiveHandler(kernel, &eventSystem, sourceAddress, command, data, size);
 
 const esp_eventSignal_t eventSignal[] = {
 	// Add event signal list

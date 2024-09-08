@@ -288,10 +288,6 @@
       <SubType>compile</SubType>
       <Link>kernel\bus.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\busDefines.h">
-      <SubType>compile</SubType>
-      <Link>kernel\busDefines.h</Link>
-    </Compile>
     <Compile Include="..\..\uCodebase\kernel\dataSystem.c">
       <SubType>compile</SubType>
       <Link>kernel\dataSystem.c</Link>

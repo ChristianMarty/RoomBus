@@ -123,79 +123,79 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <ArmGccCpp>
-  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
-  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
-  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
-  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
-  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
-  <armgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>DEBUG</Value>
-    </ListValues>
-  </armgcc.compiler.symbols.DefSymbols>
-  <armgcc.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>..</Value>
-      <Value>../../../../uCodebase</Value>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcc.compiler.directories.IncludePaths>
-  <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
-  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-  <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
-  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-  <armgcccpp.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>DEBUG</Value>
-    </ListValues>
-  </armgcccpp.compiler.symbols.DefSymbols>
-  <armgcccpp.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>..</Value>
-      <Value>../../../../uCodebase</Value>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcccpp.compiler.directories.IncludePaths>
-  <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
-  <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
-  <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
-  <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-  <armgcccpp.compiler.miscellaneous.OtherFlags>-Wno-main</armgcccpp.compiler.miscellaneous.OtherFlags>
-  <armgcccpp.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </armgcccpp.linker.libraries.Libraries>
-  <armgcccpp.linker.libraries.LibrarySearchPaths>
-    <ListValues>
-      <Value>%24(ProjectDir)\Device_Startup</Value>
-    </ListValues>
-  </armgcccpp.linker.libraries.LibrarySearchPaths>
-  <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-  <armgcccpp.linker.memorysettings.Flash>
-    <ListValues>
-      <Value>.appHeader=0x8000</Value>
-    </ListValues>
-  </armgcccpp.linker.memorysettings.Flash>
-  <armgcccpp.linker.memorysettings.ExternalRAM />
-  <armgcccpp.linker.miscellaneous.LinkerFlags>-Tsame51j19a_flash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
-  <armgcccpp.assembler.general.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcccpp.assembler.general.IncludePaths>
-  <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
-  <armgcccpp.preprocessingassembler.general.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
-      <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
-    </ListValues>
-  </armgcccpp.preprocessingassembler.general.IncludePaths>
-  <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
-</ArmGccCpp>
+        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+        <armgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </armgcc.compiler.symbols.DefSymbols>
+        <armgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>..</Value>
+            <Value>../../../../uCodebase</Value>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
+        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
+        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+        <armgcccpp.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </armgcccpp.compiler.symbols.DefSymbols>
+        <armgcccpp.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>..</Value>
+            <Value>../../../../uCodebase</Value>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcccpp.compiler.directories.IncludePaths>
+        <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
+        <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
+        <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
+        <armgcccpp.compiler.miscellaneous.OtherFlags>-Wno-main</armgcccpp.compiler.miscellaneous.OtherFlags>
+        <armgcccpp.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </armgcccpp.linker.libraries.Libraries>
+        <armgcccpp.linker.libraries.LibrarySearchPaths>
+          <ListValues>
+            <Value>%24(ProjectDir)\Device_Startup</Value>
+          </ListValues>
+        </armgcccpp.linker.libraries.LibrarySearchPaths>
+        <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <armgcccpp.linker.memorysettings.Flash>
+          <ListValues>
+            <Value>.appHeader=0x8000</Value>
+          </ListValues>
+        </armgcccpp.linker.memorysettings.Flash>
+        <armgcccpp.linker.memorysettings.ExternalRAM />
+        <armgcccpp.linker.miscellaneous.LinkerFlags>-Tsame51j19a_flash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcccpp.assembler.general.IncludePaths>
+        <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
+        <armgcccpp.preprocessingassembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+            <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+          </ListValues>
+        </armgcccpp.preprocessingassembler.general.IncludePaths>
+        <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
+      </ArmGccCpp>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
@@ -223,37 +223,37 @@
       <SubType>compile</SubType>
       <Link>driver\pin.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\eventProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\protocol\eventSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>protocol\eventProtocol.cpp</Link>
+      <Link>protocol\eventSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\eventProtocol.h">
+    <Compile Include="..\..\..\uCodebase\protocol\eventSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>protocol\eventProtocol.h</Link>
+      <Link>protocol\eventSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\stateReportProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\protocol\stateSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>protocol\stateReportProtocol.cpp</Link>
+      <Link>protocol\stateSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\stateReportProtocol.h">
+    <Compile Include="..\..\..\uCodebase\protocol\stateSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>protocol\stateReportProtocol.h</Link>
+      <Link>protocol\stateSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\triggerProtocol.cpp">
+    <Compile Include="..\..\..\uCodebase\protocol\triggerSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>protocol\triggerProtocol.cpp</Link>
+      <Link>protocol\triggerSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\protocol\triggerProtocol.h">
+    <Compile Include="..\..\..\uCodebase\protocol\triggerSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>protocol\triggerProtocol.h</Link>
+      <Link>protocol\triggerSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\Raumsteuerung\bistableRelay.cpp">
+    <Compile Include="..\..\..\uCodebase\utility\bistableRelay.cpp">
       <SubType>compile</SubType>
-      <Link>lib\bistableRelay.cpp</Link>
+      <Link>utility\bistableRelay.cpp</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\Raumsteuerung\bistableRelay.h">
+    <Compile Include="..\..\..\uCodebase\utility\bistableRelay.h">
       <SubType>compile</SubType>
-      <Link>lib\bistableRelay.h</Link>
+      <Link>utility\bistableRelay.h</Link>
     </Compile>
     <Compile Include="Device_Startup\startup_same51.c">
       <SubType>compile</SubType>
@@ -268,8 +268,8 @@
   <ItemGroup>
     <Folder Include="Device_Startup\" />
     <Folder Include="driver" />
-    <Folder Include="lib" />
     <Folder Include="common" />
+    <Folder Include="utility" />
     <Folder Include="protocol" />
   </ItemGroup>
   <ItemGroup>

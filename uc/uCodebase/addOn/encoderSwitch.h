@@ -30,8 +30,8 @@ typedef struct{
 	i2cMaster_c *i2c;
 	i2cMaster_c::i2c_transactionNumber_t _i2cTransaction;
 	
-	uint8_t _led;
-	uint8_t _ledOld;
+	uint16_t _led;
+	uint16_t _ledOld;
 	
 	uint32_t _readTimer;
 	uint8_t _txBuffer[4];

@@ -7,11 +7,11 @@
 //**********************************************************************************************************************
 #include "main.h"
 
-#include "protocol/triggerProtocol.h"
-#include "protocol/eventProtocol.h"
-#include "protocol/stateReportProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
+#include "protocol/eventSystemProtocol.h"
+#include "protocol/stateSystemProtocol.h"
 
-#include "Raumsteuerung/bistableRelay.h"
+#include "utility/bistableRelay.h"
 
 int main(void);
 bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
@@ -22,7 +22,7 @@ __attribute__((section(".appHeader"))) appHead_t appHead ={
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
-/*appName[60]*/ "Load switch",
+/*appName[60]*/ "Power Distributor",
 /*main		 */ main,
 /*onRx		 */ onReceive
 };
@@ -50,41 +50,40 @@ void ampOnOff(uint16_t triggerChannelNumber);
 
 void ampMakro(uint16_t triggerChannelNumber);
 
-
 //**** State Configuration ********************************************************************************************
 
-const srp_stateSignal_t stateReportSignal[] = {
-	{0x00, "Main Input", STATE_SEND_INTERVAL},
-	{0x01, "Output 1", STATE_SEND_INTERVAL},
-	{0x02, "Output 2", STATE_SEND_INTERVAL},
-	{0x03, "Output 3", STATE_SEND_INTERVAL},
-	{0x04, "Output 4", STATE_SEND_INTERVAL},
-	{0x05, "Output 5", STATE_SEND_INTERVAL},
-	{0x06, "Output 6", STATE_SEND_INTERVAL},
-	{0x07, "Output 7", STATE_SEND_INTERVAL},
-	{0x08, "Output 8", STATE_SEND_INTERVAL},
+const ssp_stateSignal_t stateSystemSignal[] = {
+	{0x01, "Main Input", STATE_SEND_INTERVAL},
+	{0x02, "Output 1", STATE_SEND_INTERVAL},
+	{0x03, "Output 2", STATE_SEND_INTERVAL},
+	{0x04, "Output 3", STATE_SEND_INTERVAL},
+	{0x05, "Output 4", STATE_SEND_INTERVAL},
+	{0x06, "Output 5", STATE_SEND_INTERVAL},
+	{0x07, "Output 6", STATE_SEND_INTERVAL},
+	{0x08, "Output 7", STATE_SEND_INTERVAL},
+	{0x09, "Output 8", STATE_SEND_INTERVAL},
 	
-	{0x09, "Amp Mains Power", STATE_SEND_INTERVAL},
-	{0x0A, "Amp Channel 1", STATE_SEND_INTERVAL},
-	{0x0B, "Amp Channel 2", STATE_SEND_INTERVAL},
-	{0x0C, "Amp Channel 3", STATE_SEND_INTERVAL},
-	{0x0D, "Amp Channel 4", STATE_SEND_INTERVAL},
-	{0x0E, "Amp Channel 5", STATE_SEND_INTERVAL},
-	{0x0F, "Amp Channel 6", STATE_SEND_INTERVAL},
-	{0x10, "Amp Channel 7", STATE_SEND_INTERVAL},
-	{0x11, "Amp Channel 8", STATE_SEND_INTERVAL},
-	{0x12, "Amp Zone 1", STATE_SEND_INTERVAL}
+	{0x20, "Amp Mains Power", STATE_SEND_INTERVAL},
+	{0x21, "Amp Channel 1", STATE_SEND_INTERVAL},
+	{0x22, "Amp Channel 2", STATE_SEND_INTERVAL},
+	{0x23, "Amp Channel 3", STATE_SEND_INTERVAL},
+	{0x24, "Amp Channel 4", STATE_SEND_INTERVAL},
+	{0x25, "Amp Channel 5", STATE_SEND_INTERVAL},
+	{0x26, "Amp Channel 6", STATE_SEND_INTERVAL},
+	{0x27, "Amp Channel 7", STATE_SEND_INTERVAL},
+	{0x28, "Amp Channel 8", STATE_SEND_INTERVAL},
+	{0x29, "Amp Zone 1", STATE_SEND_INTERVAL}
 };
-#define stateReportSignalListSize (sizeof(stateReportSignal)/sizeof(srp_stateSignal_t))
+#define stateSystemSignalListSize (sizeof(stateSystemSignal)/sizeof(ssp_stateSignal_t))
 
-srp_itemState_t stateReportSignalStatusList[stateReportSignalListSize];
+ssp_itemState_t stateSystemSignalStatusList[stateSystemSignalListSize];
 
-const stateReportProtocol_t stateReportSystem = {
-	.signals = stateReportSignal,
-	.signalSize = stateReportSignalListSize,
+const stateSystemProtocol_t stateSystem = {
+	.signals = stateSystemSignal,
+	.signalSize = stateSystemSignalListSize,
 	.slots = nullptr,
 	.slotSize = 0,
-	._signalState = stateReportSignalStatusList,
+	._signalState = stateSystemSignalStatusList,
 	._slotState = nullptr
 };
 
@@ -130,47 +129,48 @@ const tsp_triggerSlot_t triggerSlots[] = {
 	{ 0x1A, "Output 8 Off", outputOnOff},
 	{ 0x1B, "Output 8 Toggle", outputOnOff},
 		
-	{ 0x1C, "Amp Main On", ampPowerOnOff },
-	{ 0x1D, "Amp Main Off", ampPowerOnOff},
+// **** AMP *********************************************************************************************************** 		
+	{ 0x40, "Amp Main On", ampPowerOnOff },
+	{ 0x41, "Amp Main Off", ampPowerOnOff},
 		
-	{ 0x1E, "Amp All On", ampOnOff},
-	{ 0x1F, "Amp All Off", ampOnOff},
+	{ 0x42, "Amp All On", ampOnOff},
+	{ 0x43, "Amp All Off", ampOnOff},
 		
-	{ 0x20, "Amp Channel 1 On", ampOnOff},
-	{ 0x21, "Amp Channel 1 Off", ampOnOff},
-	{ 0x22, "Amp Channel 1 Toggle", ampOnOff},
+	{ 0x44, "Amp Channel 1 On", ampOnOff},
+	{ 0x45, "Amp Channel 1 Off", ampOnOff},
+	{ 0x46, "Amp Channel 1 Toggle", ampOnOff},
 	
-	{ 0x23, "Amp Channel 2 On", ampOnOff},
-	{ 0x24, "Amp Channel 2 Off", ampOnOff},
-	{ 0x25, "Amp Channel 2 Toggle", ampOnOff},
+	{ 0x47, "Amp Channel 2 On", ampOnOff},
+	{ 0x48, "Amp Channel 2 Off", ampOnOff},
+	{ 0x49, "Amp Channel 2 Toggle", ampOnOff},
 	
-	{ 0x26, "Amp Channel 3 On", ampOnOff},
-	{ 0x27, "Amp Channel 3 Off", ampOnOff},
-	{ 0x28, "Amp Channel 3 Toggle", ampOnOff},
+	{ 0x4A, "Amp Channel 3 On", ampOnOff},
+	{ 0x4B, "Amp Channel 3 Off", ampOnOff},
+	{ 0x4C, "Amp Channel 3 Toggle", ampOnOff},
 	
-	{ 0x29, "Amp Channel 4 On", ampOnOff},
-	{ 0x2A, "Amp Channel 4 Off", ampOnOff},
-	{ 0x2B, "Amp Channel 4 Toggle", ampOnOff},
+	{ 0x4D, "Amp Channel 4 On", ampOnOff},
+	{ 0x4E, "Amp Channel 4 Off", ampOnOff},
+	{ 0x4F, "Amp Channel 4 Toggle", ampOnOff},
 	
-	{ 0x2C, "Amp Channel 5 On", ampOnOff},
-	{ 0x2D, "Amp Channel 5 Off", ampOnOff},
-	{ 0x2E, "Amp Channel 5 Toggle", ampOnOff},
+	{ 0x50, "Amp Channel 5 On", ampOnOff},
+	{ 0x51, "Amp Channel 5 Off", ampOnOff},
+	{ 0x52, "Amp Channel 5 Toggle", ampOnOff},
 	
-	{ 0x2F, "Amp Channel 6 On", ampOnOff},
-	{ 0x30, "Amp Channel 6 Off", ampOnOff},
-	{ 0x31, "Amp Channel 6 Toggle", ampOnOff},
+	{ 0x53, "Amp Channel 6 On", ampOnOff},
+	{ 0x54, "Amp Channel 6 Off", ampOnOff},
+	{ 0x55, "Amp Channel 6 Toggle", ampOnOff},
 	
-	{ 0x32, "Amp Channel 7 On", ampOnOff},
-	{ 0x33, "Amp Channel 7 Off", ampOnOff},
-	{ 0x34, "Amp Channel 7 Toggle", ampOnOff},
+	{ 0x56, "Amp Channel 7 On", ampOnOff},
+	{ 0x57, "Amp Channel 7 Off", ampOnOff},
+	{ 0x58, "Amp Channel 7 Toggle", ampOnOff},
 	
-	{ 0x35, "Amp Channel 8 On", ampOnOff},
-	{ 0x36, "Amp Channel 8 Off", ampOnOff},
-	{ 0x37, "Amp Channel 8 Toggle", ampOnOff},
+	{ 0x59, "Amp Channel 8 On", ampOnOff},
+	{ 0x5A, "Amp Channel 8 Off", ampOnOff},
+	{ 0x5B, "Amp Channel 8 Toggle", ampOnOff},
 		
-	{ 0x38, "Makro Amp On", ampMakro},
-	{ 0x39, "Makro Amp Off", ampMakro},
-	{ 0x40, "Makro Amp Toggle", ampMakro}
+	{ 0x5C, "Makro Amp On", ampMakro},
+	{ 0x5D, "Makro Amp Off", ampMakro},
+	{ 0x5E, "Makro Amp Toggle", ampMakro}
 };
 #define triggerSlotListSize (sizeof(triggerSlots)/sizeof(tsp_triggerSlot_t))
 
@@ -213,9 +213,9 @@ bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, c
 {
 	switch(protocol)
 	{
-		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_eventProtocol:			return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
-		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateReportSystem, sourceAddress, command, data, size);
+		case busProtocol_triggerSystemProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
+		case busProtocol_eventSystemProtocol:			return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
+		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
 	}
 	return false;
 }
@@ -246,7 +246,7 @@ void mainOnOffControl()
 		
 		case onOff_on:		
 			bsRelay_set(&mainRelay, true);
-			srp_setStateByIndex(&stateReportSystem, 0, srp_state_on);
+			ssp_setStateByIndex(&stateSystem, 0, srp_state_on);
 			kernel.tickTimer.reset(&mainOffTimer);
 			onOffState = onOff_idel;
 			break;
@@ -259,7 +259,7 @@ void mainOnOffControl()
 		
 		case onOff_off:		
 			bsRelay_set(&mainRelay,false);
-			srp_setStateByIndex(&stateReportSystem, 0, srp_state_off);
+			ssp_setStateByIndex(&stateSystem, 0, srp_state_off);
 			kernel.tickTimer.reset(&mainOffTimer);
 			onOffState = onOff_idel;
 			break;
@@ -338,7 +338,7 @@ void ampOnOffControl()
 		
 		case onOff_on:		
 			bsRelay_set(&ampPowerRelay, true);
-			srp_setStateByIndex(&stateReportSystem, 9, srp_state_on);
+			ssp_setStateByIndex(&stateSystem, 9, srp_state_on);
 			kernel.tickTimer.reset(&ampOffTimer);
 			ampOnOffState = onOff_idel;
 			break;
@@ -351,7 +351,7 @@ void ampOnOffControl()
 		
 		case onOff_off:		
 			bsRelay_set(&ampPowerRelay, false);
-			srp_setStateByIndex(&stateReportSystem, 9, srp_state_off);
+			ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 			kernel.tickTimer.reset(&ampOffTimer);
 			ampOnOffState = onOff_idel;
 			break;
@@ -360,27 +360,27 @@ void ampOnOffControl()
 
 void ampMakro(uint16_t triggerChannelNumber)
 {
-	if(triggerChannelNumber == 0x38)
+	if(triggerChannelNumber == 0x5C)
 	{
 		amp = 0xF0;
-		srp_setStateByIndex(&stateReportSystem, 0x12, srp_state_on);
+		ssp_setStateByIndex(&stateSystem, 0x12, srp_state_on);
 	}
-	else if(triggerChannelNumber == 0x39) 
+	else if(triggerChannelNumber == 0x5D) 
 	{
 		amp = 0x00;
-		srp_setStateByIndex(&stateReportSystem, 0x12, srp_state_off);
+		ssp_setStateByIndex(&stateSystem, 0x12, srp_state_off);
 	}
-	else if(triggerChannelNumber == 0x40)
+	else if(triggerChannelNumber == 0x5E)
 	{
-		if(srp_getStateByIndex(&stateReportSystem, 0x12) != srp_state_on)
+		if(stateSystemSignalStatusList[0x12].state != srp_state_on)
 		{
 			amp = 0xF0;
-			srp_setStateByIndex(&stateReportSystem, 0x12, srp_state_on);
+			ssp_setStateByIndex(&stateSystem, 0x12, srp_state_on);
 		}
 		else
 		{
 			amp = 0x00;
-			srp_setStateByIndex(&stateReportSystem, 0x12, srp_state_off);
+			ssp_setStateByIndex(&stateSystem, 0x12, srp_state_off);
 		}
 	}	
 }
@@ -388,55 +388,55 @@ void ampMakro(uint16_t triggerChannelNumber)
 void setOutput(uint8_t state)
 {
 	pin_setOutput(IO_D00, state&0x01);
-	srp_setStateByIndex(&stateReportSystem, 0x01, (srp_state_t)((state&0x01)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x01, (ssp_state_t)((state&0x01)!=0));
 	
 	pin_setOutput(IO_D01, state&0x02);
-	srp_setStateByIndex(&stateReportSystem, 0x02, (srp_state_t)((state&0x02)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x02, (ssp_state_t)((state&0x02)!=0));
 	
 	pin_setOutput(IO_D02, state&0x04);
-	srp_setStateByIndex(&stateReportSystem, 0x03, (srp_state_t)((state&0x04)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x03, (ssp_state_t)((state&0x04)!=0));
 	
 	pin_setOutput(IO_D03, state&0x08);
-	srp_setStateByIndex(&stateReportSystem, 0x04, (srp_state_t)((state&0x08)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x04, (ssp_state_t)((state&0x08)!=0));
 	
 	pin_setOutput(IO_D04, state&0x10);
-	srp_setStateByIndex(&stateReportSystem, 0x05, (srp_state_t)((state&0x10)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x05, (ssp_state_t)((state&0x10)!=0));
 	
 	pin_setOutput(IO_D05, state&0x20);
-	srp_setStateByIndex(&stateReportSystem, 0x06, (srp_state_t)((state&0x20)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x06, (ssp_state_t)((state&0x20)!=0));
 	
 	pin_setOutput(IO_D06, state&0x40);
-	srp_setStateByIndex(&stateReportSystem, 0x07, (srp_state_t)((state&0x40)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x07, (ssp_state_t)((state&0x40)!=0));
 	
 	pin_setOutput(IO_D07, state&0x80);
-	srp_setStateByIndex(&stateReportSystem, 0x08, (srp_state_t)((state&0x80)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x08, (ssp_state_t)((state&0x80)!=0));
 }
 
 void setAmpStandby(uint8_t state)
 {
 	pin_setOutput(IO_A00,(state&0x01));
-	srp_setStateByIndex(&stateReportSystem, 0x0A, (srp_state_t)((state&0x01)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x0A, (ssp_state_t)((state&0x01)!=0));
 	
 	pin_setOutput(IO_A01,(state&0x02));
-	srp_setStateByIndex(&stateReportSystem, 0x0B, (srp_state_t)((state&0x02)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x0B, (ssp_state_t)((state&0x02)!=0));
 	
 	pin_setOutput(IO_A02,(state&0x04));
-	srp_setStateByIndex(&stateReportSystem, 0x0C, (srp_state_t)((state&0x04)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x0C, (ssp_state_t)((state&0x04)!=0));
 	
 	pin_setOutput(IO_A03,(state&0x08));
-	srp_setStateByIndex(&stateReportSystem, 0x0D, (srp_state_t)((state&0x08)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x0D, (ssp_state_t)((state&0x08)!=0));
 	
 	pin_setOutput(IO_A04,(state&0x10));
-	srp_setStateByIndex(&stateReportSystem, 0x0E, (srp_state_t)((state&0x10)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x0E, (ssp_state_t)((state&0x10)!=0));
 	
 	pin_setOutput(IO_A05,(state&0x20));
-	srp_setStateByIndex(&stateReportSystem, 0x0F, (srp_state_t)((state&0x20)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x0F, (ssp_state_t)((state&0x20)!=0));
 	
 	pin_setOutput(IO_A06,(state&0x40));
-	srp_setStateByIndex(&stateReportSystem, 0x10, (srp_state_t)((state&0x40)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x10, (ssp_state_t)((state&0x40)!=0));
 	
 	pin_setOutput(IO_A07,(state&0x80));
-	srp_setStateByIndex(&stateReportSystem, 0x11, (srp_state_t)((state&0x80)!=0));
+	ssp_setStateByIndex(&stateSystem, 0x11, (ssp_state_t)((state&0x80)!=0));
 }
 
 
@@ -482,7 +482,7 @@ int main(void)
 		
 		tsp_initialize(&triggerSystem);
 		esp_initialize(&eventSystem);
-		srp_initialize(&stateReportSystem);
+		ssp_initialize(&stateSystem);
 
 		kernel.tickTimer.reset(&mainOffTimer);
 		kernel.tickTimer.reset(&ampOffTimer);
@@ -501,7 +501,7 @@ int main(void)
 	{
 		tsp_mainHandler(&triggerSystem);
 		esp_mainHandler(&eventSystem);
-		srp_mainHandler(&stateReportSystem);
+		ssp_mainHandler(&stateSystem);
 
 		bsRelay_handler(&mainRelay);
 		bsRelay_handler(&ampPowerRelay);

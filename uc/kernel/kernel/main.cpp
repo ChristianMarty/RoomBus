@@ -1,20 +1,18 @@
-/*
- * kernel.cpp
- *
- * Created: 19.04.2019 18:52:57
- * Author : Christian
- */ 
-
-#define APP_START_ADDR   0x10000
+//**********************************************************************************************************************
+// FileName : main.cpp
+// FilePath : 
+// Author   : Christian Marty
+// Date		: 12.01.2019
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #define KERNEL_H_
 
-#include "sam.h"
+#include "main.h"
+#include "common/kernel.h"
 
 #include "protocol/deviceManagementProtocol.h"
 #include "protocol/messageLogProtocol.h"
 #include "protocol/fileTransferProtocol.h"
-
-#include "common/kernel.h"
 
 #include "kernel/bus.h"
 #include "kernel/standardIO.h"
@@ -64,8 +62,6 @@ systemControl_t sysControlHandler ={.sysControl = &sysControl, .sysStatus = &sys
 kernelSignals_t kernelSignals;
 appSignals_t appSignals;
 
-
-
 appState_t appState;
 
 uint32_t appCrcCalc = 0;
@@ -110,8 +106,6 @@ lfs_soff_t file_size(lfs_file_t *file)
 {
 	return lfs_file_size(&lfs, file);
 }
-
-
 
 uint32_t appCRC(void)
 {
@@ -259,7 +253,6 @@ int main(void)
 	if(RSTC->RCAUSE.bit.SYST) mlp_sysMessage("System Reset Request");
 	if(RSTC->RCAUSE.bit.BACKUP) mlp_sysMessage("Backup Reset");
 	
-	
 	uint32_t boot_count =  dataSystem_init(&lfs);	
 	
 	kernel.tickTimer.reset = tickTimer_reset;
@@ -386,12 +379,9 @@ int main(void)
 		
 		if(appState == APP_INIT)
 		{
-			if(checkAppValid()) 
-			{
+			if(checkAppValid()) {
 				kernel.kernelSignals->initApp = true;
-			}
-			else 
-			{
+			}else {
 				appState = APP_STOP;
 				mlp_sysError("App CRC Error");
 				kernel.kernelSignals->initApp = false;

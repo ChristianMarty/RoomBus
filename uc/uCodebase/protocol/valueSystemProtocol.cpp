@@ -41,9 +41,9 @@ void vsp_initialize(const valueSystemProtocol_t* vsp)
 void vsp_mainHandler(const valueSystemProtocol_t* vsp)
 {
 	// handle slot timeout
-	for(int i = 0; i < vsp->signalSize; i++){
-		if(kernel.tickTimer.delay1ms(&(vsp->_signalState[i].timer), vsp->slots[i].timeout*1000)){
-			vsp->_signalState[i].sendSignalPending = true;
+	for(int i = 0; i < vsp->slotSize; i++){
+		if(kernel.tickTimer.delay1ms(&(vsp->_slotState[i].timer), vsp->slots[i].timeout*1000)){
+			// TODO: what to do?
 		}
 	}
 		
@@ -56,7 +56,6 @@ void vsp_mainHandler(const valueSystemProtocol_t* vsp)
 		
 	// send slot information
 	for(uint8_t i = 0;  i < vsp->slotSize; i++) {
-			
 		if(vsp->_slotState[i].sendInformationPending == true){
 			if(_vsp_sendValueReportSlotInformation(&vsp->slots[i])) {
 				vsp->_slotState[i].sendInformationPending = false;
@@ -119,7 +118,7 @@ bool vsp_sendValueCommandByIndex(const valueSystemProtocol_t* vsp, uint8_t index
 	vsp_valueSlot_t slot = vsp->slots[index];
 	vsp_itemState_t state  = vsp->_slotState[index];
 		
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueReportProtocol, vsp_cmd_valueCommand, busPriority_normal);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueSystemProtocol, vsp_cmd_valueCommand, busPriority_normal);
 	kernel.bus.pushWord16(&msg, slot.channel);
 	kernel.bus.pushByte(&msg, command);
 	kernel.bus.pushWord32(&msg, value.Long);
@@ -139,10 +138,10 @@ vsp_valueData_t vsp_valueByIndex(const valueSystemProtocol_t* vsp, uint8_t index
 	return vsp->_slotState[index].value;
 	
 }
+
 //**********************************************************************************************************************
 // Private
 //**********************************************************************************************************************
-
 bool _vsp_parseValueReport(const valueSystemProtocol_t* vsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	uint16_t channel = unpack_uint16(&data[0]);
@@ -276,7 +275,8 @@ bool _vsp_executeValueCommand(const valueSystemProtocol_t* vsp, uint8_t channelI
         }
     }else if (valueCommand.operation == vsp_operation_subtract){
         if (signalUnitType == vsp_unitType_long) {
-            newValue.Long = signalState->value.Long - newValue.Long;
+			if(newValue.Long > signalState->value.Long)newValue.Long = 0; // todo: handle "reject" case
+            else newValue.Long = signalState->value.Long - newValue.Long;
         } else if (signalUnitType == vsp_unitType_number){
             return false; // this command does not exist
         }
@@ -387,7 +387,7 @@ bool _vsp_sendValueReportSignalInformation(const vsp_valueSignal_t *stateSignal)
 	bus_message_t msg;
 	if(!kernel.bus.getMessageSlot(&msg)) return false; // Abort if TX buffer full
 		
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueReportProtocol, vsp_cmd_signalInformationReport, busPriority_low);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueSystemProtocol, vsp_cmd_signalInformationReport, busPriority_low);
 	kernel.bus.pushWord16(&msg, stateSignal->channel);
 	kernel.bus.pushWord16(&msg, stateSignal->interval);
 	
@@ -409,7 +409,7 @@ bool _vsp_sendValueReportSlotInformation(const vsp_valueSlot_t *stateSlot)
 	bus_message_t msg;
 	if(!kernel.bus.getMessageSlot(&msg)) return false; // Abort if TX buffer full
 		
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueReportProtocol, vsp_cmd_slotInformationReport, busPriority_low);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueSystemProtocol, vsp_cmd_slotInformationReport, busPriority_low);
 	kernel.bus.pushWord16(&msg, stateSlot->channel);
 	kernel.bus.pushWord16(&msg, stateSlot->timeout);
 	kernel.bus.pushString(&msg, &stateSlot->description[0]);
@@ -429,7 +429,7 @@ void _vsp_sendValues(const valueSystemProtocol_t *vsp)
 			return; // Abort if TX buffer full
 		}
 		
-		kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueReportProtocol, vsp_cmd_valueReport, busPriority_low);
+		kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueSystemProtocol, vsp_cmd_valueReport, busPriority_low);
 		kernel.bus.pushWord16(&msg, vsp->signals[i].channel);
 		kernel.bus.pushWord32(&msg, vsp->_signalState[i].value.Long);
 		kernel.bus.send(&msg);

@@ -92,7 +92,7 @@ bool _tsp_sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal)
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerProtocol, tsp_cmd_signalInformationReport, busPriority_low);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerSystemProtocol, tsp_cmd_signalInformationReport, busPriority_low);
 	kernel.bus.pushWord16(&msg, triggerSignal->channel);
 	kernel.bus.pushString(&msg, &triggerSignal->description[0]);
 	kernel.bus.send(&msg);
@@ -105,7 +105,7 @@ bool _tsp_sendTriggerSoltInformation(const tsp_triggerSlot_t *triggerSlot)
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 
-	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerProtocol, tsp_cmd_slotInformationReport, busPriority_low);
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerSystemProtocol, tsp_cmd_slotInformationReport, busPriority_low);
 	kernel.bus.pushWord16(&msg, triggerSlot->channel);
 	kernel.bus.pushString(&msg, &triggerSlot->description[0]);
 	kernel.bus.send(&msg);
@@ -146,7 +146,7 @@ void _tsp_sendTriggers(const triggerSystemProtocol_t* tsp)
 			if( kernel.bus.getMessageSlot(&msg) == false ){
 				return; // Abort if TX buffer full
 			}
-			kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerProtocol, tsp_cmd_trigger, busPriority_low);
+			kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerSystemProtocol, tsp_cmd_trigger, busPriority_low);
 		}
 		
 		const tsp_triggerSignal_t *sig = &tsp->signals[i];

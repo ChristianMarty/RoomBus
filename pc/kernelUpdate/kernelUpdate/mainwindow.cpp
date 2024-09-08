@@ -9,10 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->updater_lineEdit->setText("C:\\Users\\Christian\\Raumsteuerung\\uc\\kernelUpdater\\kernelUpdater\\Debug\\kernelUpdater.hex");
-    ui->kernel_lineEdit->setText("C:\\Users\\Christian\\Raumsteuerung\\uc\\kernel\\kernel\\Debug\\kernel.hex");
+    ui->updater_lineEdit->setText("C:/Users/Christian/Raumsteuerung/RoomBus/uc/kernelUpdater/kernelUpdater/Debug/kernelUpdater.hex");
+    ui->kernel_lineEdit->setText("C:/Users/Christian/Raumsteuerung/RoomBus/uc/kernel/kernel/Debug/kernel.hex");
 
-    _savePath = "C:\\Users\\Christian\\Raumsteuerung\\uc\\kernel\\kernel\\Debug\\kernelupdate.hex";
+    _savePath = "C:\\Users\\Christian\\Raumsteuerung\\RoomBus\\uc\\kernel\\kernel\\Debug\\kernelupdate.hex";
 
     _loadUpdater();
     _loadKernel();

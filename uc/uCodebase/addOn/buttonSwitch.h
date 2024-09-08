@@ -42,8 +42,8 @@ typedef struct{
 	buttonSwitch_state_t _state;
 	
 	buttonSwitch_userInput_t _userInput;
-		
-} buttonSwitch_t;
+	uint8_t _byteBuffer;
+}buttonSwitch_t;
 
 
 void buttonSwitch_init(buttonSwitch_t *buttonSwitch);

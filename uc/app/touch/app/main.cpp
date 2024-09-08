@@ -9,8 +9,8 @@
 
 #include "common/kernel.h"
 
-#include "protocol/triggerProtocol.h"
-#include "protocol/stateReportProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
+#include "protocol/stateSystemProtocol.h"
 
 #include "driver/SAMx5x/pin.h"
 
@@ -89,13 +89,13 @@ void uart_onRx(void){
 //**** State Configuration ********************************************************************************************
 
 #define SLOT_TIMEOUT 10
-void stateChangeAction(uint16_t stateChannelNumber, srp_state_t state)
+void stateChangeAction(uint16_t stateChannelNumber, ssp_state_t state)
 {
 	
 	
 }
 
-const srp_stateSlot_t stateSlots[] = {
+const ssp_stateSlot_t stateSlots[] = {
 	{ 0x02, "Light 1", SLOT_TIMEOUT, stateChangeAction },
 	{ 0x03, "Light 2", SLOT_TIMEOUT, stateChangeAction },
 	{ 0x04, "Light 3", SLOT_TIMEOUT, stateChangeAction },
@@ -109,16 +109,16 @@ const srp_stateSlot_t stateSlots[] = {
 	{ 0x84, "HDMI 3", SLOT_TIMEOUT, stateChangeAction },
 	{ 0x85, "HDMI 4", SLOT_TIMEOUT, stateChangeAction }
 };
-#define stateReportSlotListSize (sizeof(stateSlots)/sizeof(srp_stateSlot_t))
+#define stateSystemSlotListSize (sizeof(stateSlots)/sizeof(ssp_stateSlot_t))
 
-srp_itemState_t stateReportSlotStatusList[stateReportSlotListSize];
-const stateReportProtocol_t stateSystem = {
+ssp_itemState_t stateSystemSlotStatusList[stateSystemSlotListSize];
+const stateSystemProtocol_t stateSystem = {
 	.signals = nullptr,
 	.signalSize = 0,
 	.slots = stateSlots,
-	.slotSize = stateReportSlotListSize,
+	.slotSize = stateSystemSlotListSize,
 	._signalState = nullptr,
-	._slotState = stateReportSlotStatusList
+	._slotState = stateSystemSlotStatusList
 };
 
 //**** Trigger Configuration ******************************************************************************************
@@ -156,8 +156,8 @@ const triggerSystemProtocol_t triggerSystem = {
 //*********************************************************************************************************************
 bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size){
 	switch(protocol){
-		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
+		case busProtocol_triggerSystemProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
+		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
 		default: return false;
 	}
 }
@@ -221,7 +221,7 @@ int main()
 		
 		nextion_init(&nextion_0);
 		tsp_initialize(&triggerSystem);
-		srp_initialize(&stateSystem);
+		ssp_initialize(&stateSystem);
 		
 		kernel.appSignals->appReady = true;		
 	}
@@ -235,23 +235,22 @@ int main()
 		else if(!pin_getInput(IO_D05)) nextion_setPage(&nextion_0, 4);
 		
 		nextion_handler(&nextion_0);
-		
 		tsp_mainHandler(&triggerSystem);
-		srp_mainHandler(&stateSystem);
+		ssp_mainHandler(&stateSystem);
 		
 		// Update button state
-		nextion_0.buttonState[0].state = stateReportSlotStatusList[0].state == srp_state_on ? true : false; 
-		nextion_0.buttonState[1].state = stateReportSlotStatusList[1].state == srp_state_on ? true : false; 
-		nextion_0.buttonState[2].state = stateReportSlotStatusList[2].state == srp_state_on ? true : false; 
+		nextion_0.buttonState[0].state = stateSystemSlotStatusList[0].state == srp_state_on ? true : false; 
+		nextion_0.buttonState[1].state = stateSystemSlotStatusList[1].state == srp_state_on ? true : false; 
+		nextion_0.buttonState[2].state = stateSystemSlotStatusList[2].state == srp_state_on ? true : false; 
 		
-		nextion_0.buttonState[14].state = stateReportSlotStatusList[3].state == srp_state_on ? true : false;
+		nextion_0.buttonState[14].state = stateSystemSlotStatusList[3].state == srp_state_on ? true : false;
 		
-		nextion_0.buttonState[3].state = stateReportSlotStatusList[4].state == srp_state_on ? true : false;
-		nextion_0.buttonState[4].state = stateReportSlotStatusList[5].state == srp_state_on ? true : false;
-		nextion_0.buttonState[5].state = stateReportSlotStatusList[6].state == srp_state_on ? true : false;
-		nextion_0.buttonState[6].state = stateReportSlotStatusList[7].state == srp_state_on ? true : false;
-		nextion_0.buttonState[7].state = stateReportSlotStatusList[8].state == srp_state_on ? true : false;
-		nextion_0.buttonState[8].state = stateReportSlotStatusList[9].state == srp_state_on ? true : false;
+		nextion_0.buttonState[3].state = stateSystemSlotStatusList[4].state == srp_state_on ? true : false;
+		nextion_0.buttonState[4].state = stateSystemSlotStatusList[5].state == srp_state_on ? true : false;
+		nextion_0.buttonState[5].state = stateSystemSlotStatusList[6].state == srp_state_on ? true : false;
+		nextion_0.buttonState[6].state = stateSystemSlotStatusList[7].state == srp_state_on ? true : false;
+		nextion_0.buttonState[7].state = stateSystemSlotStatusList[8].state == srp_state_on ? true : false;
+		nextion_0.buttonState[8].state = stateSystemSlotStatusList[9].state == srp_state_on ? true : false;
 	}
 	
 	// App de-initialize code

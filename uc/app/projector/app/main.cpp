@@ -9,9 +9,9 @@
 
 #include "common/kernel.h"
 
-#include "protocol/triggerProtocol.h"
-#include "protocol/stateReportProtocol.h"
-#include "protocol/eventProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
+#include "protocol/stateSystemProtocol.h"
+#include "protocol/eventSystemProtocol.h"
 
 #include "driver/SAMx5x/pin.h"
 #include "driver/SAMx5x/i2cMaster.h"
@@ -46,10 +46,10 @@ uint32_t hdmiPowerEventTimer;
 
 uint8_t ememData[256];
 
-srp_state_t mainPowerState;
-srp_state_t mainPowerStateOld;
-srp_state_t projectorBlackout;
-srp_state_t projectorBlackoutOld;
+ssp_state_t mainPowerState;
+ssp_state_t mainPowerStateOld;
+ssp_state_t projectorBlackout;
+ssp_state_t projectorBlackoutOld;
 
 bsRelay_t relay1;
 
@@ -57,7 +57,7 @@ bool sendStateUpdate = true;
 
 //**** State Configuration ********************************************************************************************
 #define STATE_SIGNAL_INTERVAL 10
-const srp_stateSignal_t stateSignals[] = {
+const ssp_stateSignal_t stateSignals[] = {
 	{0x80, "Projector Power State", STATE_SIGNAL_INTERVAL},
 	{0x81, "Projector Blackout State", STATE_SIGNAL_INTERVAL},
 	
@@ -71,16 +71,16 @@ const srp_stateSignal_t stateSignals[] = {
 	{0x88, "HDMI Out B - In 3", STATE_SIGNAL_INTERVAL},
 	{0x89, "HDMI Out B - In 4", STATE_SIGNAL_INTERVAL}
 };
-#define stateReportSignaListSize (sizeof(stateSignals)/sizeof(srp_stateSignal_t))
+#define stateSystemSignaListSize (sizeof(stateSignals)/sizeof(ssp_stateSignal_t))
 
-srp_itemState_t stateReportSignaStatusList[stateReportSignaListSize];
+ssp_itemState_t stateSystemSignaStatusList[stateSystemSignaListSize];
 
-const stateReportProtocol_t stateSystem = {
+const stateSystemProtocol_t stateSystem = {
 	.signals = stateSignals,
-	.signalSize = stateReportSignaListSize,
+	.signalSize = stateSystemSignaListSize,
 	.slots = nullptr,
 	.slotSize = 0,
-	._signalState = stateReportSignaStatusList,
+	._signalState = stateSystemSignaStatusList,
 	._slotState = nullptr
 };
 
@@ -98,7 +98,7 @@ const tsp_triggerSlot_t triggerSlotList[] = {
 	{0x84, "Projector Blackout Off", projector_blackout},
 	{0x85, "Projector Blackout Toggle", projector_blackout},
 		
-	{0x06, "HDMI Out A - In 1", hdmi_matrix},
+	{0x86, "HDMI Out A - In 1", hdmi_matrix},
 	{0x87, "HDMI Out A - In 2", hdmi_matrix},
 	{0x88, "HDMI Out A - In 3", hdmi_matrix},
 	{0x89, "HDMI Out A - In 4", hdmi_matrix},
@@ -141,9 +141,9 @@ const eventSystemProtocol_t eventSystem = {
 bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
 {	
 	switch(protocol){
-		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_eventProtocol:	     	return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
-		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
+		case busProtocol_triggerSystemProtocol:	return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
+		case busProtocol_eventSystemProtocol:	return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
+		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
 		default: return false;
 	}
 }
@@ -195,72 +195,72 @@ void hdmi_matrix(uint16_t triggerChannelNumber)
 	switch(triggerChannelNumber)
 	{
 		case  6:	hdmi_setMatrix('A',1); 
-					srp_setStateByIndex(&stateSystem, 2, srp_state_on);
-					srp_setStateByIndex(&stateSystem, 3, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 4, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 5, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 2, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 4, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 5, srp_state_off);
 					break;
 					
 		case  7:	hdmi_setMatrix('A',2); 
-					srp_setStateByIndex(&stateSystem, 2, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 3, srp_state_on);
-					srp_setStateByIndex(&stateSystem, 4, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 5, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 3, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 4, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 5, srp_state_off);
 					break;
 					
 		case  8:	hdmi_setMatrix('A',3); 
-					srp_setStateByIndex(&stateSystem, 2, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 3, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 4, srp_state_on);
-					srp_setStateByIndex(&stateSystem, 5, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 4, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 5, srp_state_off);
 					break;
 					
 		case  9:	hdmi_setMatrix('A',4);
-					srp_setStateByIndex(&stateSystem, 2, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 3, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 4, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 5, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 4, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 5, srp_state_on);
 					break;
 		
 		case  10:	hdmi_setMatrix('B',1); 
-					srp_setStateByIndex(&stateSystem, 6, srp_state_on);
-					srp_setStateByIndex(&stateSystem, 7, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 8, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 9, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 6, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 					break;
 					
 		case  11:	hdmi_setMatrix('B',2); 
-					srp_setStateByIndex(&stateSystem, 6, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 7, srp_state_on);
-					srp_setStateByIndex(&stateSystem, 8, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 9, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 6, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 7, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 					break;
 					
 		case 12:	hdmi_setMatrix('B',3); 
-					srp_setStateByIndex(&stateSystem, 6, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 7, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 8, srp_state_on);
-					srp_setStateByIndex(&stateSystem, 9, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 6, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 8, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 					break;
 					
 		case 13:	hdmi_setMatrix('B',4); 
-					srp_setStateByIndex(&stateSystem, 6, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 7, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 8, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 9, srp_state_on);
+					ssp_setStateByIndex(&stateSystem, 6, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 9, srp_state_on);
 					break;
 					
 		case 14:	hdmi_turnOff();
 		
-					srp_setStateByIndex(&stateSystem, 2, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 3, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 4, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 5, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 4, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 5, srp_state_off);
 					
-					srp_setStateByIndex(&stateSystem, 6, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 7, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 8, srp_state_off);
-					srp_setStateByIndex(&stateSystem, 9, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 6, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
+					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 
 					break;
 	}
@@ -298,7 +298,7 @@ int main()
 		
 		tsp_initialize(&triggerSystem);
 		esp_initialize(&eventSystem);
-		srp_initialize(&stateSystem);
+		ssp_initialize(&stateSystem);
 		
 		kernel.appSignals->appReady = true;	
 	}
@@ -308,7 +308,7 @@ int main()
 	{
 		tsp_mainHandler(&triggerSystem);
 		esp_mainHandler(&eventSystem);
-		srp_mainHandler(&stateSystem);
+		ssp_mainHandler(&stateSystem);
 		
 		bsRelay_handler(&relay1);
 		
@@ -329,7 +329,7 @@ int main()
 		
 		if(projector_getOnOff() == projector_on) mainPowerState = srp_state_on;
 		else if(projector_getOnOff() == projector_off) mainPowerState = srp_state_off;
-		else mainPowerState = srp_state_transitioning;
+		else mainPowerState = ssp_state_transitioning;
 		
 		if(projector_getBlank()) projectorBlackout = srp_state_on;
 		else projectorBlackout = srp_state_off;

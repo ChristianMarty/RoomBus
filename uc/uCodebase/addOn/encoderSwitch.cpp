@@ -64,10 +64,10 @@ void encoderSwitch_handler(encoderSwitch_t *encoderSwitch)
 	}
 }
 
+#include "utility/string.h"
+
 void encoderSwitch_setRingLed(encoderSwitch_t *encoderSwitch, uint8_t ring)
-{
-	encoderSwitch->_ledOld = encoderSwitch->_led;
-	
+{	
 	if(ring > 15) ring = 15; 
 	
 	uint16_t temp = 0x00;
@@ -84,9 +84,7 @@ void encoderSwitch_setRingLed(encoderSwitch_t *encoderSwitch, uint8_t ring)
 
 void encoderSwitch_setPowerLed(encoderSwitch_t *encoderSwitch, bool power)
 {
-	encoderSwitch->_ledOld = encoderSwitch->_led;
-	
-	if(power) encoderSwitch->_led |= 0x01;
+	if(power) encoderSwitch->_led |= 0x0001;
 	else encoderSwitch->_led &= 0xFFFE;
 }
 
