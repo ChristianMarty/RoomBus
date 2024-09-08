@@ -1,8 +1,8 @@
 //**********************************************************************************************************************
-// FileName : triggerProtocol.h
+// FileName : triggerSystemProtocol.cpp
 // FilePath : protocol/
 // Author   : Christian Marty
-// Date		: 12.06.2024
+// Date		: 08.09.2024
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
 #ifndef TRIGGER_SYSTEM_PROTOCOL_H_
@@ -37,6 +37,7 @@ const triggerSystemProtocol_t triggerSystem = {
 };
 
 ***********************************************************************************************************************/
+#include "common/typedef.h"
 #include "common/kernel.h"
 
 #ifdef __cplusplus

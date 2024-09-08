@@ -1,24 +1,24 @@
 //**********************************************************************************************************************
-// FileName : triggerProtocol.cpp
+// FileName : triggerSystemProtocol.cpp
 // FilePath : protocol/
 // Author   : Christian Marty
-// Date		: 12.06.2024
+// Date		: 08.09.2024
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
-#include "triggerProtocol.h"
+#include "triggerSystemProtocol.h"
 #include "string.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 	
-bool parseTrigger(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
-bool parseTriggerSignalInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
-bool parseTriggerSlotInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool _tsp_parseTrigger(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool _tsp_parseTriggerSignalInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool _tsp_parseTriggerSlotInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 
-bool sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal);
-bool sendTriggerSoltInformation(const tsp_triggerSlot_t *triggerSlot);
-void sendTriggers(const triggerSystemProtocol_t* tsp);
+bool _tsp_sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal);
+bool _tsp_sendTriggerSoltInformation(const tsp_triggerSlot_t *triggerSlot);
+void _tsp_sendTriggers(const triggerSystemProtocol_t* tsp);
 
 void tsp_initialize(const triggerSystemProtocol_t* tsp)
 {
@@ -38,7 +38,7 @@ void tsp_mainHandler(const triggerSystemProtocol_t* tsp)
 	for(uint8_t i = 0;  i < tsp->slotSize; i++) {
 		
 		if(tsp->_slotState[i].sendInformationPending == true){
-			if(sendTriggerSoltInformation(&tsp->slots[i])) {
+			if(_tsp_sendTriggerSoltInformation(&tsp->slots[i])) {
 				tsp->_slotState[i].sendInformationPending = false;
 			}
 			break;
@@ -47,22 +47,22 @@ void tsp_mainHandler(const triggerSystemProtocol_t* tsp)
 	
 	for(uint8_t i = 0;  i < tsp->signalSize; i++) {
 		if(tsp->_signalState[i].sendInformationPending == true) {
-			if(sendTriggerSignalInformation(&tsp->signals[i])) {
+			if(_tsp_sendTriggerSignalInformation(&tsp->signals[i])) {
 				tsp->_signalState[i].sendInformationPending = false;
 			}
 			break;
 		}
 	}
 	
-	sendTriggers(tsp);
+	_tsp_sendTriggers(tsp);
 }
 
 bool  tsp_receiveHandler(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
 {
 	switch(command){
-		case tsp_cmd_trigger: return parseTrigger(tsp, sourceAddress, data, size);
-		case tsp_cmd_slotInformationRequest: return parseTriggerSlotInformationRequest(tsp, sourceAddress, data, size);
-		case tsp_cmd_signalInformationRequest: return parseTriggerSignalInformationRequest(tsp, sourceAddress, data, size);
+		case tsp_cmd_trigger: return _tsp_parseTrigger(tsp, sourceAddress, data, size);
+		case tsp_cmd_slotInformationRequest: return _tsp_parseTriggerSlotInformationRequest(tsp, sourceAddress, data, size);
+		case tsp_cmd_signalInformationRequest: return _tsp_parseTriggerSignalInformationRequest(tsp, sourceAddress, data, size);
 	}
 	return false;
 }
@@ -87,7 +87,7 @@ bool tsp_sendTriggerByIndex(const triggerSystemProtocol_t* tsp, uint8_t index)
 // Private
 //**********************************************************************************************************************
 
-bool sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal)
+bool _tsp_sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal)
 {
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
@@ -100,7 +100,7 @@ bool sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal)
 	return true;
 }
 
-bool sendTriggerSoltInformation(const tsp_triggerSlot_t *triggerSlot)
+bool _tsp_sendTriggerSoltInformation(const tsp_triggerSlot_t *triggerSlot)
 {
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
@@ -113,7 +113,7 @@ bool sendTriggerSoltInformation(const tsp_triggerSlot_t *triggerSlot)
 	return true;
 }
 
-bool parseTrigger(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+bool _tsp_parseTrigger(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	bool found = false;
 	for(uint8_t i = 0; i < size; i+=2)
@@ -133,7 +133,7 @@ bool parseTrigger(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, con
 	return found;
 }
 
-void sendTriggers(const triggerSystemProtocol_t* tsp)
+void _tsp_sendTriggers(const triggerSystemProtocol_t* tsp)
 {
 	bus_message_t msg;
 	uint8_t triggerCount = 0;
@@ -166,7 +166,7 @@ void sendTriggers(const triggerSystemProtocol_t* tsp)
 	}
 }
 
-bool parseTriggerSignalInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+bool _tsp_parseTriggerSignalInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	// in case size is 0 -> send all
 	if(size == 0){
@@ -196,7 +196,7 @@ bool parseTriggerSignalInformationRequest(const triggerSystemProtocol_t* tsp, ui
 	return found;
 }
 
-bool parseTriggerSlotInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+bool _tsp_parseTriggerSlotInformationRequest(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	// in case size is 0 -> send all
 	if(size == 0){

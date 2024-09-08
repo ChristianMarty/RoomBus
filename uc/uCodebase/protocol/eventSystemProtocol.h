@@ -1,8 +1,8 @@
 //**********************************************************************************************************************
-// FileName : eventProtocol.h
+// FileName : eventSystemProtocol.h
 // FilePath : protocol/
 // Author   : Christian Marty
-// Date		: 15.06.2024
+// Date		: 08.09.2024
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
 #ifndef EVENT_SYSTEM_PROTOCOL_H_
@@ -40,7 +40,7 @@ const eventSystemProtocol_t eventSystem = {
 };
 
 ***********************************************************************************************************************/
-#include "sam.h"
+#include "common/typedef.h"
 #include "common/kernel.h"
 
 #ifdef __cplusplus

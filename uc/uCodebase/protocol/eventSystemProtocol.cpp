@@ -1,23 +1,23 @@
 //**********************************************************************************************************************
-// FileName : eventProtocol.cpp
+// FileName : eventSystemProtocol.cpp
 // FilePath : protocol/
 // Author   : Christian Marty
-// Date		: 15.06.2024
+// Date		: 08.09.2024
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
-#include "eventProtocol.h"
+#include "eventSystemProtocol.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-bool parseEvent(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
-bool parseEventSignalInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
-bool parseEventSlotInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool _esp_parseEvent(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool _esp_parseEventSignalInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool _esp_parseEventSlotInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 
-bool sendEventSignalInformation(const esp_eventSignal_t *eventSignal);
-bool sendEventSlotInformation(const esp_eventSlot_t *eventSlot);
-void sendEvents(const eventSystemProtocol_t* esp);
+bool _esp_sendEventSignalInformation(const esp_eventSignal_t *eventSignal);
+bool _esp_sendEventSlotInformation(const esp_eventSlot_t *eventSlot);
+void _esp_sendEvents(const eventSystemProtocol_t* esp);
 
 void esp_initialize(const eventSystemProtocol_t* esp)
 { 
@@ -61,7 +61,7 @@ void esp_mainHandler(const eventSystemProtocol_t* esp)
 	for(uint8_t i = 0;  i < esp->slotSize; i++) {
 		
 		if(esp->_slotState[i].sendInformationPending == true){
-			if(sendEventSlotInformation(&esp->slots[i])) {
+			if(_esp_sendEventSlotInformation(&esp->slots[i])) {
 				esp->_slotState[i].sendInformationPending = false;
 			}
 			break;
@@ -71,22 +71,22 @@ void esp_mainHandler(const eventSystemProtocol_t* esp)
 	// send signal information
 	for(uint8_t i = 0;  i < esp->signalSize; i++) {
 		if(esp->_signalState[i].sendInformationPending == true) {
-			if(sendEventSignalInformation(&esp->signals[i])) {
+			if(_esp_sendEventSignalInformation(&esp->signals[i])) {
 				esp->_signalState[i].sendInformationPending = false;
 			}
 			break;
 		}
 	}
 	
-	sendEvents(esp);
+	_esp_sendEvents(esp);
 }
 
 bool esp_receiveHandler(const eventSystemProtocol_t* esp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
 {
 	switch(command){
-		case esp_cmd_event: return parseEvent(esp, sourceAddress, data, size);
-		case esp_cmd_slotInformationRequest: return parseEventSlotInformationRequest(esp, sourceAddress, data, size);
-		case esp_cmd_signalInformationRequest: return parseEventSignalInformationRequest(esp, sourceAddress, data, size);
+		case esp_cmd_event: return _esp_parseEvent(esp, sourceAddress, data, size);
+		case esp_cmd_slotInformationRequest: return _esp_parseEventSlotInformationRequest(esp, sourceAddress, data, size);
+		case esp_cmd_signalInformationRequest: return _esp_parseEventSignalInformationRequest(esp, sourceAddress, data, size);
 	}
 	return false;
 }
@@ -142,7 +142,7 @@ bool esp_sendEventByIndex(const eventSystemProtocol_t* esp, uint8_t index)
 // Private
 //**********************************************************************************************************************
 
-bool sendEventSignalInformation(const esp_eventSignal_t *eventSignal)
+bool _esp_sendEventSignalInformation(const esp_eventSignal_t *eventSignal)
 {
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
@@ -156,7 +156,7 @@ bool sendEventSignalInformation(const esp_eventSignal_t *eventSignal)
 	return true;
 }
 
-bool sendEventSlotInformation(const esp_eventSlot_t *eventSlot)
+bool _esp_sendEventSlotInformation(const esp_eventSlot_t *eventSlot)
 {
 	bus_message_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
@@ -170,7 +170,7 @@ bool sendEventSlotInformation(const esp_eventSlot_t *eventSlot)
 	return true;
 }
 
-bool parseEvent(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+bool _esp_parseEvent(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	bool found = false;
 	for(uint8_t i = 0; i < size; i+=2)
@@ -200,7 +200,7 @@ bool parseEvent(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const u
 	return found;
 }
 
-void sendEvents(const eventSystemProtocol_t* esp)
+void _esp_sendEvents(const eventSystemProtocol_t* esp)
 {
 	bus_message_t msg;
 	uint8_t eventCount = 0;
@@ -233,7 +233,7 @@ void sendEvents(const eventSystemProtocol_t* esp)
 	}
 }
 
-bool parseEventSignalInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+bool _esp_parseEventSignalInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	// in case size is 0 -> send all
 	if(size == 0){
@@ -263,7 +263,7 @@ bool parseEventSignalInformationRequest(const eventSystemProtocol_t* esp, uint8_
 	return found;
 }
 
-bool parseEventSlotInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
+bool _esp_parseEventSlotInformationRequest(const eventSystemProtocol_t* esp, uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	// in case size is 0 -> send all
 	if(size == 0){
