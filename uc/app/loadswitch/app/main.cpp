@@ -74,7 +74,7 @@ const ssp_stateSignal_t stateSystemSignal[] = {
 	{0x28, "Amp Channel 8", STATE_SEND_INTERVAL},
 	{0x29, "Amp Zone 1", STATE_SEND_INTERVAL}
 };
-#define stateSystemSignalListSize (sizeof(stateSystemSignal)/sizeof(ssp_stateSignal_t))
+#define stateSystemSignalListSize ARRAY_LENGTH(stateSystemSignal)
 
 ssp_itemState_t stateSystemSignalStatusList[stateSystemSignalListSize];
 
@@ -172,7 +172,7 @@ const tsp_triggerSlot_t triggerSlots[] = {
 	{ 0x5D, "Makro Amp Off", ampMakro},
 	{ 0x5E, "Makro Amp Toggle", ampMakro}
 };
-#define triggerSlotListSize (sizeof(triggerSlots)/sizeof(tsp_triggerSlot_t))
+#define triggerSlotListSize ARRAY_LENGTH(triggerSlots)
 
 tsp_itemState_t triggerSlotStateList[triggerSlotListSize];
 
@@ -191,10 +191,10 @@ const triggerSystemProtocol_t triggerSystem = {
 const esp_eventSlot_t eventSlots[] = {
 	{0x00, "12V Power Supply", 30000, nullptr},
 	{0x01, "LED Power", 30000, nullptr},
-	{0x02, "Amp Power", 60000, nullptr},
-	{0x03, "A/V Aux Power", 30000, nullptr}
+	{0x02, "A/V Aux Power", 30000, nullptr},
+	{0x03, "Amp Power", 60000, nullptr}
 };
-#define eventSlotListSize (sizeof(eventSlots)/sizeof(esp_eventSlot_t))
+#define eventSlotListSize ARRAY_LENGTH(eventSlots)
 
 esp_itemState_t eventSlotStatusList[eventSlotListSize];
 
@@ -512,7 +512,7 @@ int main(void)
 		if(esp_getStateByIndex(&eventSystem, 1) == true) output |= 0x80;
 		else output &= 0x7F;
 		
-		if(esp_getStateByIndex(&eventSystem, 3) == true) output |= 0x40;
+		if(esp_getStateByIndex(&eventSystem, 2) == true) output |= 0x40;
 		else output &= 0xBF;
 			
 		// Output Power Control	

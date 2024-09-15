@@ -2,7 +2,6 @@
 #include "interface/necIr.h"
 
 
-
 #define NR_OF_REPETITIONS 3
 #define REPETITION_DELAY 150
 #define TURN_ON_TIME   2500
@@ -30,8 +29,11 @@ void hdmi_setMatrix(uint8_t out, uint8_t in)
 	const uint8_t a[4] = { 0, 1, 2, 3};
 	const uint8_t b[4] = { 9,10,11,12};
 		
-	if(hdmi_state == hdmi_state_switchOff) hdmi_state = hdmi_state_on;
-	else if(hdmi_state == hdmi_state_off) hdmi_state = hdmi_state_switchOn;
+	if(hdmi_state == hdmi_state_switchOff){
+		hdmi_state = hdmi_state_on;
+	}else if(hdmi_state == hdmi_state_off){
+		hdmi_state = hdmi_state_switchOn;
+	}
 	
 	while(necIR_busy());
 	

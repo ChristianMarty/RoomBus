@@ -47,7 +47,7 @@ typedef struct{
 	displayOnOffCallback_t displayOn;
 	displayOnOffCallback_t displayOff;
 	
-	uint8_t _txBuffer[64];
+	uint8_t _txBuffer[32];
 	uint8_t _txCounter;
 
 	uint8_t _rxBuffer[32];

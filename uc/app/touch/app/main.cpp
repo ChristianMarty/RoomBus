@@ -55,7 +55,7 @@ const nextion_touchEventAction_t touchEventAction[] = {
 	
 	{ 4, 1, "bt1", stdEventHandler}
 };
-#define touchEventListSize (sizeof(touchEventAction)/sizeof(nextion_touchEventAction_t))
+#define touchEventListSize ARRAY_LENGTH(touchEventAction)
 nextion_buttonState_t stateList[touchEventListSize];
 
 void displayOn(void)
@@ -109,7 +109,7 @@ const ssp_stateSlot_t stateSlots[] = {
 	{ 0x84, "HDMI 3", SLOT_TIMEOUT, stateChangeAction },
 	{ 0x85, "HDMI 4", SLOT_TIMEOUT, stateChangeAction }
 };
-#define stateSystemSlotListSize (sizeof(stateSlots)/sizeof(ssp_stateSlot_t))
+#define stateSystemSlotListSize ARRAY_LENGTH(stateSlots)
 
 ssp_itemState_t stateSystemSlotStatusList[stateSystemSlotListSize];
 const stateSystemProtocol_t stateSystem = {
@@ -139,7 +139,7 @@ const tsp_triggerSignal_t triggerSignals[] = {
 	{ 0x89, "HDMI Out A - In 4"},
 	{ 0x8E, "HDMI Off"}
 };
-#define triggerSignalListSize (sizeof(triggerSignals)/sizeof(tsp_triggerSignal_t))
+#define triggerSignalListSize ARRAY_LENGTH(triggerSignals)
 
 tsp_itemState_t triggerSignalStateList[triggerSignalListSize];
 
@@ -235,6 +235,7 @@ int main()
 		else if(!pin_getInput(IO_D05)) nextion_setPage(&nextion_0, 4);
 		
 		nextion_handler(&nextion_0);
+		
 		tsp_mainHandler(&triggerSystem);
 		ssp_mainHandler(&stateSystem);
 		

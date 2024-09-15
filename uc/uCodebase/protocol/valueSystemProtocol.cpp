@@ -91,7 +91,7 @@ bool vsp_receiveHandler(const valueSystemProtocol_t* vsp, uint8_t sourceAddress,
 }
 
 
-bool vsp_sendValueReport(const valueSystemProtocol_t* vsp, uint16_t channel, vsp_valueData_t value)
+bool vsp_sendValueReportByChannel(const valueSystemProtocol_t* vsp, uint16_t channel, vsp_valueData_t value)
 {
 	for(uint8_t i = 0;  i < vsp->signalSize; i++) {
 		if(vsp->signals[i].channel == channel) {

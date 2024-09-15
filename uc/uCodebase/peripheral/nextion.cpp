@@ -44,6 +44,7 @@ void nextion_handler(nextion_t *nextion)
 	
 	if(nextion->_state == nextion_state_on && kernel.tickTimer.delay1ms(&nextion->_displayOnTimer, nextion_displayTimeout)){
 		nextion->displayOff();
+		nextion->_state = nextion_state_off;
 		nextion->_currentPage = 0;
 		nextion->_lastPage = nextion->_currentPage;
 	}
@@ -54,16 +55,15 @@ void nextion_handler(nextion_t *nextion)
 		kernel.tickTimer.reset(&nextion->_displayOnTimer);
 	}
 	
-	if(nextion->_state == nextion_state_waitForOn && kernel.tickTimer.delay1ms(&nextion->_displayOnTimer, 150)){
-		nextion->_state = nextion_state_on;
+	if(nextion->_state == nextion_state_waitForOn && kernel.tickTimer.delay1ms(&nextion->_displayOnTimer, 250)){
 		nextion_resetComRx(nextion);
-		nextion_updatetPage(nextion);
-		nextion->_lastPage = nextion->_currentPage;
+		nextion->_state = nextion_state_on;
 		kernel.tickTimer.reset(&nextion->_displayOnTimer);
 	}
 	
 	if(nextion->_state == nextion_state_on){
 		nextion_updatetPage(nextion);
+		
 		for(uint8_t i = 0; i < nextion->touchEventActionSize; i++){
 			if(nextion->_currentPage == nextion->touchEventAction[i].page){
 				nextion_updateButtonState(nextion, i);
@@ -94,13 +94,20 @@ void nextion_resetComRx(nextion_t *nextion)
 
 bool nextion_sendCommand(nextion_t *nextion, uint8_t *command)
 {
-	while(command[nextion->_txCounter] != 0){
-		nextion->_txBuffer[nextion->_txCounter] = command[nextion->_txCounter];
+	if(nextion->uart->txBusy()) return false;
+	
+	uint8_t commandIndex = 0;
+	while(command[commandIndex] != 0){
+		
+		nextion->_txBuffer[nextion->_txCounter] = command[commandIndex];
 		nextion->_txCounter++;
+		commandIndex++;
+		
 		if(nextion->_txCounter+3 >= sizeof(nextion->_txBuffer)){
 			return false;
 		}
 	}
+	
 	nextion->_txBuffer[nextion->_txCounter] = 0xFF;
 	nextion->_txCounter++;
 	nextion->_txBuffer[nextion->_txCounter] = 0xFF;
@@ -122,7 +129,6 @@ void nextion_onTouchEventHandler(nextion_t *nextion, uint8_t page, uint8_t compo
 
 void nextion_setPage(nextion_t *nextion, uint8_t page)
 {
-	nextion->_lastPage = nextion->_currentPage;
 	nextion->_currentPage = page;
 }
 
@@ -132,7 +138,9 @@ void nextion_updatetPage(nextion_t *nextion)
 	
 	uint8_t temp[] = "page _";
 	temp[5] = nextion->_currentPage+0x30;
-	nextion_sendCommand(nextion, temp);
+	if(nextion_sendCommand(nextion, temp)){
+		nextion->_lastPage = nextion->_currentPage;
+	}
 	
 	for(uint8_t i = 0; i < nextion->touchEventActionSize; i++){
 		if(nextion->_currentPage == nextion->touchEventAction[i].page){
@@ -142,7 +150,7 @@ void nextion_updatetPage(nextion_t *nextion)
 }
 
 void nextion_updateButtonState(nextion_t *nextion, uint8_t index)
-{
+{	
 	if(nextion->buttonState[index].state == nextion->buttonState[index].oldState) return;
 	
 	uint8_t temp[] = "bt_.val=_";

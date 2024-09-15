@@ -44,7 +44,8 @@ typedef void (*ssp_stateChangeAction_t)(uint16_t stateChannelNumber, ssp_state_t
 typedef struct{
 	uint8_t sendInformationPending :1;
 	uint8_t sendSignalPending :1;
-	uint8_t reserved :6;
+	uint8_t sendRequest :1;
+	uint8_t reserved :5;
 	
 	ssp_state_t state;
 	uint32_t timer;

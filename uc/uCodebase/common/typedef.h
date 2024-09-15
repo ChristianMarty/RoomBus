@@ -17,6 +17,8 @@
 	#include "driver/SAMx5x/pin.h"
 #endif
 
+#define ARRAY_LENGTH(array) (sizeof(array)/sizeof(array[0]))
+
 #define BUS_BROADCAST_ADDRESS 127
 
 typedef enum {

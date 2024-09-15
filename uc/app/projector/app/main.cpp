@@ -40,20 +40,10 @@ __attribute__((section(".appHeader"))) appHead_t appHead ={
 #define STATE_SEND_INTERVAL 60000
 #define POWER_DELIVERY_EVENT_TIMEOUT 25000
 
-uint32_t offTimer;
-uint32_t sendStateTimer;
-uint32_t hdmiPowerEventTimer;
-
-uint8_t ememData[256];
-
 ssp_state_t mainPowerState;
-ssp_state_t mainPowerStateOld;
 ssp_state_t projectorBlackout;
-ssp_state_t projectorBlackoutOld;
 
 bsRelay_t relay1;
-
-bool sendStateUpdate = true;
 
 //**** State Configuration ********************************************************************************************
 #define STATE_SIGNAL_INTERVAL 10
@@ -71,7 +61,7 @@ const ssp_stateSignal_t stateSignals[] = {
 	{0x88, "HDMI Out B - In 3", STATE_SIGNAL_INTERVAL},
 	{0x89, "HDMI Out B - In 4", STATE_SIGNAL_INTERVAL}
 };
-#define stateSystemSignaListSize (sizeof(stateSignals)/sizeof(ssp_stateSignal_t))
+#define stateSystemSignaListSize ARRAY_LENGTH(stateSignals)
 
 ssp_itemState_t stateSystemSignaStatusList[stateSystemSignaListSize];
 
@@ -109,7 +99,7 @@ const tsp_triggerSlot_t triggerSlotList[] = {
 	{0x8D, "HDMI Out B - In 4", hdmi_matrix},
 	{0x8E, "HDMI Off", hdmi_matrix}, 
 };
-#define triggerSlotListSize (sizeof(triggerSlotList)/sizeof(tsp_triggerSlot_t))
+#define triggerSlotListSize ARRAY_LENGTH(triggerSlotList)
 
 tsp_itemState_t triggerSlotStateList[triggerSlotListSize];
 const triggerSystemProtocol_t triggerSystem = {
@@ -123,9 +113,9 @@ const triggerSystemProtocol_t triggerSystem = {
 
 //**** Event Configuration ********************************************************************************************
 const esp_eventSignal_t eventSignals[] = {
-	{0x82, "A/V Aux Power", POWER_DELIVERY_EVENT_TIMEOUT}
+	{0x02, "A/V Aux Power", POWER_DELIVERY_EVENT_TIMEOUT}
 };
-#define eventSignalListSize (sizeof(eventSignals)/sizeof(esp_eventSignal_t))
+#define eventSignalListSize ARRAY_LENGTH(eventSignals)
 
 esp_itemState_t _eventSignalStatus[eventSignalListSize];
 const eventSystemProtocol_t eventSystem = {
@@ -157,100 +147,95 @@ void projector_pwr(uint16_t triggerChannelNumber)
 {
 	switch(triggerChannelNumber)
 	{
-		case  0:	projector_onOff(true);
+		case  0x80:	projector_onOff(true);
 					break;
 					
-		case  1:	projector_onOff(false);
+		case  0x81:	projector_onOff(false);
 					break;
 					
-		case  2:	if(mainPowerState == srp_state_off)projector_onOff(true);
+		case  0x82:	if(mainPowerState == srp_state_off)projector_onOff(true);
 					else if(mainPowerState == srp_state_on)projector_onOff(false);
 					break;
-	}
-	
-	sendStateUpdate = true;
-					
+	}			
 }
 
 void projector_blackout(uint16_t triggerChannelNumber)
 {
 	switch(triggerChannelNumber)
 	{
-		case  3:	projector_blank(true);
+		case 0x83:	projector_blank(true);
 					break;
 		
-		case  4:	projector_blank(false);
+		case 0x84:	projector_blank(false);
 					break;
 		
-		case  5:	if(projectorBlackout == srp_state_off)projector_blank(true);
+		case 0x85:	if(projectorBlackout == srp_state_off)projector_blank(true);
 					else if(projectorBlackout == srp_state_on)projector_blank(false);
 					break;
 	}
-	
-	sendStateUpdate = true;
 }
 
 void hdmi_matrix(uint16_t triggerChannelNumber)
 {
 	switch(triggerChannelNumber)
 	{
-		case  6:	hdmi_setMatrix('A',1); 
+		case  0x86:	hdmi_setMatrix('A',1); 
 					ssp_setStateByIndex(&stateSystem, 2, srp_state_on);
 					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 4, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 5, srp_state_off);
 					break;
 					
-		case  7:	hdmi_setMatrix('A',2); 
+		case  0x87:	hdmi_setMatrix('A',2); 
 					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 3, srp_state_on);
 					ssp_setStateByIndex(&stateSystem, 4, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 5, srp_state_off);
 					break;
 					
-		case  8:	hdmi_setMatrix('A',3); 
+		case  0x88:	hdmi_setMatrix('A',3); 
 					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 4, srp_state_on);
 					ssp_setStateByIndex(&stateSystem, 5, srp_state_off);
 					break;
 					
-		case  9:	hdmi_setMatrix('A',4);
+		case  0x89:	hdmi_setMatrix('A',4);
 					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 4, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 5, srp_state_on);
 					break;
 		
-		case  10:	hdmi_setMatrix('B',1); 
+		case  0x8A:	hdmi_setMatrix('B',1); 
 					ssp_setStateByIndex(&stateSystem, 6, srp_state_on);
 					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 					break;
 					
-		case  11:	hdmi_setMatrix('B',2); 
+		case  0x8B:	hdmi_setMatrix('B',2); 
 					ssp_setStateByIndex(&stateSystem, 6, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 7, srp_state_on);
 					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 					break;
 					
-		case 12:	hdmi_setMatrix('B',3); 
+		case 0x8C:	hdmi_setMatrix('B',3); 
 					ssp_setStateByIndex(&stateSystem, 6, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 8, srp_state_on);
 					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
 					break;
 					
-		case 13:	hdmi_setMatrix('B',4); 
+		case 0x8D:	hdmi_setMatrix('B',4); 
 					ssp_setStateByIndex(&stateSystem, 6, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 9, srp_state_on);
 					break;
 					
-		case 14:	hdmi_turnOff();
+		case 0x8E:	hdmi_turnOff();
 		
 					ssp_setStateByIndex(&stateSystem, 2, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 3, srp_state_off);
@@ -261,13 +246,9 @@ void hdmi_matrix(uint16_t triggerChannelNumber)
 					ssp_setStateByIndex(&stateSystem, 7, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 8, srp_state_off);
 					ssp_setStateByIndex(&stateSystem, 9, srp_state_off);
-
 					break;
 	}
-	
-	sendStateUpdate = true;
 }
-
 
 
 int main()
@@ -282,19 +263,12 @@ int main()
 		projector_init();
 		
 		pin_enableOutput(IO_D15);
-		pin_setOutput(IO_D15,true);
+		pin_setOutput(IO_D15, true);
 		
-		kernel.tickTimer.reset(&offTimer);
-		kernel.tickTimer.reset(&sendStateTimer);
-		kernel.tickTimer.reset(&hdmiPowerEventTimer);
-		
-		mainPowerStateOld = mainPowerState;
-		projectorBlackoutOld = projectorBlackout;
-		
-		hdmi_matrix(14);
+		hdmi_matrix(0x8E);
 	
 		pin_enableOutput(IO_D01);
-		pin_setOutput(IO_D01,false);
+		pin_setOutput(IO_D01, false);
 		
 		tsp_initialize(&triggerSystem);
 		esp_initialize(&eventSystem);
@@ -313,7 +287,6 @@ int main()
 		bsRelay_handler(&relay1);
 		
 		hdmi_handler();
-		
 		projector_handler();
 		
 		if(projector_getSwitchOn()) 
@@ -334,37 +307,15 @@ int main()
 		if(projector_getBlank()) projectorBlackout = srp_state_on;
 		else projectorBlackout = srp_state_off;
 		
-		if(mainPowerStateOld != mainPowerState)
-		{
-			sendStateUpdate = true;
-			mainPowerStateOld = mainPowerState;
-		}
-		
-		if(projectorBlackoutOld != projectorBlackout)
-		{
-			sendStateUpdate = true;
-			projectorBlackoutOld = projectorBlackout;
-		}
-		
-		if(kernel.tickTimer.delay1ms(&sendStateTimer, STATE_SEND_INTERVAL)) sendStateUpdate = true;
-		
-		if(sendStateUpdate)
-		{
-			//srp_sendGroupReport(&stateReport);
-			sendStateUpdate = false;
-			kernel.tickTimer.reset(&sendStateTimer);
-		}
-		
 		if(hdmi_getSwitchOn()) 
 		{
 			esp_setStateByIndex(&eventSystem, 0, true);
-			esp_sendEventByIndex(&eventSystem, 0);
-			pin_setOutput(IO_D01,true);
+			pin_setOutput(IO_D01, true);
 		}
 		else if(hdmi_getSwitchOff()) 
 		{
 			esp_setStateByIndex(&eventSystem, 0, false);
-			pin_setOutput(IO_D01,false);
+			pin_setOutput(IO_D01, false);
 		}
 	}
 	

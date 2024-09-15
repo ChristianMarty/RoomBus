@@ -147,7 +147,7 @@ void vsp_initialize(const valueSystemProtocol_t* vsp);
 void vsp_mainHandler(const valueSystemProtocol_t* vsp);
 bool vsp_receiveHandler(const valueSystemProtocol_t* vsp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
 
-bool vsp_sendValueReport(const valueSystemProtocol_t* vsp, uint16_t channel, vsp_valueData_t value);
+bool vsp_sendValueReportByChannel(const valueSystemProtocol_t* vsp, uint16_t channel, vsp_valueData_t value);
 
 bool vsp_sendValueCommandByChannel(const valueSystemProtocol_t* vsp, uint16_t channel, vsp_valueCommands_t command, vsp_valueData_t value);
 bool vsp_sendValueCommandByIndex(const valueSystemProtocol_t* vsp, uint8_t index, vsp_valueCommands_t command, vsp_valueData_t value);

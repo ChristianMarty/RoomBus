@@ -40,7 +40,7 @@ void vrp_valueChange(uint16_t valueChannelNumber, vsp_valueData_t value)
 const vsp_valueSignal_t valueSignals[] = {
 	{0x01, "Main Volume", 60, false, {.Long = 0}, {.Long = 127}, vsp_uom_long, vrp_valueChange}
 };
-#define valueSignalListSize (sizeof(valueSignals)/sizeof(vsp_valueSignal_t))
+#define valueSignalListSize ARRAY_LENGTH(valueSignals)
 
 vsp_itemState_t valueSignalStateList[valueSignalListSize];
 
@@ -58,13 +58,9 @@ uint8_t val;
 uint8_t val2;
 void midi_controllerChangeChange(uint8_t index)
 {
-	if(val != valueSignalStateList[0].value.Long) 
-	{
-		midiModul_sendControllerChange(midiModul_output_t::midiModul_output_2, 0x00, 0, val); // Update BCF2200
-		vsp_sendValueReport(&valueSystem, 0, {.Long = val});
-	}
+	midiModul_sendControllerChange(midiModul_output_t::midiModul_output_2, 0x00, 0, val); // Update BCF2200
+	vsp_sendValueReportByChannel(&valueSystem, 0x01, {.Long = val});
 }
-
 
 void midi_controllerChangeChange_2(uint8_t index)
 {

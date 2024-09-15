@@ -19,6 +19,8 @@ bool _ssp_parseStateReportSlotInformationRequest(const stateSystemProtocol_t* sr
 bool _ssp_sendStateReportSignalInformation(const ssp_stateSignal_t *stateSignal);
 bool _ssp_sendStateReportSlotInformation(const ssp_stateSlot_t *stateSlot);
 void _ssp_sendStateReports(const stateSystemProtocol_t* ssp);
+void _ssp_sendStateRequests(const stateSystemProtocol_t* ssp);
+void _ssp_sendStateRequestAll(const stateSystemProtocol_t* ssp);
 
 void ssp_initialize(const stateSystemProtocol_t *ssp)
 {
@@ -26,6 +28,7 @@ void ssp_initialize(const stateSystemProtocol_t *ssp)
 		kernel.tickTimer.reset(&(ssp->_slotState[i].timer));
 		
 		ssp->_slotState[i].sendInformationPending = false;
+		ssp->_slotState[i].sendRequest = false;
 		ssp->_slotState[i].state = srp_state_undefined;
 	}
 	
@@ -35,6 +38,8 @@ void ssp_initialize(const stateSystemProtocol_t *ssp)
 		ssp->_signalState[i].sendInformationPending = false;
 		ssp->_signalState[i].state = srp_state_undefined;
 	}
+	
+	_ssp_sendStateRequestAll(ssp);
 	
 }
 
@@ -67,6 +72,7 @@ void ssp_mainHandler(const stateSystemProtocol_t *ssp)
 	}
 	
 	_ssp_sendStateReports(ssp);
+	_ssp_sendStateRequests(ssp);
 }
 
 bool ssp_receiveHandler(const stateSystemProtocol_t *srp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
@@ -286,6 +292,49 @@ void _ssp_sendStateReports(const stateSystemProtocol_t* ssp)
 	if(stateCount){
 		kernel.bus.send(&msg);
 	}
+}
+
+void _ssp_sendStateRequests(const stateSystemProtocol_t* ssp)
+{
+	bus_message_t msg;
+	uint8_t stateCount = 0;
+	
+	for(uint8_t i = 0;  i < ssp->slotSize; i++)
+	{
+		if(ssp->_slotState[i].sendRequest == false) continue;
+		
+		if(stateCount==0){
+			if( kernel.bus.getMessageSlot(&msg) == false ){
+				return; // Abort if TX buffer full
+			}
+			kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_stateSystemProtocol, srp_cmd_stateRequest, busPriority_low);
+		}
+		
+		const ssp_stateSlot_t *slot = &ssp->slots[i];
+		ssp->_slotState[i].sendRequest = false;
+		kernel.bus.pushWord16(&msg, slot->channel);
+		stateCount++;
+		
+		if(stateCount>=32){
+			kernel.bus.send(&msg);
+			stateCount = 0;
+		}
+	}
+
+	if(stateCount){
+		kernel.bus.send(&msg);
+	}
+}
+
+void _ssp_sendStateRequestAll(const stateSystemProtocol_t* ssp)
+{
+	bus_message_t msg;
+	if( kernel.bus.getMessageSlot(&msg) == false ){
+		return; // Abort if TX buffer full
+	}
+	
+	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_stateSystemProtocol, srp_cmd_stateRequest, busPriority_low);
+	kernel.bus.send(&msg);
 }
 
 #ifdef __cplusplus

@@ -110,13 +110,15 @@ void esp_setStateByIndex(const eventSystemProtocol_t* esp, uint8_t index, bool s
 {
 	if(index >= esp->signalSize) return;
 	esp->_signalState[index].state = state;
+	
+	if(state) esp_sendEventByIndex(esp, index);
 }
 
 void esp_setStateByChannel(const eventSystemProtocol_t* esp, uint16_t channel, bool state)
 {
 	for(int i = 0; i < esp->signalSize; i++){
 		if(esp->signals[i].channel ==  channel){
-			esp->_signalState[i].state = state;
+			esp_setStateByIndex(esp, i, state);
 			return;
 		}
 	}
