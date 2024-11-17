@@ -14,7 +14,7 @@ class BusMonitorLine : public QWidget
 
 public:
     explicit BusMonitorLine(QWidget *parent = nullptr);
-    explicit BusMonitorLine(busMessage &msg, QWidget *parent = nullptr);
+    explicit BusMonitorLine(BusMessage &msg, QWidget *parent = nullptr);
     ~BusMonitorLine();
 
 private:

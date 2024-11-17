@@ -18,7 +18,7 @@ busMonitor::~busMonitor()
     delete ui;
 }
 
-void busMonitor::on_newMessage(busMessage msg)
+void busMonitor::on_newMessage(BusMessage msg)
 {
     QListWidgetItem *item = new QListWidgetItem(ui->listWidget);
     BusMonitorLine *lineWidget = new BusMonitorLine(msg, ui->listWidget);

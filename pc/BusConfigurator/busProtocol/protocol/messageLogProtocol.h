@@ -35,7 +35,7 @@ class MessageLogProtocol : public BusProtocol
 public:
     MessageLogProtocol(busDevice *device);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QList<Protocol> protocol(void);
 
     QList<LogMessage> messages() const;

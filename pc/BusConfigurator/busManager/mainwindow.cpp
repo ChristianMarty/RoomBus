@@ -7,7 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    settings.readFile("../settings.xml");
+    settings.readFile("C:/Users/Christian/Raumsteuerung/RoomBus/pc/BusConfigurator/settings.xml");
+
+    connect(&_busConnection, &RoomBusAccess::newData,this, &MainWindow::on_newData);
+    _busConnection.setPriority(RoomBusAccess::Priority::Low);
 
     addConnection();
 }
@@ -19,58 +22,48 @@ MainWindow::~MainWindow()
 
 void MainWindow::addConnection()
 {
-    busAccess *comTemp = nullptr;
-
     if(settings.getSettings().connection.interface == settings_t::connection_t::tcp)
     {
-        comTemp = new busAccess(busAccess::tcp);
-        comTemp->openTcpConnection(settings.getSettings().connection.ip,settings.getSettings().connection.port.toInt());
+        _busConnection.openTcpConnection(settings.getSettings().connection.ip,settings.getSettings().connection.port.toInt());
     }
     else if(settings.getSettings().connection.interface == settings_t::connection_t::serial)
     {
-        comTemp = new busAccess(busAccess::serial);
-        comTemp->openSerialConnection(settings.getSettings().connection.port);
+        _busConnection.openSerialConnection(settings.getSettings().connection.port);
     }
-
     else if(settings.getSettings().connection.interface == settings_t::connection_t::udp)
     {
-        comTemp = new busAccess(busAccess::udp);
-        comTemp->openUdpConnection(settings.getSettings().connection.ip,settings.getSettings().connection.port.toInt());
+        _busConnection.openTcpConnection(settings.getSettings().connection.ip,settings.getSettings().connection.port.toInt());
     }
     else
     {
         return;
     }
 
-    connect(comTemp, &busAccess::newData,this, &MainWindow::on_newData);
-    comTemp->setPriority(busAccess::busPriority::low);
-    _busConnection.append(comTemp);
-
-    busConnectionWidget *widgetTemp = new busConnectionWidget(comTemp);
+    busConnectionWidget *widgetTemp = new busConnectionWidget(_busConnection);
     _busConnectionWidget.append(widgetTemp);
     ui->connectionGrid->insertWidget(0,widgetTemp);
 }
 
 void MainWindow::on_newData(void)
 {
-    while(_busConnection.at(0)->rxMsgBuffer.size())
+    while(_busConnection.rxMsgBuffer.size())
     {
-        busMessage temp = _busConnection.at(0)->rxMsgBuffer.first();
-        _busConnection.at(0)->rxMsgBuffer.removeFirst();
+        BusMessage temp = _busConnection.rxMsgBuffer.first();
+        _busConnection.rxMsgBuffer.removeFirst();
 
         if(_monitorWindow != nullptr) _monitorWindow->on_newMessage(temp);
 
-        busDevice *device = getDevice(temp.srcAddress);
+        busDevice *device = getDevice(temp.sourceAddress);
         device->pushData(temp);
     }
 
     updateDevices();
 }
 
-void MainWindow::on_deviceTx(busMessage msg)
+void MainWindow::on_deviceTx(BusMessage msg)
 {
-    msg.srcAddress = 0;
-    _busConnection.at(0)->write(msg,busAccess::busPriority::normal);
+    msg.sourceAddress = 0;
+    _busConnection.write(msg,RoomBusAccess::Priority::Normal);
 }
 
 void MainWindow::updateDevices(void)
@@ -85,8 +78,6 @@ void MainWindow::updateDevices(void)
         value->updateData();
     }
 }
-
-
 
 busDevice *MainWindow::getDevice(uint8_t address)
 {
@@ -152,12 +143,12 @@ busDevice *MainWindow::addDevice(uint8_t address)
 
 void MainWindow::on_scanButton_clicked()
 {
-    busMessage msg;
-    msg.dstAddress = 0x7F;
+    BusMessage msg;
+    msg.destinationAddress = 0x7F;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0x02;
     msg.data.append(busDevice::cmd_systemInformationRequest);
-    _busConnection.at(0)->write(msg,busAccess::busPriority::normal);
+    _busConnection.write(msg, RoomBusAccess::Priority::Normal);
 }
 
 void MainWindow::on_monitorButton_clicked()

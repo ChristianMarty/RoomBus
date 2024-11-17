@@ -29,20 +29,20 @@ SOURCES += \
         ../../QuCLib/source/cobs.cpp \
         ../../QuCLib/source/crc.cpp \
         busAccess.cpp \
-        com.cpp \
-        comSerial.cpp \
-        comTcp.cpp \
-        comUdp.cpp
+        connection/serialConnection.cpp \
+        connection/tcpConnection.cpp \
+        connection/udpConnection.cpp
 
 HEADERS += \
         ../../QuCLib/source/CANbeSerial.h \
         ../../QuCLib/source/cobs.h \
         ../../QuCLib/source/crc.h \
-        busAccess.h \        busaccess_global.h  \
-        com.h \
-        comSerial.h \
-        comTcp.h \
-        comUdp.h
+        busAccess.h \
+        busaccess_global.h  \
+        connection/connection.h \
+        connection/serialConnection.h \
+        connection/tcpConnection.h \
+        connection/udpConnection.h
 
 unix {
     target.path = /usr/lib

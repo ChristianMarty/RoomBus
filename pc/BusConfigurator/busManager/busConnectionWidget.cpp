@@ -1,44 +1,39 @@
 #include "busConnectionWidget.h"
 #include "ui_busConnectionWidget.h"
 
-busConnectionWidget::busConnectionWidget(busAccess *com,QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::busConnectionWidget)
+busConnectionWidget::busConnectionWidget(RoomBusAccess &roomBusAccess, QWidget *parent)
+    :QWidget(parent)
+    ,ui(new Ui::busConnectionWidget)
+    ,_roomBusAccess{roomBusAccess}
 {
     ui->setupUi(this);
-    _com = com;
+    _updateUi();
 
-    setStatusLabel(_com->getIsConnected());
-    ui->nameLabel->setText(_com->getConnectionName());
-    ui->connectionPathLabel->setText(_com->getConnectionPath());
-
-
-     connect(_com, &busAccess::connectionChanged, this, &busConnectionWidget::on_connectionChanged);
+    connect(&_roomBusAccess, &RoomBusAccess::connectionChanged, this, &busConnectionWidget::on_connectionChanged);
 }
 
 busConnectionWidget::~busConnectionWidget()
 {
-    disconnect(_com, &busAccess::connectionChanged, this, &busConnectionWidget::on_connectionChanged);
     delete ui;
 }
 
-void busConnectionWidget::on_connectionChanged(bool connected)
+void busConnectionWidget::on_connectionChanged()
 {
-    setStatusLabel(connected);
-    ui->nameLabel->setText(_com->getConnectionName());
-    ui->connectionPathLabel->setText(_com->getConnectionPath());
+    _updateUi();
 }
 
-void busConnectionWidget::setStatusLabel(bool open)
+void busConnectionWidget::_updateUi()
 {
-    if(open)
-    {
+    if(_roomBusAccess.isConnected()){
         ui->comStatusLabel->setText("Open");
         ui->comStatusLabel->setStyleSheet("color: green;");
-    }
-    else
-    {
+    }else{
         ui->comStatusLabel->setText("Closed");
         ui->comStatusLabel->setStyleSheet("color: red;");
     }
+
+    ui->nameLabel->setText(_roomBusAccess.getConnectionName());
+    ui->connectionPathLabel->setText(_roomBusAccess.getConnectionPath());
 }
+
+

@@ -36,7 +36,7 @@ public:
 
     TriggerProtocol(busDevice *device);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QList<Protocol> protocol(void);
 
     void requestSignalInformation(void);
@@ -65,9 +65,9 @@ private:
     QMap<uint16_t, TriggerProtocol::TriggerSlot> _triggerSlot;
     QMap<uint16_t, TriggerProtocol::TriggerSignal> _triggerSignal;
 
-    void _parseTrigger(busMessage msg);
-    void _parseSignalInformationReport(busMessage msg);
-    void _parseSlotInformationReport(busMessage msg);
+    void _parseTrigger(BusMessage msg);
+    void _parseSignalInformationReport(BusMessage msg);
+    void _parseSlotInformationReport(BusMessage msg);
 };
 
 #endif // TRIGGER_PROTOCOL_H

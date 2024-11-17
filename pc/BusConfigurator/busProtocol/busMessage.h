@@ -5,16 +5,12 @@
 
 #include "protocol/protocol.h"
 
-class busMessage
+struct BusMessage
 {
-public:
-
-    uint8_t srcAddress;
-    uint8_t dstAddress;
-
+    uint8_t sourceAddress;
+    uint8_t destinationAddress;
     Protocol protocol;
     uint8_t command;
-
     QByteArray data;
 };
 

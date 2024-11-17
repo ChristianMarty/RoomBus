@@ -74,7 +74,7 @@ public:
 
     fileTransferProtocol(busDevice *device);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QList<Protocol> protocol(void);
 
     void list(QString path);
@@ -111,14 +111,14 @@ private:
     }_fromDeviceTransfer, _toDeviceTransfer;
 
 
-    void handle_readStart(busMessage msg);
-    void handle_read(busMessage msg);
-    void handle_readEnd(busMessage msg);
+    void handle_readStart(BusMessage msg);
+    void handle_read(BusMessage msg);
+    void handle_readEnd(BusMessage msg);
 
     // Wite functions
-    void handle_writeStart(busMessage msg);
-    void handle_writeAck(busMessage msg);
-    void handle_writeComplete(busMessage msg);
+    void handle_writeStart(BusMessage msg);
+    void handle_writeAck(BusMessage msg);
+    void handle_writeComplete(BusMessage msg);
 
 
 };

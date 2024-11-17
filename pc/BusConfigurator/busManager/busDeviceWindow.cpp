@@ -247,7 +247,7 @@ void busDeviceWindow::_unloadPlugin()
 
 }
 
-void busDeviceWindow::on_busTransmitMessage(busMessage msg)
+void busDeviceWindow::on_busTransmitMessage(BusMessage msg)
 {
 
 }

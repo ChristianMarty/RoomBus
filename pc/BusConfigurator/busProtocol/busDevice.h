@@ -94,7 +94,7 @@ public:
     QString deviceIdentificationString(void);
     QString deviceSerialNumberString(void);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QDateTime lastHeartbeat() const;
 
     void requestHeartbeat(void);
@@ -153,7 +153,7 @@ public:
     }appBenchmark;
 
 signals:
-    void dataReady(busMessage msg);
+    void dataReady(BusMessage msg);
     void bootloadStatusUpdate(uint8_t progress, bool error, QString message);
     void statusUpdate(void);
 
@@ -166,7 +166,7 @@ public slots:
 
 private:
 
-    void handleDeviceManagementProtocol(busMessage msg);
+    void handleDeviceManagementProtocol(BusMessage msg);
 
     QuCLib::HexFileParser _appBinary;
     uint32_t _bootloadDataIndex;
@@ -194,7 +194,7 @@ private:
     uint32_t _serialNumberWord3;
 
     bool _btlWritePending;
-    busMessage _btlLastWrite;
+    BusMessage _btlLastWrite;
 
     QTimer _btlRetryTimer;
 

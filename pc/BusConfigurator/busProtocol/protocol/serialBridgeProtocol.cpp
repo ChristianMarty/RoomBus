@@ -7,7 +7,7 @@ serialBridgeProtocol::serialBridgeProtocol(busDevice *device):BusProtocol(device
 
 void serialBridgeProtocol::sendData(uint8_t port, QByteArray data)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::SerialBridgeProtocol;
     msg.command = commands_t::data;
@@ -18,7 +18,7 @@ void serialBridgeProtocol::sendData(uint8_t port, QByteArray data)
     sendMessage(msg);
 }
 
-void serialBridgeProtocol::pushData(busMessage msg)
+void serialBridgeProtocol::pushData(BusMessage msg)
 {
     if(msg.protocol == Protocol::SerialBridgeProtocol)
     {

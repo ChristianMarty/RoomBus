@@ -4,7 +4,7 @@ EventProtocol::EventProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void EventProtocol::pushData(busMessage msg)
+void EventProtocol::pushData(BusMessage msg)
 {
     if(msg.protocol == Protocol::EventProtocol)
     {
@@ -23,7 +23,7 @@ QList<Protocol> EventProtocol::protocol(void)
 
 void EventProtocol::requestSignalInformation(void)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::EventProtocol;
     msg.command = Command::SignalInformationRequest;
@@ -33,7 +33,7 @@ void EventProtocol::requestSignalInformation(void)
 
 void EventProtocol::requestSlotInformation(void)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::EventProtocol;
     msg.command = Command::SlotInformationRequest;
@@ -53,7 +53,7 @@ void EventProtocol::setActiveState(uint8_t eventChannel, bool active)
 
 void EventProtocol::sendEvent(QList<uint8_t>eventChannels)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::EventProtocol;
     msg.command = 0x00;
@@ -101,7 +101,7 @@ QList<EventProtocol::EventSignal *> EventProtocol::eventSignls()
     return output;
 }
 
-void EventProtocol::_parseEvent(busMessage msg)
+void EventProtocol::_parseEvent(BusMessage msg)
 {
     QList<uint8_t> eventrSignals;
 
@@ -113,7 +113,7 @@ void EventProtocol::_parseEvent(busMessage msg)
     emit eventSignalReceived(eventrSignals);
 }
 
-void EventProtocol::_parseSignalInformationReport(busMessage msg)
+void EventProtocol::_parseSignalInformationReport(BusMessage msg)
 {
     EventSignal signal;
     signal.channel = getUint16(msg.data,0);
@@ -125,7 +125,7 @@ void EventProtocol::_parseSignalInformationReport(busMessage msg)
     emit eventSignalListChange();
 }
 
-void EventProtocol::_parseSlotInformationReport(busMessage msg)
+void EventProtocol::_parseSlotInformationReport(BusMessage msg)
 {
     EventSlot slot;
     slot.channel = getUint16(msg.data,0);

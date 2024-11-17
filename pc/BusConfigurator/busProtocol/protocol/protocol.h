@@ -1,8 +1,6 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-
-
 enum Protocol {
     DeviceManagementProtocol = 0,
     MessageLogProtocolId = 1,

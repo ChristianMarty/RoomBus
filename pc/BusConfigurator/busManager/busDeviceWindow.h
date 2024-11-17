@@ -51,7 +51,7 @@ private slots:
 
     void on_appConfig_clicked();
 
-    void on_busTransmitMessage(busMessage msg);
+    void on_busTransmitMessage(BusMessage msg);
 
     void on_appConfi_destroyed(QObject *obj = nullptr);
 

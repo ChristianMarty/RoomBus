@@ -1,55 +1,48 @@
 #include "busAccess.h"
 
-busAccess::busAccess(comType_t type)
+RoomBusAccess::RoomBusAccess(void)
 {
-    switch(type)
-    {
-        case serial:    _com = new serialCom();
-                        break;
-
-        case tcp:       _com = new tcpCom();
-                        break;
-
-        case udp:       _com = new udpCom();
-                        break;
-    }
-    isConnected = false;
-
     _canSerial.setBaudrate(CANbeSerial::Baud500k);
     _canSerial.setDataBaudrate(CANbeSerial::Baud500k);
     _canSerial.setTxPaddingEnable(true, 0x00);
 
-    connect(&_canSerial, &CANbeSerial::writeReady, this, &busAccess::on_writeReady);
-    connect(&_canSerial, &CANbeSerial::readReady, this, &busAccess::on_readReady);
+    connect(&_canSerial, &CANbeSerial::writeReady, this, &RoomBusAccess::on_writeReady);
+    connect(&_canSerial, &CANbeSerial::readReady, this, &RoomBusAccess::on_readReady);
 }
 
-busAccess::~busAccess(void)
+RoomBusAccess::~RoomBusAccess(void)
 {
-    delete _com;
+    closeConnection();
 }
 
-QString busAccess::getConnectionName()
+QString RoomBusAccess::getConnectionName()
 {
-    return _com->getConnectionName();
+    if(_connection == nullptr) return "";
+
+    return _connection->getConnectionName();
 }
 
-QString busAccess::getConnectionPath()
+QString RoomBusAccess::getConnectionPath()
 {
-    return _com->getConnectionPath();
+    if(_connection == nullptr) return "";
+
+    return _connection->getConnectionPath();
 }
 
-void busAccess::on_writeReady(QByteArray data)
+void RoomBusAccess::on_writeReady(QByteArray data)
 {
-    _com->write(data);
+    if(_connection == nullptr) return;
+
+    _connection->write(data);
 }
 
-void busAccess::on_readReady(CanBusFrame frame)
+void RoomBusAccess::on_readReady(CanBusFrame frame)
 {
-    busMessage msg;
+    BusMessage msg;
     uint32_t canId = frame.identifier;
 
-    msg.srcAddress = static_cast<uint8_t>(canId >>20)&0x7F;
-    msg.dstAddress = static_cast<uint8_t>(canId >>13)&0x7F;
+    msg.sourceAddress = static_cast<uint8_t>(canId >>20)&0x7F;
+    msg.destinationAddress = static_cast<uint8_t>(canId >>13)&0x7F;
     msg.protocol = static_cast<Protocol>(static_cast<uint8_t>(canId >>7)&0x3F);
     msg.command = static_cast<uint8_t>(canId>>4)&0x07;
 
@@ -61,82 +54,98 @@ void busAccess::on_readReady(CanBusFrame frame)
     emit newData();
 }
 
-void busAccess::on_receive(QByteArray data)
+void RoomBusAccess::on_receive(QByteArray data)
 {
     _canSerial.receive(data);
 }
 
-void busAccess::openTcpConnection(QString ip, uint16_t port)
+void RoomBusAccess::on_connectionChanged()
 {
+    if(isConnected()){
+        _canSerial.setEnabled(true);
+    }
+
+    emit connectionChanged();
+}
+
+void RoomBusAccess::openTcpConnection(QString ip, uint16_t port)
+{
+    closeConnection();
+    _connection = new TcpConnection(ip,port);
     openConnection();
-    ((tcpCom*)_com)->openConnection(ip,port);
 }
 
-void busAccess::openUdpConnection(QString ip, uint16_t port)
+void RoomBusAccess::openUdpConnection(QString ip, uint16_t port)
 {
+    closeConnection();
+    _connection = new UdpConnection(ip,port);
     openConnection();
-    ((udpCom*)_com)->openConnection(ip,port);
 }
 
-void busAccess::openSerialConnection(QString port)
+void RoomBusAccess::openSerialConnection(QString port)
 {
+    closeConnection();
+    _connection = new SerialConnection(port, 614400);
     openConnection();
-    ((serialCom*)_com)->openConnection(port);
-
 }
 
-void busAccess::openConnection(void)
+void RoomBusAccess::openConnection(void)
 {
-    _srcAddress = 0x7E; // DEC 126
+    if(_connection == nullptr) return;
 
-    connect(_com, &busCom::receive, this, &busAccess::on_receive);
-    connect(_com, &busCom::connectionChanged, this, &busAccess::on_connectionChanged);
+    _sourceAddress = 0x7E; // DEC 126
 
-    isConnected = true;
+    connect(_connection, &RoomBusConnection::receive, this, &RoomBusAccess::on_receive);
+    connect(_connection, &RoomBusConnection::connectionChanged, this, &RoomBusAccess::on_connectionChanged);
 
-    emit connectionChanged(isConnected);
+    _connection->open();
+
+    emit connectionChanged();
 }
 
-void busAccess::closeConnection(void)
+void RoomBusAccess::closeConnection(void)
 {
-    disconnect(_com, &busCom::receive, this, &busAccess::on_receive);
-    disconnect(_com, &busCom::connectionChanged, this, &busAccess::on_connectionChanged);
+    if(_connection == nullptr) return;
 
-    delete _com;
+    disconnect(_connection, &RoomBusConnection::receive, this, &RoomBusAccess::on_receive);
+    disconnect(_connection, &RoomBusConnection::connectionChanged, this, &RoomBusAccess::on_connectionChanged);
 
-    isConnected = false;
-    emit connectionChanged(isConnected);
+    delete _connection;
+    _connection = nullptr;
+
+    emit connectionChanged();
 }
 
-void busAccess::setPriority(busPriority priority)
+void RoomBusAccess::setPriority(Priority priority)
 {
     _priority = priority;
 }
 
-void busAccess::setPriority(uint8_t priority)
+void RoomBusAccess::setPriority(uint8_t priority)
 {
     if(priority>= 8) priority = 7;
-    setPriority((busPriority)priority);
+    setPriority((Priority)priority);
 }
 
-bool busAccess::write(busMessage msg)
+bool RoomBusAccess::write(BusMessage msg)
 {
     return write(msg, _priority);
 }
 
-bool busAccess::write(busMessage msg, busPriority priority)
+bool RoomBusAccess::write(BusMessage msg, Priority priority)
 {
-    return write(msg.dstAddress, msg.protocol, msg.command, msg.data, priority);
+    return write(msg.destinationAddress, msg.protocol, msg.command, msg.data, priority);
 }
 
-bool busAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, QByteArray data)
+bool RoomBusAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, QByteArray data)
 {
     return write(destAddress, protocol, command, data, _priority);
 }
 
-bool busAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, QByteArray data, busPriority priority)
+bool RoomBusAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, QByteArray data, Priority priority)
 {
-    if(!isConnected) return false;
+    if(_connection == nullptr) return false;
+
     uint8_t paddingLength = 0;
 
     if(data.size() > 8)
@@ -155,7 +164,7 @@ bool busAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, Q
 
     uint32_t canId = 0;
     canId |= (static_cast<uint32_t>(priority)<<27) & 0x18000000;
-    canId |= (static_cast<uint32_t>(_srcAddress)<<20) & 0x07F00000;
+    canId |= (static_cast<uint32_t>(_sourceAddress)<<20) & 0x07F00000;
     canId |= (static_cast<uint32_t>(destAddress)<<13) & 0x000FE000;
     canId |= (static_cast<uint32_t>(protocol)<<7) & 0x00001F80;
     canId |= (static_cast<uint32_t>(command)<<4) & 0x00000070;
@@ -172,19 +181,16 @@ bool busAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, Q
     return true;
 }
 
-void busAccess::on_connectionChanged(bool connected)
+bool RoomBusAccess::isConnected(void)
 {
-    if(connected){
-        _canSerial.setEnabled(true);
-    }
-
-    isConnected = connected;
-    emit connectionChanged(isConnected);
+    if(_connection == nullptr) return false;
+    else return _connection->connected();
 }
 
-bool busAccess::getIsConnected(void)
+QString RoomBusAccess::lastError()
 {
-    return isConnected;
+    if(_connection == nullptr) return "No open connection";
+    else return _connection->lastError();
 }
 
 

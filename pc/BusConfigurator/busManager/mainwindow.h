@@ -32,7 +32,7 @@ public:
 private slots:
 
     void on_newData(void);
-    void on_deviceTx(busMessage msg);
+    void on_deviceTx(BusMessage msg);
 
     void on_scanButton_clicked();
 
@@ -57,7 +57,8 @@ private:
 
     void addConnection(void);
 
-    QList<busAccess*> _busConnection;
+    RoomBusAccess _busConnection;
+
     QList<busConnectionWidget*> _busConnectionWidget;
 
     busMonitor *_monitorWindow = nullptr;

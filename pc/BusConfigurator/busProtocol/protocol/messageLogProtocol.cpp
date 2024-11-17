@@ -4,7 +4,7 @@ MessageLogProtocol::MessageLogProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void MessageLogProtocol::pushData(busMessage msg)
+void MessageLogProtocol::pushData(BusMessage msg)
 {
     if(msg.protocol != Protocol::MessageLogProtocolId) return;
     if(msg.data.size() < 8) return;

@@ -105,8 +105,8 @@ void busDevice::setDeviceAddress(const uint8_t &deviceAddress)
 void busDevice::sendEcho(QByteArray txData)
 {
     if(txData.size() >63) txData.truncate(63);
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(static_cast<char>(cmd_echo));
@@ -214,8 +214,8 @@ void busDevice::writeBinaryChunk(void)
 
     if(_bootloadDataIndex < data.count())
     {
-        busMessage msg;
-        msg.dstAddress = _deviceAddress;
+        BusMessage msg;
+        msg.destinationAddress = _deviceAddress;
         msg.protocol = Protocol::DeviceManagementProtocol;
         msg.command = 0;
         msg.data.append(static_cast<char>(cmd_btl));
@@ -248,8 +248,8 @@ void busDevice::writeBinaryChunk(void)
 
 void busDevice::eraseApp(void)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(static_cast<char>(cmd_eraseApp));
@@ -259,8 +259,8 @@ void busDevice::eraseApp(void)
 
 void busDevice::enterRootMode(void)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_enterRootMode);
@@ -272,8 +272,8 @@ void busDevice::enterRootMode(void)
 
 void busDevice::exitRootMode(void)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_enterRootMode);
@@ -284,8 +284,8 @@ void busDevice::exitRootMode(void)
 
 void busDevice::writeAddress(uint8_t address)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_setAddress);
@@ -296,8 +296,8 @@ void busDevice::writeAddress(uint8_t address)
 
 void busDevice::writeDeviceName(QString name)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_setDeviceName);
@@ -308,8 +308,8 @@ void busDevice::writeDeviceName(QString name)
 
 void busDevice::requestHeartbeat(void)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_heartbeatRequest);
@@ -319,8 +319,8 @@ void busDevice::requestHeartbeat(void)
 
 void busDevice::requestSystemInfo(void)
 {    
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_systemInformationRequest);
@@ -330,8 +330,8 @@ void busDevice::requestSystemInfo(void)
 
 void busDevice::requestCanDiagnostics(void)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_canDiagnosticsRequest);
@@ -343,8 +343,8 @@ void busDevice::requestSystemRestart()
 {
     enterRootMode();
 
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
     msg.data.append(cmd_reboot);
@@ -354,8 +354,8 @@ void busDevice::requestSystemRestart()
 
 void busDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t systemInfoInterval)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
@@ -370,8 +370,8 @@ void busDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t syst
 
 void busDevice::writeControl(sysControl_t sysControl)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
@@ -387,8 +387,8 @@ void busDevice::writeControl(sysControl_t sysControl)
 
 void busDevice::writeSetControl(sysControl_t sysControl)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
@@ -404,8 +404,8 @@ void busDevice::writeSetControl(sysControl_t sysControl)
 
 void busDevice::writeClearControl(sysControl_t sysControl)
 {
-    busMessage msg;
-    msg.dstAddress = _deviceAddress;
+    BusMessage msg;
+    msg.destinationAddress = _deviceAddress;
     msg.protocol = Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
@@ -449,9 +449,9 @@ void busDevice::removeProtocol(BusProtocol* protocol)
     _protocols.removeOne(protocol);
 }
 
-void busDevice::pushData(busMessage msg)
+void busDevice::pushData(BusMessage msg)
 {
-    if(msg.srcAddress != _deviceAddress) return;
+    if(msg.sourceAddress != _deviceAddress) return;
 
     for (uint8_t i = 0; i<_protocols.size();i++)
     {
@@ -474,7 +474,7 @@ void busDevice::pushData(busMessage msg)
     }
 }
 
-void busDevice::handleDeviceManagementProtocol(busMessage msg)
+void busDevice::handleDeviceManagementProtocol(BusMessage msg)
 {
     _lastHeartbeat = QDateTime::currentDateTime();
     QByteArray data = msg.data;

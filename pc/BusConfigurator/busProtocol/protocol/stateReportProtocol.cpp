@@ -4,7 +4,7 @@ StateReportProtocol::StateReportProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void StateReportProtocol::pushData(busMessage msg)
+void StateReportProtocol::pushData(BusMessage msg)
 {
     if(msg.protocol == Protocol::StateReportProtocol)
     {
@@ -23,7 +23,7 @@ QList<Protocol> StateReportProtocol::protocol(void)
 
 void StateReportProtocol::requestSignalInformation()
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::StateReportProtocol;
     msg.command = Command::SignalInformationRequest;
@@ -33,7 +33,7 @@ void StateReportProtocol::requestSignalInformation()
 
 void StateReportProtocol::requestSlotInformation()
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::StateReportProtocol;
     msg.command = Command::SlotInformationRequest;
@@ -43,7 +43,7 @@ void StateReportProtocol::requestSlotInformation()
 
 void StateReportProtocol::requestAllState()
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::StateReportProtocol;
     msg.command = Command::StateRequest;
@@ -85,7 +85,7 @@ QMap<uint16_t, StateReportProtocol::StateReportSlot> StateReportProtocol::stateR
     return _stateReportSlot;
 }
 
-void StateReportProtocol::_parseStateReport(busMessage msg)
+void StateReportProtocol::_parseStateReport(BusMessage msg)
 {
     for(uint8_t i = 0; i < msg.data.length(); i+=3)
     {
@@ -97,7 +97,7 @@ void StateReportProtocol::_parseStateReport(busMessage msg)
     }
 }
 
-void StateReportProtocol::_parseSignalInformationReport(busMessage msg)
+void StateReportProtocol::_parseSignalInformationReport(BusMessage msg)
 {
     StateReportSignal signal;
     signal.channel = getUint16(msg.data,0);
@@ -109,7 +109,7 @@ void StateReportProtocol::_parseSignalInformationReport(busMessage msg)
     emit signalListChange();
 }
 
-void StateReportProtocol::_parseSlotInformationReport(busMessage msg)
+void StateReportProtocol::_parseSlotInformationReport(BusMessage msg)
 {
     StateReportSlot slot;
     slot.channel = getUint16(msg.data,0);

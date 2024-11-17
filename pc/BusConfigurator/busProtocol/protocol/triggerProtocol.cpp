@@ -4,7 +4,7 @@ TriggerProtocol::TriggerProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void TriggerProtocol::pushData(busMessage msg)
+void TriggerProtocol::pushData(BusMessage msg)
 {
     if(msg.protocol == Protocol::TriggerProtocol)
     {
@@ -23,7 +23,7 @@ QList<Protocol> TriggerProtocol::protocol(void)
 
 void TriggerProtocol::requestSignalInformation(void)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::TriggerProtocol;
     msg.command = Command::SignalInformationRequest;
@@ -33,7 +33,7 @@ void TriggerProtocol::requestSignalInformation(void)
 
 void TriggerProtocol::requestSlotInformation(void)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::TriggerProtocol;
     msg.command = Command::SlotInformationRequest;
@@ -43,7 +43,7 @@ void TriggerProtocol::requestSlotInformation(void)
 
 void TriggerProtocol::sendTrigger(QList<uint16_t> triggerChannels)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::TriggerProtocol;
     msg.command = Command::Trigger;
@@ -107,7 +107,7 @@ QMap<uint16_t, TriggerProtocol::TriggerSignal> TriggerProtocol::triggerSignalMap
     return _triggerSignal;
 }
 
-void TriggerProtocol::_parseTrigger(busMessage msg)
+void TriggerProtocol::_parseTrigger(BusMessage msg)
 {
     QList<uint8_t> triggerSignals;
     
@@ -119,7 +119,7 @@ void TriggerProtocol::_parseTrigger(busMessage msg)
     emit triggerSignalReceived(triggerSignals);
 }
 
-void TriggerProtocol::_parseSignalInformationReport(busMessage msg)
+void TriggerProtocol::_parseSignalInformationReport(BusMessage msg)
 {
     TriggerSignal signal;
     signal.channel = getUint16(msg.data,0);
@@ -130,7 +130,7 @@ void TriggerProtocol::_parseSignalInformationReport(busMessage msg)
     emit triggerSignalListChange();
 }
 
-void TriggerProtocol::_parseSlotInformationReport(busMessage msg)
+void TriggerProtocol::_parseSlotInformationReport(BusMessage msg)
 {
     TriggerSlot slot;
     slot.channel = getUint16(msg.data,0);

@@ -82,7 +82,7 @@ public:
 
     ValueProtocol(busDevice *device);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QList<Protocol> protocol(void);
 
     void sendValueCommand(uint16_t channel, ValueData value);
@@ -115,9 +115,9 @@ private:
     QMap<uint16_t, ValueProtocol::ValueSignal> _valueSignal;
     QMap<uint16_t, ValueProtocol::ValueSlot> _valueSlot;
 
-    void _parseValue(busMessage msg);
-    void _parseSignalInformationReport(busMessage msg);
-    void _parseSlotInformationReport(busMessage msg);
+    void _parseValue(BusMessage msg);
+    void _parseSignalInformationReport(BusMessage msg);
+    void _parseSlotInformationReport(BusMessage msg);
 
     uint8_t _typeToSize(UnitType type);
     ValueData _decodeData(UnitType type, QByteArray data);

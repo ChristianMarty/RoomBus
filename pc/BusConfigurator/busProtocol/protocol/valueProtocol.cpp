@@ -4,7 +4,7 @@ ValueProtocol::ValueProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void ValueProtocol::pushData(busMessage msg)
+void ValueProtocol::pushData(BusMessage msg)
 {
     if(msg.protocol != Protocol::ValueReportProtocol) return;
 
@@ -15,7 +15,7 @@ void ValueProtocol::pushData(busMessage msg)
 
 void ValueProtocol::requestSignalInformation()
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::ValueReportProtocol;
     msg.command = Command::SignalInformationRequest;
@@ -25,7 +25,7 @@ void ValueProtocol::requestSignalInformation()
 
 void ValueProtocol::requestSlotInformation()
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::ValueReportProtocol;
     msg.command = Command::SlotInformationRequest;
@@ -99,7 +99,7 @@ QList<ValueProtocol::ValueSignal *> ValueProtocol::valueSignls()
     return output;
 }
 
-void ValueProtocol::_parseValue(busMessage msg)
+void ValueProtocol::_parseValue(BusMessage msg)
 {
     uint16_t channel = getUint16(msg.data, 0);
 
@@ -121,7 +121,7 @@ QList<ValueProtocol::ValueSlot *> ValueProtocol::valueSlots()
     return output;
 }
 
-void ValueProtocol::_parseSignalInformationReport(busMessage msg)
+void ValueProtocol::_parseSignalInformationReport(BusMessage msg)
 {
     ValueSignal signal;
     signal.channel = getUint16(msg.data,0);
@@ -141,7 +141,7 @@ void ValueProtocol::_parseSignalInformationReport(busMessage msg)
     emit signalListChange();
 }
 
-void ValueProtocol::_parseSlotInformationReport(busMessage msg)
+void ValueProtocol::_parseSlotInformationReport(BusMessage msg)
 {
     ValueSlot slot;
     slot.channel = getUint16(msg.data,0);
@@ -197,7 +197,7 @@ QList<Protocol> ValueProtocol::protocol(void)
 
 void ValueProtocol::sendValueCommand(uint16_t channel, ValueData value)
 {
-    busMessage msg;
+    BusMessage msg;
 
     msg.protocol = Protocol::ValueReportProtocol;
     msg.command = Command::ValueCommand;

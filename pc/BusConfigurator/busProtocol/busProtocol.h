@@ -13,7 +13,7 @@ public:
     BusProtocol(busDevice *device);
     ~BusProtocol(void);
 
-    virtual void pushData(busMessage msg)=0;
+    virtual void pushData(BusMessage msg)=0;
 
     virtual QList<Protocol> protocol(void)=0;
 
@@ -23,12 +23,12 @@ public:
     static float getFloat32(QByteArray data, uint32_t index);
 
 signals:
-    void dataReady(busMessage msg);
+    void dataReady(BusMessage msg);
 
 protected:
     busDevice *_device;
 
-    void sendMessage(busMessage msg);
+    void sendMessage(BusMessage msg);
 
     QByteArray packUint16(uint16_t value);
     QByteArray packUint32(uint32_t value);

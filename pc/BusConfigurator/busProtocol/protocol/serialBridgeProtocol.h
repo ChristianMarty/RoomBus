@@ -25,7 +25,7 @@ public:
 
     void sendData(uint8_t port, QByteArray data);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QList<Protocol> protocol(void);
 
 signals:

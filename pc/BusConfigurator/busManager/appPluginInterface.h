@@ -14,7 +14,7 @@ public:
 
     virtual QWidget *init(busDevice *device, QWidget *parent) = 0;
     virtual QString getName(void) = 0;
-    virtual void receiveData(busMessage msg) = 0;
+    virtual void receiveData(BusMessage msg) = 0;
 
 };
 

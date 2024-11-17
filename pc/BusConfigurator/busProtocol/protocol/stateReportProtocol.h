@@ -44,7 +44,7 @@ public:
 
     StateReportProtocol(busDevice *device);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QList<Protocol> protocol(void);
 
     void requestSignalInformation(void);
@@ -73,9 +73,9 @@ private:
     QMap<uint16_t, StateReportProtocol::SignalState> _signalState;
 
 
-    void _parseStateReport(busMessage msg);
-    void _parseSignalInformationReport(busMessage msg);
-    void _parseSlotInformationReport(busMessage msg);
+    void _parseStateReport(BusMessage msg);
+    void _parseSignalInformationReport(BusMessage msg);
+    void _parseSlotInformationReport(BusMessage msg);
 };
 
 #endif // STATEREPORTPROTOCOL_H

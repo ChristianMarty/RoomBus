@@ -12,9 +12,9 @@ BusProtocol::~BusProtocol(void)
     _device->removeProtocol(this);
 }
 
-void BusProtocol::sendMessage(busMessage msg)
+void BusProtocol::sendMessage(BusMessage msg)
 {
-    msg.dstAddress = _device->deviceAddress();
+    msg.destinationAddress = _device->deviceAddress();
     _device->dataReady(msg);
 }
 

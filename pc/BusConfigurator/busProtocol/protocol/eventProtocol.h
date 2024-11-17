@@ -38,7 +38,7 @@ public:
 
     EventProtocol(busDevice *device);
 
-    void pushData(busMessage msg);
+    void pushData(BusMessage msg);
     QList<Protocol> protocol(void);
 
     void requestSignalInformation(void);
@@ -67,9 +67,9 @@ private:
     QMap<uint16_t, EventProtocol::EventSlot> _eventSlot;
     QMap<uint16_t, EventProtocol::EventSignal> _eventSignal;
 
-    void _parseEvent(busMessage msg);
-    void _parseSignalInformationReport(busMessage msg);
-    void _parseSlotInformationReport(busMessage msg);
+    void _parseEvent(BusMessage msg);
+    void _parseSignalInformationReport(BusMessage msg);
+    void _parseSlotInformationReport(BusMessage msg);
 };
 
 #endif // EVENT_PROTOCOL_H

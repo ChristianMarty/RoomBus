@@ -14,19 +14,18 @@ class busConnectionWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit busConnectionWidget(busAccess *com, QWidget *parent = nullptr);
+    explicit busConnectionWidget(RoomBusAccess &roomBusAccess, QWidget *parent = nullptr);
     ~busConnectionWidget();
 
 
 private slots:
-    void on_connectionChanged(bool connected);
+    void on_connectionChanged(void);
 
 private:
     Ui::busConnectionWidget *ui;
+    RoomBusAccess &_roomBusAccess;
 
-    void setStatusLabel(bool open);
-
-     busAccess *_com;
+    void _updateUi(void);
 };
 
 #endif // BUSCONNECTIONWIDGET_H
