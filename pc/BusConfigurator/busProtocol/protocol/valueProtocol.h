@@ -8,23 +8,10 @@
 #include "busProtocol.h"
 
 
-class ValueProtocol : public BusProtocol
+class ValueSystemProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
-
-    enum Command {
-        ValueReport,
-        ValueRequest,
-        ValueCommand,
-        Reserved0,
-
-        SignalInformationReport,
-        SlotInformationReport,
-
-        SignalInformationRequest,
-        SlotInformationRequest
-    };
 
     enum UnitType {
         Long,
@@ -80,10 +67,10 @@ public:
         uint16_t timeout;
     };
 
-    ValueProtocol(busDevice *device);
+    ValueSystemProtocol(busDevice *device);
 
-    void pushData(BusMessage msg);
-    QList<Protocol> protocol(void);
+    void pushData(RoomBus::Message msg);
+    QList<RoomBus::Protocol> protocol(void);
 
     void sendValueCommand(uint16_t channel, ValueData value);
 
@@ -102,8 +89,8 @@ public:
 
     QString valueString(uint16_t channel);
 
-    QList<ValueProtocol::ValueSlot*> valueSlots();
-    QList<ValueProtocol::ValueSignal*> valueSignls();
+    QList<ValueSystemProtocol::ValueSlot*> valueSlots();
+    QList<ValueSystemProtocol::ValueSignal*> valueSignls();
 
 signals:
     void signalValueChnage(uint16_t channel);
@@ -112,12 +99,12 @@ signals:
     void slotListChange(void);
 
 private:
-    QMap<uint16_t, ValueProtocol::ValueSignal> _valueSignal;
-    QMap<uint16_t, ValueProtocol::ValueSlot> _valueSlot;
+    QMap<uint16_t, ValueSystemProtocol::ValueSignal> _valueSignal;
+    QMap<uint16_t, ValueSystemProtocol::ValueSlot> _valueSlot;
 
-    void _parseValue(BusMessage msg);
-    void _parseSignalInformationReport(BusMessage msg);
-    void _parseSlotInformationReport(BusMessage msg);
+    void _parseValue(RoomBus::Message msg);
+    void _parseSignalInformationReport(RoomBus::Message msg);
+    void _parseSlotInformationReport(RoomBus::Message msg);
 
     uint8_t _typeToSize(UnitType type);
     ValueData _decodeData(UnitType type, QByteArray data);

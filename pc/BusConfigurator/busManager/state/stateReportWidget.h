@@ -34,7 +34,7 @@ private:
 
     busDevice *_busDevice;
 
-    class::StateReportProtocol _stateReportProtocol;
+    class::StateSystemProtocol _stateReportProtocol;
 };
 
 #endif // STATE_REPORT_WIDGET_H

@@ -9,20 +9,10 @@
 #include "busProtocol.h"
 
 
-class fileTransferProtocol : public BusProtocol
+class FileTransferProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
-
-    enum commands_t{
-        cmd_request  = 0,
-        cmd_response = 1,
-
-        cmd_read = 4,
-        cmd_read_ack = 5,
-        cmd_write = 6,
-        cmd_write_ack = 7
-    };
 
     enum reqest_t{
         req_list = 0,
@@ -72,10 +62,10 @@ public:
         QString name;
     };
 
-    fileTransferProtocol(busDevice *device);
+    FileTransferProtocol(busDevice *device);
 
-    void pushData(BusMessage msg);
-    QList<Protocol> protocol(void);
+    void pushData(RoomBus::Message msg);
+    QList<RoomBus::Protocol> protocol(void);
 
     void list(QString path);
     void makeFile(QString path);
@@ -111,14 +101,14 @@ private:
     }_fromDeviceTransfer, _toDeviceTransfer;
 
 
-    void handle_readStart(BusMessage msg);
-    void handle_read(BusMessage msg);
-    void handle_readEnd(BusMessage msg);
+    void handle_readStart(RoomBus::Message msg);
+    void handle_read(RoomBus::Message msg);
+    void handle_readEnd(RoomBus::Message msg);
 
     // Wite functions
-    void handle_writeStart(BusMessage msg);
-    void handle_writeAck(BusMessage msg);
-    void handle_writeComplete(BusMessage msg);
+    void handle_writeStart(RoomBus::Message msg);
+    void handle_writeAck(RoomBus::Message msg);
+    void handle_writeComplete(RoomBus::Message msg);
 
 
 };

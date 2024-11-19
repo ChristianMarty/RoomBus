@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     settings.readFile("C:/Users/Christian/Raumsteuerung/RoomBus/pc/BusConfigurator/settings.xml");
 
     connect(&_busConnection, &RoomBusAccess::newData,this, &MainWindow::on_newData);
-    _busConnection.setPriority(RoomBusAccess::Priority::Low);
+    _busConnection.setDefaultPriority(RoomBusAccess::Priority::Low);
 
     addConnection();
 }
@@ -48,10 +48,12 @@ void MainWindow::on_newData(void)
 {
     while(_busConnection.rxMsgBuffer.size())
     {
-        BusMessage temp = _busConnection.rxMsgBuffer.first();
+        RoomBus::Message temp = _busConnection.rxMsgBuffer.first();
         _busConnection.rxMsgBuffer.removeFirst();
 
-        if(_monitorWindow != nullptr) _monitorWindow->on_newMessage(temp);
+        if(_monitorWindow != nullptr){
+            _monitorWindow->on_newMessage(temp);
+        }
 
         busDevice *device = getDevice(temp.sourceAddress);
         device->pushData(temp);
@@ -60,7 +62,7 @@ void MainWindow::on_newData(void)
     updateDevices();
 }
 
-void MainWindow::on_deviceTx(BusMessage msg)
+void MainWindow::on_deviceTx(RoomBus::Message msg)
 {
     msg.sourceAddress = 0;
     _busConnection.write(msg,RoomBusAccess::Priority::Normal);
@@ -143,11 +145,11 @@ busDevice *MainWindow::addDevice(uint8_t address)
 
 void MainWindow::on_scanButton_clicked()
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = 0x7F;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0x02;
-    msg.data.append(busDevice::cmd_systemInformationRequest);
+    msg.data.append(busDevice::DMP_SC_SystemInformationRequest);
     _busConnection.write(msg, RoomBusAccess::Priority::Normal);
 }
 
@@ -163,7 +165,6 @@ void MainWindow::on_qosButton_clicked()
     _qosWindow->show();
 
     this->addDockWidget(Qt::BottomDockWidgetArea,_qosWindow);
-
 }
 
 void MainWindow::on_busDeviceWindowShow(busDevice *device)

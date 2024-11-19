@@ -35,7 +35,7 @@ private:
 
     busDevice *_busDevice;
 
-    class::TriggerProtocol _triggerProtocol;
+    class::TriggerSystemProtocol _triggerProtocol;
 };
 
 #endif // TRIGGER_WIDGET_H

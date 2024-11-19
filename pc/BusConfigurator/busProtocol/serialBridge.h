@@ -27,7 +27,7 @@ signals:
     void busMessage(QString message, bool error);
 
 public slots:
-    void on_receiveData(uint8_t port, serialBridgeProtocol::sbp_status_t status, QByteArray data);
+    void on_receiveData(uint8_t port, SerialBridgeProtocol::sbp_status_t status, QByteArray data);
 
     void on_tcpBridgeNewConnection(void);
     void on_tcpBridgeDataReceived(void);
@@ -37,11 +37,11 @@ private:
     QTcpServer _tcpBridgeServer;
 
     QList<QTcpSocket*> _tcpBridgeSocket;
-    QuCLib::Cobs _tcpBridgeCobsDecoder;
+    QuCLib::Cobs _tcpBridgeCobs;
 
     void _sendFrame(uint8_t address, uint8_t command, QByteArray data);
 
-    serialBridgeProtocol _serialBridgeProtocol;
+    SerialBridgeProtocol _serialBridgeProtocol;
 };
 
 #endif // SERIALBRIDGE_H

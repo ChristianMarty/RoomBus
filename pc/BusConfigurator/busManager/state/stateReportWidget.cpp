@@ -9,8 +9,8 @@ StateReportWidget::StateReportWidget(busDevice *busDevice, QWidget *parent) :
     ui->setupUi(this);
 
     _busDevice = busDevice;
-    connect(&_stateReportProtocol,&StateReportProtocol::signalListChange, this, &StateReportWidget::on_signalListChange);
-    connect(&_stateReportProtocol,&StateReportProtocol::slotListChange, this, &StateReportWidget::on_slotListChange);
+    connect(&_stateReportProtocol,&StateSystemProtocol::signalListChange, this, &StateReportWidget::on_signalListChange);
+    connect(&_stateReportProtocol,&StateSystemProtocol::slotListChange, this, &StateReportWidget::on_slotListChange);
 
     _stateReportProtocol.requestSlotInformation();
     _stateReportProtocol.requestSignalInformation();

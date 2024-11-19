@@ -35,7 +35,7 @@ private:
 
     busDevice *_busDevice;
 
-    class::ValueProtocol _valueProtocol;
+    class::ValueSystemProtocol _valueProtocol;
 };
 
 #endif // VALUE_WIDGET_H

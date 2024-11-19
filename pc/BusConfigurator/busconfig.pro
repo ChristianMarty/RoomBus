@@ -4,6 +4,6 @@ include( config.pri )
 
 CONFIG  += ordered
 SUBDIRS += \
-    busProtocol \
     busAccess \
+    busProtocol \
     busManager \

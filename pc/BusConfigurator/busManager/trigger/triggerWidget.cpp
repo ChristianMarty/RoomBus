@@ -9,8 +9,8 @@ TriggerWidget::TriggerWidget(busDevice *busDevice, QWidget *parent) :
     ui->setupUi(this);
 
     _busDevice = busDevice;
-    connect(&_triggerProtocol,&TriggerProtocol::triggerSignalListChange, this, &TriggerWidget::on_signalListChange);
-    connect(&_triggerProtocol,&TriggerProtocol::triggerSlotListChange, this, &TriggerWidget::on_slotListChange);
+    connect(&_triggerProtocol,&TriggerSystemProtocol::triggerSignalListChange, this, &TriggerWidget::on_signalListChange);
+    connect(&_triggerProtocol,&TriggerSystemProtocol::triggerSlotListChange, this, &TriggerWidget::on_slotListChange);
 
     _triggerProtocol.requestSlotInformation();
     _triggerProtocol.requestSignalInformation();

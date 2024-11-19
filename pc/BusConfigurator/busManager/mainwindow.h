@@ -32,7 +32,7 @@ public:
 private slots:
 
     void on_newData(void);
-    void on_deviceTx(BusMessage msg);
+    void on_deviceTx(RoomBus::Message msg);
 
     void on_scanButton_clicked();
 

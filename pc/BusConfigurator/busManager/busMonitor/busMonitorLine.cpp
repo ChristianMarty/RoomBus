@@ -10,7 +10,7 @@ BusMonitorLine::BusMonitorLine(QWidget *parent):
     ui->setupUi(this);
 }
 
-BusMonitorLine::BusMonitorLine(BusMessage &msg, QWidget *parent) :
+BusMonitorLine::BusMonitorLine(RoomBus::Message &msg, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BusMonitorLine)
 {

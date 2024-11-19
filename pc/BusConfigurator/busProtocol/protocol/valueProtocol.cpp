@@ -1,39 +1,41 @@
 #include "valueProtocol.h"
 
-ValueProtocol::ValueProtocol(busDevice *device):BusProtocol(device)
+ValueSystemProtocol::ValueSystemProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void ValueProtocol::pushData(BusMessage msg)
+void ValueSystemProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol != Protocol::ValueReportProtocol) return;
+    if(msg.protocol != RoomBus::Protocol::ValueSystemProtocol) return;
 
-    if(msg.command == Command::ValueReport) _parseValue(msg);
-    else if(msg.command == Command::SignalInformationReport) _parseSignalInformationReport(msg);
-    else if(msg.command == Command::SlotInformationReport) _parseSlotInformationReport(msg);
+    switch((RoomBus::ValueSystemCommand)msg.command){
+        case RoomBus::ValueSystemCommand::ValueReport: _parseValue(msg); break;
+        case RoomBus::ValueSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
+        case RoomBus::ValueSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
+    }
 }
 
-void ValueProtocol::requestSignalInformation()
+void ValueSystemProtocol::requestSignalInformation()
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::ValueReportProtocol;
-    msg.command = Command::SignalInformationRequest;
+    msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
+    msg.command = (uint8_t)RoomBus::ValueSystemCommand::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
-void ValueProtocol::requestSlotInformation()
+void ValueSystemProtocol::requestSlotInformation()
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::ValueReportProtocol;
-    msg.command = Command::SlotInformationRequest;
+    msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
+    msg.command = (uint8_t)RoomBus::ValueSystemCommand::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
-void ValueProtocol::reset()
+void ValueSystemProtocol::reset()
 {
     _valueSignal.clear();
     _valueSlot.clear();
@@ -42,7 +44,7 @@ void ValueProtocol::reset()
     emit slotListChange();
 }
 
-QString ValueProtocol::valueToString(UnitType type, ValueData data)
+QString ValueSystemProtocol::valueToString(UnitType type, ValueData data)
 {
     switch(type){
         case Long: return QString::number(data.Long);
@@ -51,7 +53,7 @@ QString ValueProtocol::valueToString(UnitType type, ValueData data)
     return "Decode Error";
 }
 
-ValueProtocol::ValueData ValueProtocol::stringToValue(UnitType type, QString value)
+ValueSystemProtocol::ValueData ValueSystemProtocol::stringToValue(UnitType type, QString value)
 {
     ValueData output;
     output.Long = 0;
@@ -69,37 +71,37 @@ ValueProtocol::ValueData ValueProtocol::stringToValue(UnitType type, QString val
     return output;
 }
 
-ValueProtocol::UnitType ValueProtocol::uomToType(UnitOfMeasure uom)
+ValueSystemProtocol::UnitType ValueSystemProtocol::uomToType(UnitOfMeasure uom)
 {
     return UnitofMeasurements[uom].type;
 }
 
-QString ValueProtocol::uomName(UnitOfMeasure uom)
+QString ValueSystemProtocol::uomName(UnitOfMeasure uom)
 {
     return UnitofMeasurements[uom].name;
 }
 
-QString ValueProtocol::uomUnit(UnitOfMeasure uom)
+QString ValueSystemProtocol::uomUnit(UnitOfMeasure uom)
 {
     return UnitofMeasurements[uom].unit;
 }
 
-QString ValueProtocol::valueString(uint16_t channel)
+QString ValueSystemProtocol::valueString(uint16_t channel)
 {
     ValueSignal val = _valueSignal[channel];
     return valueToString(UnitofMeasurements[val.uom].type, val.value);
 }
 
-QList<ValueProtocol::ValueSignal *> ValueProtocol::valueSignls()
+QList<ValueSystemProtocol::ValueSignal *> ValueSystemProtocol::valueSignls()
 {
-    QList<ValueProtocol::ValueSignal *> output;
+    QList<ValueSystemProtocol::ValueSignal *> output;
     for(auto &item: _valueSignal){
         output.append(&item);
     }
     return output;
 }
 
-void ValueProtocol::_parseValue(BusMessage msg)
+void ValueSystemProtocol::_parseValue(RoomBus::Message msg)
 {
     uint16_t channel = getUint16(msg.data, 0);
 
@@ -112,16 +114,16 @@ void ValueProtocol::_parseValue(BusMessage msg)
     emit signalValueChnage(channel);
 }
 
-QList<ValueProtocol::ValueSlot *> ValueProtocol::valueSlots()
+QList<ValueSystemProtocol::ValueSlot *> ValueSystemProtocol::valueSlots()
 {
-    QList<ValueProtocol::ValueSlot *> output;
+    QList<ValueSystemProtocol::ValueSlot *> output;
     for(auto &item: _valueSlot){
         output.append(&item);
     }
     return output;
 }
 
-void ValueProtocol::_parseSignalInformationReport(BusMessage msg)
+void ValueSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 {
     ValueSignal signal;
     signal.channel = getUint16(msg.data,0);
@@ -141,7 +143,7 @@ void ValueProtocol::_parseSignalInformationReport(BusMessage msg)
     emit signalListChange();
 }
 
-void ValueProtocol::_parseSlotInformationReport(BusMessage msg)
+void ValueSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
 {
     ValueSlot slot;
     slot.channel = getUint16(msg.data,0);
@@ -153,7 +155,7 @@ void ValueProtocol::_parseSlotInformationReport(BusMessage msg)
     emit slotListChange();
 }
 
-uint8_t ValueProtocol::_typeToSize(UnitType type)
+uint8_t ValueSystemProtocol::_typeToSize(UnitType type)
 {
     switch(type){
         case Long: return 4;
@@ -162,7 +164,7 @@ uint8_t ValueProtocol::_typeToSize(UnitType type)
     return 0;
 }
 
-ValueProtocol::ValueData ValueProtocol::_decodeData(UnitType type, QByteArray data)
+ValueSystemProtocol::ValueData ValueSystemProtocol::_decodeData(UnitType type, QByteArray data)
 {
     ValueData value;
     switch(type){
@@ -188,19 +190,19 @@ ValueProtocol::ValueData ValueProtocol::_decodeData(UnitType type, QByteArray da
     return value;
 }
 
-QList<Protocol> ValueProtocol::protocol(void)
+QList<RoomBus::Protocol> ValueSystemProtocol::protocol(void)
 {
-    QList<Protocol> temp;
-    temp.append(Protocol::ValueReportProtocol);
+    QList<RoomBus::Protocol> temp;
+    temp.append(RoomBus::Protocol::ValueSystemProtocol);
     return temp;
 }
 
-void ValueProtocol::sendValueCommand(uint16_t channel, ValueData value)
+void ValueSystemProtocol::sendValueCommand(uint16_t channel, ValueData value)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::ValueReportProtocol;
-    msg.command = Command::ValueCommand;
+    msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
+    msg.command = (uint8_t)RoomBus::ValueSystemCommand::ValueCommand;
 
     msg.data.append(packUint16(channel));
     msg.data.append(packUint32(value.Long));

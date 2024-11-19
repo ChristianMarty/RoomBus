@@ -2,7 +2,6 @@
 #include "ui_busMonitor.h"
 #include <QTableWidget>
 #include <QDateTime>
-#include "busMessage.h"
 
 #include "busMonitorLine.h"
 
@@ -18,7 +17,7 @@ busMonitor::~busMonitor()
     delete ui;
 }
 
-void busMonitor::on_newMessage(BusMessage msg)
+void busMonitor::on_newMessage(RoomBus::Message msg)
 {
     QListWidgetItem *item = new QListWidgetItem(ui->listWidget);
     BusMonitorLine *lineWidget = new BusMonitorLine(msg, ui->listWidget);

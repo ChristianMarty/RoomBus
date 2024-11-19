@@ -1,7 +1,7 @@
 #include "eventSlotLine.h"
 #include "ui_eventSlotLine.h"
 
-EventSlotLineWidget::EventSlotLineWidget(EventProtocol::EventSlot* eventSlot, QWidget *parent) :
+EventSlotLineWidget::EventSlotLineWidget(EventSystemProtocol::EventSlot* eventSlot, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::EventSlotLineWidget)
 {

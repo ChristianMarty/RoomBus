@@ -8,10 +8,10 @@ fileTransferWidget::fileTransferWidget(busDevice *busDevice, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&_fileTransferProtocol, &fileTransferProtocol::fileList_change, this, &fileTransferWidget::on_fileList_change);
+    connect(&_fileTransferProtocol, &FileTransferProtocol::fileList_change, this, &fileTransferWidget::on_fileList_change);
 
-    connect(&_fileTransferProtocol, &fileTransferProtocol::readTransfereStatus_change, this, &fileTransferWidget::on_transfereStatus_change);
-    connect(&_fileTransferProtocol, &fileTransferProtocol::writeTransfereStatus_change, this, &fileTransferWidget::on_transfereStatus_change);
+    connect(&_fileTransferProtocol, &FileTransferProtocol::readTransfereStatus_change, this, &fileTransferWidget::on_transfereStatus_change);
+    connect(&_fileTransferProtocol, &FileTransferProtocol::writeTransfereStatus_change, this, &fileTransferWidget::on_transfereStatus_change);
 
     ui->treeView->setModel(&fileTree);
 
@@ -24,7 +24,7 @@ fileTransferWidget::~fileTransferWidget()
 }
 
 
-void fileTransferWidget::on_fileList_change(QMap<QString, fileTransferProtocol::file_t> files)
+void fileTransferWidget::on_fileList_change(QMap<QString, FileTransferProtocol::file_t> files)
 {
 
     for(int i=0; i<fileItems.count(); ++i)
@@ -46,8 +46,8 @@ void fileTransferWidget::on_fileList_change(QMap<QString, fileTransferProtocol::
     {
         QList<QStandardItem *> temp;
 
-        if(files.value(str).type == fileTransferProtocol::file_t::dir) temp.append(new QStandardItem("DIR"));
-        if(files.value(str).type == fileTransferProtocol::file_t::file) temp.append(new QStandardItem("FILE"));
+        if(files.value(str).type == FileTransferProtocol::file_t::dir) temp.append(new QStandardItem("DIR"));
+        if(files.value(str).type == FileTransferProtocol::file_t::file) temp.append(new QStandardItem("FILE"));
 
         temp.append(new QStandardItem(files.value(str).name));
         temp.append(new QStandardItem(QString::number(files.value(str).size, 10)));
@@ -97,7 +97,7 @@ void fileTransferWidget::on_localPathToolButton_clicked()
      ui->localPathEdit->setText(QFileDialog::getOpenFileName(this,tr("Select File Path"), "", tr("All files (*.*)")));
 }
 
-void fileTransferWidget::on_transfereStatus_change(fileTransferProtocol::transfereStatus_t status, uint8_t progress)
+void fileTransferWidget::on_transfereStatus_change(FileTransferProtocol::transfereStatus_t status, uint8_t progress)
 {
     ui->progressBar->setValue(progress);
 
@@ -105,12 +105,12 @@ void fileTransferWidget::on_transfereStatus_change(fileTransferProtocol::transfe
 
     switch(status)
     {
-        case fileTransferProtocol::idel:      statusText = "Idel"; break;
-        case fileTransferProtocol::start:     statusText = "Start"; break;
-        case fileTransferProtocol::transfere: statusText = "Transferring"; break;
-        case fileTransferProtocol::verify:    statusText = "Verify"; break;
-        case fileTransferProtocol::complete:  statusText = "Completed"; break;
-        case fileTransferProtocol::error:     statusText = "Error"; break;
+        case FileTransferProtocol::idel:      statusText = "Idel"; break;
+        case FileTransferProtocol::start:     statusText = "Start"; break;
+        case FileTransferProtocol::transfere: statusText = "Transferring"; break;
+        case FileTransferProtocol::verify:    statusText = "Verify"; break;
+        case FileTransferProtocol::complete:  statusText = "Completed"; break;
+        case FileTransferProtocol::error:     statusText = "Error"; break;
     }
 
     ui->statusLabel->setText(statusText);

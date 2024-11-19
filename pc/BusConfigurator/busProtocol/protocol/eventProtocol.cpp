@@ -1,47 +1,47 @@
 #include "eventProtocol.h"
 
-EventProtocol::EventProtocol(busDevice *device):BusProtocol(device)
+EventSystemProtocol::EventSystemProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void EventProtocol::pushData(BusMessage msg)
+void EventSystemProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol == Protocol::EventProtocol)
-    {
-        if(msg.command == Command::Event) _parseEvent(msg);
-        else if(msg.command == Command::SignalInformationReport) _parseSignalInformationReport(msg);
-        else if(msg.command == Command::SlotInformationReport) _parseSlotInformationReport(msg);
-    }
+    if(msg.protocol != RoomBus::Protocol::EventSystemProtocol) return;
+
+    if(msg.command == (uint8_t)RoomBus::EventSystemCommand::Event) _parseEvent(msg);
+    else if(msg.command == (uint8_t)RoomBus::EventSystemCommand::SignalInformationReport) _parseSignalInformationReport(msg);
+    else if(msg.command == (uint8_t)RoomBus::EventSystemCommand::SlotInformationReport) _parseSlotInformationReport(msg);
+
 }
 
-QList<Protocol> EventProtocol::protocol(void)
+QList<RoomBus::Protocol> EventSystemProtocol::protocol(void)
 {
-    QList<Protocol> temp;
-    temp.append(Protocol::EventProtocol);
+    QList<RoomBus::Protocol> temp;
+    temp.append(RoomBus::Protocol::EventSystemProtocol);
     return temp;
 }
 
-void EventProtocol::requestSignalInformation(void)
+void EventSystemProtocol::requestSignalInformation(void)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::EventProtocol;
-    msg.command = Command::SignalInformationRequest;
+    msg.protocol = RoomBus::Protocol::EventSystemProtocol;
+    msg.command = (uint8_t)RoomBus::EventSystemCommand::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
-void EventProtocol::requestSlotInformation(void)
+void EventSystemProtocol::requestSlotInformation(void)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::EventProtocol;
-    msg.command = Command::SlotInformationRequest;
+    msg.protocol = RoomBus::Protocol::EventSystemProtocol;
+    msg.command = (uint8_t)RoomBus::EventSystemCommand::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
-void EventProtocol::setActiveState(uint8_t eventChannel, bool active)
+void EventSystemProtocol::setActiveState(uint8_t eventChannel, bool active)
 {
   /*  if(_eventSlots.contains(eventChannel))
     {
@@ -51,11 +51,11 @@ void EventProtocol::setActiveState(uint8_t eventChannel, bool active)
     sendEvent(eventChannel);*/
 }
 
-void EventProtocol::sendEvent(QList<uint8_t>eventChannels)
+void EventSystemProtocol::sendEvent(QList<uint8_t>eventChannels)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::EventProtocol;
+    msg.protocol = RoomBus::Protocol::EventSystemProtocol;
     msg.command = 0x00;
 
     for (uint8_t i = 0; i<eventChannels.size(); i++)
@@ -66,7 +66,7 @@ void EventProtocol::sendEvent(QList<uint8_t>eventChannels)
     sendMessage(msg);
 }
 
-void EventProtocol::sendEvent(uint8_t eventChannel)
+void EventSystemProtocol::sendEvent(uint8_t eventChannel)
 {
    QList<uint8_t>eventChannels;
    eventChannels.append(eventChannel);
@@ -74,7 +74,7 @@ void EventProtocol::sendEvent(uint8_t eventChannel)
    sendEvent(eventChannels);
 }
 
-void EventProtocol::reset()
+void EventSystemProtocol::reset()
 {
     _eventSlot.clear();
     _eventSignal.clear();
@@ -83,25 +83,25 @@ void EventProtocol::reset()
     emit eventSlotListChange();
 }
 
-QList<EventProtocol::EventSlot *> EventProtocol::eventSlots()
+QList<EventSystemProtocol::EventSlot *> EventSystemProtocol::eventSlots()
 {
-    QList<EventProtocol::EventSlot *> output;
+    QList<EventSystemProtocol::EventSlot *> output;
     for(auto &item: _eventSlot){
         output.append(&item);
     }
     return output;
 }
 
-QList<EventProtocol::EventSignal *> EventProtocol::eventSignls()
+QList<EventSystemProtocol::EventSignal *> EventSystemProtocol::eventSignls()
 {
-    QList<EventProtocol::EventSignal *> output;
+    QList<EventSystemProtocol::EventSignal *> output;
     for(auto &item: _eventSignal){
         output.append(&item);
     }
     return output;
 }
 
-void EventProtocol::_parseEvent(BusMessage msg)
+void EventSystemProtocol::_parseEvent(RoomBus::Message msg)
 {
     QList<uint8_t> eventrSignals;
 
@@ -113,7 +113,7 @@ void EventProtocol::_parseEvent(BusMessage msg)
     emit eventSignalReceived(eventrSignals);
 }
 
-void EventProtocol::_parseSignalInformationReport(BusMessage msg)
+void EventSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 {
     EventSignal signal;
     signal.channel = getUint16(msg.data,0);
@@ -125,7 +125,7 @@ void EventProtocol::_parseSignalInformationReport(BusMessage msg)
     emit eventSignalListChange();
 }
 
-void EventProtocol::_parseSlotInformationReport(BusMessage msg)
+void EventSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
 {
     EventSlot slot;
     slot.channel = getUint16(msg.data,0);

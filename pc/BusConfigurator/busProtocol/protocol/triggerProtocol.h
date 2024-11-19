@@ -5,23 +5,10 @@
 #include <QMap>
 #include "busProtocol.h"
 
-class TriggerProtocol : public BusProtocol
+class TriggerSystemProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
-
-    enum Command {
-        Trigger,
-        Reserved0,
-        Reserved1,
-        Reserved2,
-
-        SignalInformationReport,
-        SlotInformationReport,
-
-        SignalInformationRequest,
-        SlotInformationRequest
-    };
 
     struct TriggerSignal {
         uint16_t channel;
@@ -31,13 +18,13 @@ public:
     struct TriggerSlot {
         uint16_t channel;
         QString description;
-        TriggerProtocol *trigger = nullptr;
+        TriggerSystemProtocol *trigger = nullptr;
     };
 
-    TriggerProtocol(busDevice *device);
+    TriggerSystemProtocol(busDevice *device);
 
-    void pushData(BusMessage msg);
-    QList<Protocol> protocol(void);
+    void pushData(RoomBus::Message msg);
+    QList<RoomBus::Protocol> protocol(void);
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
@@ -49,11 +36,11 @@ public:
 
     void reset(void);
 
-    QList<TriggerProtocol::TriggerSlot*> triggerSlots();
-    QList<TriggerProtocol::TriggerSignal*> triggerSignls();
+    QList<TriggerSystemProtocol::TriggerSlot*> triggerSlots();
+    QList<TriggerSystemProtocol::TriggerSignal*> triggerSignls();
 
-    QMap<uint16_t, TriggerProtocol::TriggerSlot> triggerSlotMap() const;
-    QMap<uint16_t, TriggerProtocol::TriggerSignal> triggerSignalMap() const;
+    QMap<uint16_t, TriggerSystemProtocol::TriggerSlot> triggerSlotMap() const;
+    QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> triggerSignalMap() const;
 
 signals:
     void triggerSignalReceived(QList<uint8_t>triggerSignal);
@@ -62,12 +49,12 @@ signals:
     void triggerSlotListChange(void);
 
 private:
-    QMap<uint16_t, TriggerProtocol::TriggerSlot> _triggerSlot;
-    QMap<uint16_t, TriggerProtocol::TriggerSignal> _triggerSignal;
+    QMap<uint16_t, TriggerSystemProtocol::TriggerSlot> _triggerSlot;
+    QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> _triggerSignal;
 
-    void _parseTrigger(BusMessage msg);
-    void _parseSignalInformationReport(BusMessage msg);
-    void _parseSlotInformationReport(BusMessage msg);
+    void _parseTrigger(RoomBus::Message msg);
+    void _parseSignalInformationReport(RoomBus::Message msg);
+    void _parseSlotInformationReport(RoomBus::Message msg);
 };
 
 #endif // TRIGGER_PROTOCOL_H

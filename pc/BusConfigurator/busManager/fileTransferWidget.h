@@ -21,9 +21,9 @@ public:
 
 private slots:
 
-    void on_transfereStatus_change(fileTransferProtocol::transfereStatus_t status, uint8_t progress);
+    void on_transfereStatus_change(FileTransferProtocol::transfereStatus_t status, uint8_t progress);
 
-    void on_fileList_change(QMap<QString, fileTransferProtocol::file_t> files);
+    void on_fileList_change(QMap<QString, FileTransferProtocol::file_t> files);
 
     void on_makeFileButton_clicked();
 
@@ -41,7 +41,7 @@ private slots:
 
 private:
     Ui::fileTransferWidget *ui;
-    fileTransferProtocol _fileTransferProtocol;
+    FileTransferProtocol _fileTransferProtocol;
 
     QStandardItemModel fileTree;
     QList<QList<QStandardItem *>> fileItems;

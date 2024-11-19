@@ -17,7 +17,7 @@ public:
     explicit busMonitor(QWidget *parent = nullptr);
     ~busMonitor();
 
-    void on_newMessage(BusMessage msg);
+    void on_newMessage(RoomBus::Message msg);
 
 private slots:
     void on_clearButton_clicked();

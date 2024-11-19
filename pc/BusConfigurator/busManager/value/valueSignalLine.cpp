@@ -2,7 +2,7 @@
 #include "ui_valueSignalLine.h"
 #include "protocol/valueProtocol.h"
 
-ValueSignalLineWidget::ValueSignalLineWidget(ValueProtocol* protocol, ValueProtocol::ValueSignal* valueSignal, QWidget *parent) :
+ValueSignalLineWidget::ValueSignalLineWidget(ValueSystemProtocol* protocol, ValueSystemProtocol::ValueSignal* valueSignal, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ValueSignalLineWidget)
 {
@@ -10,18 +10,18 @@ ValueSignalLineWidget::ValueSignalLineWidget(ValueProtocol* protocol, ValueProto
 
     _valueSignal = valueSignal;
     _protocol = protocol;
-    connect(protocol,&ValueProtocol::signalValueChnage, this, &ValueSignalLineWidget::on_signalValueChnage);
+    connect(protocol,&ValueSystemProtocol::signalValueChnage, this, &ValueSignalLineWidget::on_signalValueChnage);
 
 
     ui->label_name->setText(_valueSignal->description);
     ui->label_channel->setText("Ch: 0x"+ QString::number(_valueSignal->channel, 16).rightJustified(4,'0'));
-    ValueProtocol::UnitType type = ValueProtocol::uomToType(_valueSignal->uom);
-    ui->label_minimum->setText(ValueProtocol::valueToString(type, _valueSignal->minimum));
-    ui->label_maximum->setText(ValueProtocol::valueToString(type ,_valueSignal->maximum));
+    ValueSystemProtocol::UnitType type = ValueSystemProtocol::uomToType(_valueSignal->uom);
+    ui->label_minimum->setText(ValueSystemProtocol::valueToString(type, _valueSignal->minimum));
+    ui->label_maximum->setText(ValueSystemProtocol::valueToString(type ,_valueSignal->maximum));
 
     ui->label_readOnly->setEnabled(_valueSignal->readOnly);
 
-    ui->label_uom->setText(ValueProtocol::uomName(_valueSignal->uom));
+    ui->label_uom->setText(ValueSystemProtocol::uomName(_valueSignal->uom));
 
     if(_valueSignal->readOnly){
         ui->pushButton_write->setEnabled(false);
@@ -46,7 +46,7 @@ void ValueSignalLineWidget::on_signalValueChnage(uint16_t channel)
 
 void ValueSignalLineWidget::on_pushButton_write_clicked()
 {
-    ValueProtocol::ValueData value = ValueProtocol::stringToValue(ValueProtocol::uomToType(_valueSignal->uom), ui->lineEdit_value->text());
+    ValueSystemProtocol::ValueData value = ValueSystemProtocol::stringToValue(ValueSystemProtocol::uomToType(_valueSignal->uom), ui->lineEdit_value->text());
    _protocol->sendValueCommand(_valueSignal->channel, value);
 }
 

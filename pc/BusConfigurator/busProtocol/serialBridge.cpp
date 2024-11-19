@@ -2,10 +2,10 @@
 
 SerialBridge::SerialBridge(busDevice *busDevice): _serialBridgeProtocol(busDevice)
 {
-    connect(&_serialBridgeProtocol,  &serialBridgeProtocol::receiveData, this, &SerialBridge::on_receiveData);
+    connect(&_serialBridgeProtocol,  &SerialBridgeProtocol::receiveData, this, &SerialBridge::on_receiveData);
     connect(&_tcpBridgeServer, &QTcpServer::newConnection, this, &SerialBridge::on_tcpBridgeNewConnection);
 
-    _tcpBridgeCobsDecoder.clear();
+    _tcpBridgeCobs.clear();
 }
 
 void SerialBridge::tcpBridgeOpen(uint16_t port)
@@ -45,7 +45,7 @@ void SerialBridge::on_tcpBridgeNewConnection(void)
 
 void SerialBridge::on_tcpBridgeDataReceived()
 {
-    QByteArrayList frames = _tcpBridgeCobsDecoder.streamDecode(_tcpBridgeSocket.at(0)->readAll());// Todo: Fix this
+    QByteArrayList frames = _tcpBridgeCobs.streamDecode(_tcpBridgeSocket.at(0)->readAll());// Todo: Fix this
 
     for(int i= 0; i< frames.length(); i++)
     {
@@ -54,16 +54,16 @@ void SerialBridge::on_tcpBridgeDataReceived()
     }
 }
 
-void SerialBridge::on_receiveData(uint8_t port, serialBridgeProtocol::sbp_status_t status, QByteArray data)
+void SerialBridge::on_receiveData(uint8_t port, SerialBridgeProtocol::sbp_status_t status, QByteArray data)
 {
     bool error = false;
-    if(status != serialBridgeProtocol::sbp_status_t::ok) error = true;
+    if(status != SerialBridgeProtocol::sbp_status_t::ok) error = true;
 
     emit busMessage(data.toHex().prepend("0x"),error);
 
     for(auto socket: _tcpBridgeSocket)
     {
-        socket->write(QuCLib::Cobs::encode(data));
+        socket->write(_tcpBridgeCobs.encode(data));
     }
 }
 

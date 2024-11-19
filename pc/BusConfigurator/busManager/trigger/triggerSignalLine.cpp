@@ -1,7 +1,7 @@
 #include "triggerSignalLine.h"
 #include "ui_triggerSignalLine.h"
 
-TriggerSignalLineWidget::TriggerSignalLineWidget(TriggerProtocol::TriggerSignal* triggerSignal, QWidget *parent) :
+TriggerSignalLineWidget::TriggerSignalLineWidget(TriggerSystemProtocol::TriggerSignal* triggerSignal, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TriggerSignalLineWidget)
 {

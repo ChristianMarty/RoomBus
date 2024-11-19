@@ -13,7 +13,7 @@ class StateReportSlotLineWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit StateReportSlotLineWidget(StateReportProtocol::StateReportSlot* stateReportSlot, QWidget *parent = nullptr);
+    explicit StateReportSlotLineWidget(StateSystemProtocol::StateReportSlot* stateReportSlot, QWidget *parent = nullptr);
     ~StateReportSlotLineWidget();
 
 signals:
@@ -25,7 +25,7 @@ private slots:
 private:
     Ui::StateReportSlotLineWidget *ui;
 
-    StateReportProtocol::StateReportSlot* _stateReportSlot;
+    StateSystemProtocol::StateReportSlot* _stateReportSlot;
 };
 
 #endif // STATE_REPORT_SLOT_LINE_WIDGET_H

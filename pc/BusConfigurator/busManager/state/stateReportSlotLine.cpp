@@ -1,7 +1,7 @@
 #include "stateReportSlotLine.h"
 #include "ui_stateReportSlotLine.h"
 
-StateReportSlotLineWidget::StateReportSlotLineWidget(StateReportProtocol::StateReportSlot* stateReportSlot, QWidget *parent) :
+StateReportSlotLineWidget::StateReportSlotLineWidget(StateSystemProtocol::StateReportSlot* stateReportSlot, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::StateReportSlotLineWidget)
 {

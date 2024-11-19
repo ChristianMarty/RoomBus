@@ -1,7 +1,7 @@
 #include "eventSignalLine.h"
 #include "ui_eventSignalLine.h"
 
-EventSignalLineWidget::EventSignalLineWidget(EventProtocol::EventSignal *eventSignal, QWidget *parent):
+EventSignalLineWidget::EventSignalLineWidget(EventSystemProtocol::EventSignal *eventSignal, QWidget *parent):
     QWidget(parent),
     ui(new Ui::EventSignalLineWidget)
 {

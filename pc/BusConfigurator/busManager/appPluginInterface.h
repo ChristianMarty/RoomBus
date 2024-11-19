@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QString>
 
-#include "busMessage.h"
 #include "busDevice.h"
 
 class appPluginInterface
@@ -14,7 +13,7 @@ public:
 
     virtual QWidget *init(busDevice *device, QWidget *parent) = 0;
     virtual QString getName(void) = 0;
-    virtual void receiveData(BusMessage msg) = 0;
+    virtual void receiveData(RoomBus::Message msg) = 0;
 
 };
 

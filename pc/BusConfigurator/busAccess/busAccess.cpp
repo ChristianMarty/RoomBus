@@ -1,5 +1,9 @@
 #include "busAccess.h"
 
+#include "connection/serialConnection.h"
+#include "connection/tcpConnection.h"
+#include "connection/udpConnection.h"
+
 RoomBusAccess::RoomBusAccess(void)
 {
     _canSerial.setBaudrate(CANbeSerial::Baud500k);
@@ -38,12 +42,12 @@ void RoomBusAccess::on_writeReady(QByteArray data)
 
 void RoomBusAccess::on_readReady(CanBusFrame frame)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     uint32_t canId = frame.identifier;
 
     msg.sourceAddress = static_cast<uint8_t>(canId >>20)&0x7F;
     msg.destinationAddress = static_cast<uint8_t>(canId >>13)&0x7F;
-    msg.protocol = static_cast<Protocol>(static_cast<uint8_t>(canId >>7)&0x3F);
+    msg.protocol = static_cast<RoomBus::Protocol>(static_cast<uint8_t>(canId >>7)&0x3F);
     msg.command = static_cast<uint8_t>(canId>>4)&0x07;
 
     uint8_t paddingLength = canId &0x0F;
@@ -72,24 +76,24 @@ void RoomBusAccess::openTcpConnection(QString ip, uint16_t port)
 {
     closeConnection();
     _connection = new TcpConnection(ip,port);
-    openConnection();
+    _openConnection();
 }
 
 void RoomBusAccess::openUdpConnection(QString ip, uint16_t port)
 {
     closeConnection();
     _connection = new UdpConnection(ip,port);
-    openConnection();
+    _openConnection();
 }
 
 void RoomBusAccess::openSerialConnection(QString port)
 {
     closeConnection();
     _connection = new SerialConnection(port, 614400);
-    openConnection();
+    _openConnection();
 }
 
-void RoomBusAccess::openConnection(void)
+void RoomBusAccess::_openConnection(void)
 {
     if(_connection == nullptr) return;
 
@@ -116,64 +120,44 @@ void RoomBusAccess::closeConnection(void)
     emit connectionChanged();
 }
 
-void RoomBusAccess::setPriority(Priority priority)
+void RoomBusAccess::setDefaultPriority(Priority priority)
 {
     _priority = priority;
 }
 
-void RoomBusAccess::setPriority(uint8_t priority)
+bool RoomBusAccess::write(RoomBus::Message message)
 {
-    if(priority>= 8) priority = 7;
-    setPriority((Priority)priority);
+    return write(message, _priority);
 }
 
-bool RoomBusAccess::write(BusMessage msg)
-{
-    return write(msg, _priority);
-}
-
-bool RoomBusAccess::write(BusMessage msg, Priority priority)
-{
-    return write(msg.destinationAddress, msg.protocol, msg.command, msg.data, priority);
-}
-
-bool RoomBusAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, QByteArray data)
-{
-    return write(destAddress, protocol, command, data, _priority);
-}
-
-bool RoomBusAccess::write(uint8_t destAddress, Protocol protocol, uint8_t command, QByteArray data, Priority priority)
+bool RoomBusAccess::write(RoomBus::Message message, Priority priority)
 {
     if(_connection == nullptr) return false;
 
     uint8_t paddingLength = 0;
 
-    if(data.size() > 8)
-    {
-        for(auto i = 7; i< sizeof(_dlsCode); i++)
-        {
-            if(_dlsCode[i] >= data.size())
-            {
-                paddingLength = _dlsCode[i] - data.size();
+    if(message.data.size() > 8){
+        for(auto i = 7; i < sizeof(_dlsCode); i++){
+            if(_dlsCode[i] >= message.data.size()){
+                paddingLength = _dlsCode[i] - message.data.size();
                 break;
             }
         }
     }
 
-    CanBusFrame frame;
-
     uint32_t canId = 0;
     canId |= (static_cast<uint32_t>(priority)<<27) & 0x18000000;
     canId |= (static_cast<uint32_t>(_sourceAddress)<<20) & 0x07F00000;
-    canId |= (static_cast<uint32_t>(destAddress)<<13) & 0x000FE000;
-    canId |= (static_cast<uint32_t>(protocol)<<7) & 0x00001F80;
-    canId |= (static_cast<uint32_t>(command)<<4) & 0x00000070;
+    canId |= (static_cast<uint32_t>(message.destinationAddress)<<13) & 0x000FE000;
+    canId |= (static_cast<uint32_t>(message.protocol)<<7) & 0x00001F80;
+    canId |= (static_cast<uint32_t>(message.command)<<4) & 0x00000070;
     canId |= (static_cast<uint32_t>(paddingLength)) & 0x0000000F;
 
+    CanBusFrame frame;
     frame.identifier = canId;
     frame.extended = true;
     frame.fd = true;
-    frame.data = data;
+    frame.data = message.data;
     frame.rtr = false;
 
     _canSerial.write(frame);

@@ -35,7 +35,7 @@ private:
 
     busDevice *_busDevice;
 
-    class::EventProtocol _eventProtocol;
+    class::EventSystemProtocol _eventProtocol;
 };
 
 #endif // EVENT_WIDGET_H

@@ -9,6 +9,7 @@ QT       += network
 TARGET = busProtocol
 TEMPLATE = lib
 CONFIG += staticlib
+CONFIG += c++20
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -26,7 +27,6 @@ SOURCES += \
         ../../QuCLib/source/crc.cpp \
         ../../QuCLib/source/hexFileParser.cpp \
         busDevice.cpp \
-        busMessage.cpp \
         busProtocol.cpp \
         hexFileParser_old.cpp \
         protocol/messageLogProtocol.cpp \
@@ -44,10 +44,8 @@ HEADERS += \
         ../../QuCLib/source/crc.h \
         ../../QuCLib/source/hexFileParser.h \
         busDevice.h \
-        busMessage.h \
         busProtocol.h \
         protocol/messageLogProtocol.h \
-        protocol/protocol.h \
         protocol/protocolDecoder.h \
         hexFileParser_old.h \
         protocol/eventProtocol.h \
@@ -61,3 +59,5 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+INCLUDEPATH += $$PWD/../busAccess

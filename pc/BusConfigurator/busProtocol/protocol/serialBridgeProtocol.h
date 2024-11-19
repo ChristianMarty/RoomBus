@@ -6,27 +6,27 @@
 #include <QMap>
 #include "busProtocol.h"
 
-class serialBridgeProtocol: public BusProtocol
+class SerialBridgeProtocol: public BusProtocol
 {
     Q_OBJECT
 public:
-    enum commands_t{
-        data  = 0,
-        portInfoReport = 4,
-        portInfoRequest = 5
-    };
-
     enum sbp_status_t{
         ok,
         crcError
     };
 
-    serialBridgeProtocol(busDevice *device);
+    enum SerialBridgeType {
+        SBC_Type_UART = 0x00,
+        SBC_Type_I2C = 0x01
+    };
+
+
+    SerialBridgeProtocol(busDevice *device);
 
     void sendData(uint8_t port, QByteArray data);
 
-    void pushData(BusMessage msg);
-    QList<Protocol> protocol(void);
+    void pushData(RoomBus::Message msg);
+    QList<RoomBus::Protocol> protocol(void);
 
 signals:
     void receiveData(uint8_t port, sbp_status_t status, QByteArray data);

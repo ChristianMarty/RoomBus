@@ -13,19 +13,19 @@ class StateReportSignalLineWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit StateReportSignalLineWidget(class::StateReportProtocol* protocol, StateReportProtocol::StateReportSignal* stateReportSignal, QWidget *parent = nullptr);
+    explicit StateReportSignalLineWidget(class::StateSystemProtocol* protocol, StateSystemProtocol::StateReportSignal* stateReportSignal, QWidget *parent = nullptr);
     ~StateReportSignalLineWidget();
 
 signals:
 
 private slots:
-    void on_signalStateChnage(uint16_t channel, StateReportProtocol::SignalState newState);
+    void on_signalStateChnage(uint16_t channel, StateSystemProtocol::SignalState newState);
 
 private:
     Ui::StateReportSignalLineWidget *ui;
 
-    StateReportProtocol::StateReportSignal* _stateReportSignal;
-    class::StateReportProtocol* _protocol;
+    StateSystemProtocol::StateReportSignal* _stateReportSignal;
+    class::StateSystemProtocol* _protocol;
 };
 
 #endif // STATE_REPORT_SIGNAL_LINE_WIDGET_H

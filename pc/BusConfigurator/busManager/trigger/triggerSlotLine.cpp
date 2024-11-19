@@ -1,7 +1,7 @@
 #include "triggerSlotLine.h"
 #include "ui_triggerSlotLine.h"
 
-TriggerSlotLineWidget::TriggerSlotLineWidget(TriggerProtocol::TriggerSlot* triggerSlot, QWidget *parent) :
+TriggerSlotLineWidget::TriggerSlotLineWidget(TriggerSystemProtocol::TriggerSlot* triggerSlot, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TriggerSlotLineWidget)
 {

@@ -1,29 +1,18 @@
 #ifndef BUSACCESS_H
 #define BUSACCESS_H
 
-#include "busaccess_global.h"
 #include <QObject>
 
-#include "connection/connection.h"
-#include "connection/serialConnection.h"
-#include "connection/tcpConnection.h"
-#include "connection/udpConnection.h"
-
-#include "busMessage.h"
+#include "busaccess_global.h"
 
 #include "../../QuCLib/source/CANbeSerial.h"
+#include "connection/connection.h"
+#include "roomBusMessage.h"
 
 class BUSACCESSSHARED_EXPORT RoomBusAccess : public QObject
 {
     Q_OBJECT
-
 public:
-    typedef enum {
-        serial,
-        tcp,
-        udp
-    }comType_t;
-
     RoomBusAccess(void);
     ~RoomBusAccess(void);
 
@@ -34,19 +23,13 @@ public:
         Low = 3
     };
 
-    bool write(uint8_t destinationAddress, Protocol protocol, uint8_t command, QByteArray data);
-    bool write(uint8_t destinationAddress, Protocol protocol, uint8_t command, QByteArray data, Priority priority);
+    bool write(RoomBus::Message message);
+    bool write(RoomBus::Message message, Priority priority);
 
-    bool write(BusMessage message);
-    bool write(BusMessage message, Priority priority);
+    void setDefaultPriority(Priority priority);
 
-    QList<BusMessage> rxMsgBuffer;
-
-    void setPriority(uint8_t priority);
-    void setPriority(Priority priority);
-
-    void openTcpConnection(QString ip, uint16_t port);
     void openSerialConnection(QString port);
+    void openTcpConnection(QString ip, uint16_t port);
     void openUdpConnection(QString ip, uint16_t port);
 
     void closeConnection(void);
@@ -56,6 +39,8 @@ public:
 
     QString getConnectionName(void);
     QString getConnectionPath(void);
+
+    QList<RoomBus::Message> rxMsgBuffer;
 
 signals:
     void newData(void);
@@ -69,16 +54,15 @@ private slots:
     void on_connectionChanged(void);
 
 private:
-    void openConnection(void);
+    void _openConnection(void);
 
-    RoomBusConnection *_connection = nullptr;
-
-    Priority _priority;
+    Priority _priority = Priority::Normal;
     uint8_t _sourceAddress;
 
-    uint8_t _dlsCode[16] = {0,1,2,3,4,5,6,7,8,12,16,20,24,32,48,64};
-
+    RoomBusConnection *_connection = nullptr;
     CANbeSerial _canSerial;
+
+    uint8_t _dlsCode[16] = {0,1,2,3,4,5,6,7,8,12,16,20,24,32,48,64};
 };
 
 #endif // BUSACCESS_H

@@ -13,7 +13,7 @@ class ValueSlotLineWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ValueSlotLineWidget(ValueProtocol::ValueSlot* valueSlot, QWidget *parent = nullptr);
+    explicit ValueSlotLineWidget(ValueSystemProtocol::ValueSlot* valueSlot, QWidget *parent = nullptr);
     ~ValueSlotLineWidget();
 
 signals:
@@ -21,7 +21,7 @@ signals:
 private:
     Ui::ValueSlotLineWidget *ui;
 
-    ValueProtocol::ValueSlot* _valueSlot;
+    ValueSystemProtocol::ValueSlot* _valueSlot;
 };
 
 #endif // VALUE_SLOT_LINE_WIDGET_H

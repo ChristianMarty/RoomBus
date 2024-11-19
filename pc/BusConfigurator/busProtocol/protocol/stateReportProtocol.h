@@ -5,23 +5,10 @@
 #include <QMap>
 #include "busProtocol.h"
 
-class StateReportProtocol : public BusProtocol
+class StateSystemProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
-    enum Command{
-        State,
-        StateRequest,
-        Reserved0,
-        Reserved1,
-
-        SignalInformationReport,
-        SlotInformationReport,
-
-        SignalInformationRequest,
-        SlotInformationRequest
-    };
-
     typedef enum {
         off = 0,
         on = 1,
@@ -29,6 +16,11 @@ public:
         undefined = 3,
         unknown = 4
     } SignalState;
+
+    enum SerialBridgeType {
+        SBC_Type_UART = 0x00,
+        SBC_Type_I2C = 0x01
+    };
 
     struct StateReportSignal {
         uint16_t channel;
@@ -42,10 +34,10 @@ public:
         uint16_t timeout;
     };
 
-    StateReportProtocol(busDevice *device);
+    StateSystemProtocol(busDevice *device);
 
-    void pushData(BusMessage msg);
-    QList<Protocol> protocol(void);
+    void pushData(RoomBus::Message msg);
+    QList<RoomBus::Protocol> protocol(void);
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
@@ -54,11 +46,11 @@ public:
 
     void reset(void);
 
-    QList<StateReportProtocol::StateReportSignal*> stateReportSignls();
-    QList<StateReportProtocol::StateReportSlot*> stateReportSlots();
+    QList<StateSystemProtocol::StateReportSignal*> stateReportSignls();
+    QList<StateSystemProtocol::StateReportSlot*> stateReportSlots();
 
-    QMap<uint16_t, StateReportProtocol::StateReportSignal> stateReportSignalMap() const;
-    QMap<uint16_t, StateReportProtocol::StateReportSlot> stateReportSlotMap() const;
+    QMap<uint16_t, StateSystemProtocol::StateReportSignal> stateReportSignalMap() const;
+    QMap<uint16_t, StateSystemProtocol::StateReportSlot> stateReportSlotMap() const;
 
 signals:
     void signalStateChnage(uint16_t channel, SignalState newState);
@@ -67,15 +59,14 @@ signals:
     void slotListChange(void);
 
 private:
-    QMap<uint16_t, StateReportProtocol::StateReportSignal> _stateReportSignal;
-    QMap<uint16_t, StateReportProtocol::StateReportSlot> _stateReportSlot;
+    QMap<uint16_t, StateSystemProtocol::StateReportSignal> _stateReportSignal;
+    QMap<uint16_t, StateSystemProtocol::StateReportSlot> _stateReportSlot;
 
-    QMap<uint16_t, StateReportProtocol::SignalState> _signalState;
+    QMap<uint16_t, StateSystemProtocol::SignalState> _signalState;
 
-
-    void _parseStateReport(BusMessage msg);
-    void _parseSignalInformationReport(BusMessage msg);
-    void _parseSlotInformationReport(BusMessage msg);
+    void _parseStateReport(RoomBus::Message msg);
+    void _parseSignalInformationReport(RoomBus::Message msg);
+    void _parseSlotInformationReport(RoomBus::Message msg);
 };
 
 #endif // STATEREPORTPROTOCOL_H

@@ -1,7 +1,7 @@
 #include "valueSlotLine.h"
 #include "ui_valueSlotLine.h"
 
-ValueSlotLineWidget::ValueSlotLineWidget(ValueProtocol::ValueSlot* valueSlot, QWidget *parent) :
+ValueSlotLineWidget::ValueSlotLineWidget(ValueSystemProtocol::ValueSlot* valueSlot, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ValueSlotLineWidget)
 {

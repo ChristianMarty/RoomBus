@@ -247,7 +247,7 @@ void busDeviceWindow::_unloadPlugin()
 
 }
 
-void busDeviceWindow::on_busTransmitMessage(BusMessage msg)
+void busDeviceWindow::on_busTransmitMessage(RoomBus::Message msg)
 {
 
 }
@@ -267,4 +267,3 @@ void busDeviceWindow::on_pushButton_serialBridge_clicked()
 
     _serialBridgeWindow->setFocus();
 }
-

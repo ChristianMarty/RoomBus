@@ -1,8 +1,7 @@
 #ifndef BUSPROTOCOL_H
 #define BUSPROTOCOL_H
 
-#include "busMessage.h"
-#include "protocol/protocol.h"
+#include "roomBusMessage.h"
 
 class busDevice;
 
@@ -13,9 +12,9 @@ public:
     BusProtocol(busDevice *device);
     ~BusProtocol(void);
 
-    virtual void pushData(BusMessage msg)=0;
+    virtual void pushData(RoomBus::Message msg)=0;
 
-    virtual QList<Protocol> protocol(void)=0;
+    virtual QList<RoomBus::Protocol> protocol(void)=0;
 
     static uint8_t getUint8(QByteArray data, uint32_t index);
     static uint16_t getUint16(QByteArray data, uint32_t index);
@@ -23,12 +22,12 @@ public:
     static float getFloat32(QByteArray data, uint32_t index);
 
 signals:
-    void dataReady(BusMessage msg);
+    void dataReady(RoomBus::Message msg);
 
 protected:
     busDevice *_device;
 
-    void sendMessage(BusMessage msg);
+    void sendMessage(RoomBus::Message msg);
 
     QByteArray packUint16(uint16_t value);
     QByteArray packUint32(uint32_t value);

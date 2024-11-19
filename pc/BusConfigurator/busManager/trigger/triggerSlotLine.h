@@ -13,7 +13,7 @@ class TriggerSlotLineWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit TriggerSlotLineWidget(TriggerProtocol::TriggerSlot* triggerSlot, QWidget *parent = nullptr);
+    explicit TriggerSlotLineWidget(TriggerSystemProtocol::TriggerSlot* triggerSlot, QWidget *parent = nullptr);
     ~TriggerSlotLineWidget();
 
 signals:
@@ -25,7 +25,7 @@ private slots:
 private:
     Ui::TriggerSlotLineWidget *ui;
 
-    TriggerProtocol::TriggerSlot* _triggerSlot;
+    TriggerSystemProtocol::TriggerSlot* _triggerSlot;
 };
 
 #endif // TRIGGER_SLOT_LINE_WIDGET_H

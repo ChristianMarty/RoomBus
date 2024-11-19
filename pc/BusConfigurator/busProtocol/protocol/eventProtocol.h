@@ -4,25 +4,14 @@
 #include <QObject>
 #include <QMap>
 #include "busProtocol.h"
-#include "protocol/protocol.h"
+
+#include "roomBusMessage.h"
 
 
-class EventProtocol : public BusProtocol
+class EventSystemProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
-
-    enum Command {
-        Event,
-        Reserved0,
-        Reserved1,
-        Reserved2,
-
-        SignalInformationReport,
-        SlotInformationReport,
-        SignalInformationRequest,
-        SlotInformationRequest
-    };
 
     struct EventSignal {
         uint16_t channel;
@@ -36,10 +25,10 @@ public:
         uint16_t timeout;
     };
 
-    EventProtocol(busDevice *device);
+    EventSystemProtocol(busDevice *device);
 
-    void pushData(BusMessage msg);
-    QList<Protocol> protocol(void);
+    void pushData(RoomBus::Message msg);
+    QList<RoomBus::Protocol> protocol(void);
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
@@ -54,8 +43,8 @@ public:
 
     void reset(void);
 
-    QList<EventProtocol::EventSlot*> eventSlots();
-    QList<EventProtocol::EventSignal*> eventSignls();
+    QList<EventSystemProtocol::EventSlot*> eventSlots();
+    QList<EventSystemProtocol::EventSignal*> eventSignls();
 
 signals:
     void eventSignalReceived(QList<uint8_t>triggerSignal);
@@ -64,12 +53,12 @@ signals:
     void eventSlotListChange(void);
 
 private:
-    QMap<uint16_t, EventProtocol::EventSlot> _eventSlot;
-    QMap<uint16_t, EventProtocol::EventSignal> _eventSignal;
+    QMap<uint16_t, EventSystemProtocol::EventSlot> _eventSlot;
+    QMap<uint16_t, EventSystemProtocol::EventSignal> _eventSignal;
 
-    void _parseEvent(BusMessage msg);
-    void _parseSignalInformationReport(BusMessage msg);
-    void _parseSlotInformationReport(BusMessage msg);
+    void _parseEvent(RoomBus::Message msg);
+    void _parseSignalInformationReport(RoomBus::Message msg);
+    void _parseSlotInformationReport(RoomBus::Message msg);
 };
 
 #endif // EVENT_PROTOCOL_H

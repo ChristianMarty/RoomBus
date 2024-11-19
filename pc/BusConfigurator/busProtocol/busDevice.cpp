@@ -105,11 +105,11 @@ void busDevice::setDeviceAddress(const uint8_t &deviceAddress)
 void busDevice::sendEcho(QByteArray txData)
 {
     if(txData.size() >63) txData.truncate(63);
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(static_cast<char>(cmd_echo));
+    msg.data.append(static_cast<char>(DMP_SC_Echo));
 
     msg.data.append(txData);
 
@@ -214,11 +214,11 @@ void busDevice::writeBinaryChunk(void)
 
     if(_bootloadDataIndex < data.count())
     {
-        BusMessage msg;
+        RoomBus::Message msg;
         msg.destinationAddress = _deviceAddress;
-        msg.protocol = Protocol::DeviceManagementProtocol;
+        msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
         msg.command = 0;
-        msg.data.append(static_cast<char>(cmd_btl));
+        msg.data.append(static_cast<char>(DMP_SC_Bootload));
 
         msg.data.append(static_cast<char>((_bootloadDataIndex>>24) & 0xFF));
         msg.data.append(static_cast<char>((_bootloadDataIndex>>16) & 0xFF));
@@ -248,22 +248,22 @@ void busDevice::writeBinaryChunk(void)
 
 void busDevice::eraseApp(void)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(static_cast<char>(cmd_eraseApp));
+    msg.data.append(static_cast<char>(DMP_SC_EraseApplication));
 
     emit dataReady(msg);
 }
 
 void busDevice::enterRootMode(void)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_enterRootMode);
+    msg.data.append(DMP_SC_EnterRootMode);
     msg.data.append(static_cast<char>(0x12));
     msg.data.append(static_cast<char>(0x34));
 
@@ -272,11 +272,11 @@ void busDevice::enterRootMode(void)
 
 void busDevice::exitRootMode(void)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_enterRootMode);
+    msg.data.append(DMP_SC_EnterRootMode);
     msg.data.append(static_cast<char>(0x00));
 
     emit dataReady(msg);
@@ -284,11 +284,11 @@ void busDevice::exitRootMode(void)
 
 void busDevice::writeAddress(uint8_t address)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_setAddress);
+    msg.data.append(DMP_SC_SetAddress);
     msg.data.append(static_cast<char>(address));
 
     emit dataReady(msg);
@@ -296,11 +296,11 @@ void busDevice::writeAddress(uint8_t address)
 
 void busDevice::writeDeviceName(QString name)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_setDeviceName);
+    msg.data.append(DMP_SC_SetDeviceName);
     msg.data.append(name.toLocal8Bit());
 
     emit dataReady(msg);
@@ -308,33 +308,33 @@ void busDevice::writeDeviceName(QString name)
 
 void busDevice::requestHeartbeat(void)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_heartbeatRequest);
+    msg.data.append(DMP_SC_HeartbeatRequest);
 
     emit dataReady(msg);
 }
 
 void busDevice::requestSystemInfo(void)
 {    
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_systemInformationRequest);
+    msg.data.append(DMP_SC_SystemInformationRequest);
 
     emit dataReady(msg);
 }
 
 void busDevice::requestCanDiagnostics(void)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_canDiagnosticsRequest);
+    msg.data.append(DMP_SC_CanDiagnosticsRequest);
 
     emit dataReady(msg);
 }
@@ -343,23 +343,23 @@ void busDevice::requestSystemRestart()
 {
     enterRootMode();
 
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(cmd_reboot);
+    msg.data.append(DMP_SC_Reboot);
 
     emit dataReady(msg);
 }
 
 void busDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t systemInfoInterval)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
-    msg.data.append(cmd_heartbeatSettings);
+    msg.data.append(DMP_SC_HeartbeatSettings);
     msg.data.append(static_cast<char>(static_cast<uint8_t>(heartbeatInterval>>8)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(heartbeatInterval&0xFF)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(systemInfoInterval>>8)));
@@ -370,13 +370,13 @@ void busDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t syst
 
 void busDevice::writeControl(sysControl_t sysControl)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
     uint32_t temp = sysControl.reg;
-    msg.data.append(cmd_writeControl);
+    msg.data.append(DMP_SC_WriteControl);
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>24)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>16)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>8)));
@@ -387,13 +387,13 @@ void busDevice::writeControl(sysControl_t sysControl)
 
 void busDevice::writeSetControl(sysControl_t sysControl)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
     uint32_t temp = sysControl.reg;
-    msg.data.append(cmd_setControl);
+    msg.data.append(DMP_SC_SetControl);
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>24)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>16)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>8)));
@@ -404,13 +404,13 @@ void busDevice::writeSetControl(sysControl_t sysControl)
 
 void busDevice::writeClearControl(sysControl_t sysControl)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
-    msg.protocol = Protocol::DeviceManagementProtocol;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
 
     uint32_t temp = sysControl.reg;
-    msg.data.append(cmd_clrControl);
+    msg.data.append(DMP_SC_ClearControl);
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>24)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>16)));
     msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>8)));
@@ -449,7 +449,7 @@ void busDevice::removeProtocol(BusProtocol* protocol)
     _protocols.removeOne(protocol);
 }
 
-void busDevice::pushData(BusMessage msg)
+void busDevice::pushData(RoomBus::Message msg)
 {
     if(msg.sourceAddress != _deviceAddress) return;
 
@@ -457,7 +457,7 @@ void busDevice::pushData(BusMessage msg)
     {
         if(_protocols.at(i) != nullptr)
         {
-            QList<Protocol> temp = _protocols.at(i)->protocol();
+            QList<RoomBus::Protocol> temp = _protocols.at(i)->protocol();
             for (uint8_t j = 0; j<temp.size();j++)
             {
                 if(msg.protocol == temp.at(j))
@@ -468,13 +468,13 @@ void busDevice::pushData(BusMessage msg)
         }
     }
 
-    if(msg.protocol == Protocol::DeviceManagementProtocol)
+    if(msg.protocol == RoomBus::Protocol::DeviceManagementProtocol)
     {
         handleDeviceManagementProtocol(msg);
     }
 }
 
-void busDevice::handleDeviceManagementProtocol(BusMessage msg)
+void busDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
 {
     _lastHeartbeat = QDateTime::currentDateTime();
     QByteArray data = msg.data;
@@ -484,7 +484,7 @@ void busDevice::handleDeviceManagementProtocol(BusMessage msg)
     switch(static_cast<uint8_t>(data.at(0)))
     {
 
-    case cmd_systemInfo:
+    case DMP_SC_SystemInformation:
 
         if(data.size() != 41) return;
 
@@ -502,7 +502,7 @@ void busDevice::handleDeviceManagementProtocol(BusMessage msg)
 
         _heartbeatTimer.setInterval(_heartbeatInterval*2500);
 
-    case cmd_heartbeat:
+    case DMP_SC_Heartbeat:
         {
             if(data.size() != 5) break;
             uint32_t status = BusProtocol::getUint32(data,1);
@@ -513,7 +513,7 @@ void busDevice::handleDeviceManagementProtocol(BusMessage msg)
         }
         break;
 
-    case cmd_hardwareName:
+    case DMP_SC_HardwareName:
         _hardwareName = "";
         for(uint8_t i= 1; i<(data.size());i++)
         {
@@ -523,7 +523,7 @@ void busDevice::handleDeviceManagementProtocol(BusMessage msg)
         }
         break;
 
-    case cmd_applicationName:
+    case DMP_SC_ApplicationName:
         _applicationName ="";
         for(uint8_t i= 0; i<(data.size()-1);i++)
         {
@@ -533,7 +533,7 @@ void busDevice::handleDeviceManagementProtocol(BusMessage msg)
         }
         break;
 
-    case cmd_deviceName:
+    case DMP_SC_DeviceName:
         _deviceName = "";
         for(uint8_t i= 0; i<(data.size()-1);i++)
         {
@@ -543,7 +543,7 @@ void busDevice::handleDeviceManagementProtocol(BusMessage msg)
         }
         break;
 
-    case cmd_canDiagnosticsReport:
+    case DMP_SC_CanDiagnosticsReport:
         {
             canDignostics.errorLogCounter = static_cast<uint8_t>(data.at(1));
             uint8_t temp = static_cast<uint8_t>(data.at(2));
@@ -565,15 +565,15 @@ void busDevice::handleDeviceManagementProtocol(BusMessage msg)
         }
         break;
 
-    case cmd_echo:
+    case DMP_SC_Echo:
         emit echoReceive(data.remove(0,1));
         break;
 
-    case cmd_eraseAppRsp:
+    case DMP_SC_EraseApplicationResponse:
         appEraseComplete();
         break;
 
-    case cmd_btlRsp:
+    case DMP_SC_BootloadResponse:
         writeBinaryChunk();
         break;
     }

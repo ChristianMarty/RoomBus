@@ -1,103 +1,105 @@
 #include "stateReportProtocol.h"
 
-StateReportProtocol::StateReportProtocol(busDevice *device):BusProtocol(device)
+StateSystemProtocol::StateSystemProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void StateReportProtocol::pushData(BusMessage msg)
+void StateSystemProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol == Protocol::StateReportProtocol)
+    if(msg.protocol != RoomBus::Protocol::StateSystemProtocol) return;
+
+    switch((RoomBus::StateSystemCommand)msg.command)
     {
-        if(msg.command == State) _parseStateReport(msg);
-        else if(msg.command == SignalInformationReport) _parseSignalInformationReport(msg);
-        else if(msg.command == SlotInformationReport) _parseSlotInformationReport(msg);
+        case RoomBus::StateSystemCommand::State: _parseStateReport(msg); break;
+        case RoomBus::StateSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
+        case RoomBus::StateSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
     }
 }
 
-QList<Protocol> StateReportProtocol::protocol(void)
+QList<RoomBus::Protocol> StateSystemProtocol::protocol(void)
 {
-    QList<Protocol> temp;
-    temp.append(Protocol::StateReportProtocol);
+    QList<RoomBus::Protocol> temp;
+    temp.append(RoomBus::Protocol::StateSystemProtocol);
     return temp;
 }
 
-void StateReportProtocol::requestSignalInformation()
+void StateSystemProtocol::requestSignalInformation()
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::StateReportProtocol;
-    msg.command = Command::SignalInformationRequest;
+    msg.protocol = RoomBus::Protocol::StateSystemProtocol;
+    msg.command = (uint8_t)RoomBus::StateSystemCommand::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
-void StateReportProtocol::requestSlotInformation()
+void StateSystemProtocol::requestSlotInformation()
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::StateReportProtocol;
-    msg.command = Command::SlotInformationRequest;
+    msg.protocol = RoomBus::Protocol::StateSystemProtocol;
+    msg.command = (uint8_t)RoomBus::StateSystemCommand::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
-void StateReportProtocol::requestAllState()
+void StateSystemProtocol::requestAllState()
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::StateReportProtocol;
-    msg.command = Command::StateRequest;
+    msg.protocol = RoomBus::Protocol::StateSystemProtocol;
+    msg.command = (uint8_t)RoomBus::StateSystemCommand::StateRequest;
 
     sendMessage(msg);
 }
 
-void StateReportProtocol::reset(void)
+void StateSystemProtocol::reset(void)
 {
     _stateReportSignal.clear();
     _stateReportSlot.clear();
 }
 
-QList<StateReportProtocol::StateReportSignal *> StateReportProtocol::stateReportSignls()
+QList<StateSystemProtocol::StateReportSignal *> StateSystemProtocol::stateReportSignls()
 {
-    QList<StateReportProtocol::StateReportSignal *> output;
+    QList<StateSystemProtocol::StateReportSignal *> output;
     for(auto &item: _stateReportSignal){
         output.append(&item);
     }
     return output;
 }
 
-QList<StateReportProtocol::StateReportSlot *> StateReportProtocol::stateReportSlots()
+QList<StateSystemProtocol::StateReportSlot *> StateSystemProtocol::stateReportSlots()
 {
-    QList<StateReportProtocol::StateReportSlot *> output;
+    QList<StateSystemProtocol::StateReportSlot *> output;
     for(auto &item: _stateReportSlot){
         output.append(&item);
     }
     return output;
 }
 
-QMap<uint16_t, StateReportProtocol::StateReportSignal> StateReportProtocol::stateReportSignalMap() const
+QMap<uint16_t, StateSystemProtocol::StateReportSignal> StateSystemProtocol::stateReportSignalMap() const
 {
     return _stateReportSignal;
 }
 
-QMap<uint16_t, StateReportProtocol::StateReportSlot> StateReportProtocol::stateReportSlotMap() const
+QMap<uint16_t, StateSystemProtocol::StateReportSlot> StateSystemProtocol::stateReportSlotMap() const
 {
     return _stateReportSlot;
 }
 
-void StateReportProtocol::_parseStateReport(BusMessage msg)
+void StateSystemProtocol::_parseStateReport(RoomBus::Message msg)
 {
     for(uint8_t i = 0; i < msg.data.length(); i+=3)
     {
         uint16_t channel = getUint16(msg.data.mid(i,2), 0);
-        StateReportProtocol::SignalState state = (StateReportProtocol::SignalState) msg.data.at(i+2);
+        StateSystemProtocol::SignalState state = (StateSystemProtocol::SignalState) msg.data.at(i+2);
 
         _signalState[channel] = state;
         emit signalStateChnage(channel, state);
     }
 }
 
-void StateReportProtocol::_parseSignalInformationReport(BusMessage msg)
+void StateSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 {
     StateReportSignal signal;
     signal.channel = getUint16(msg.data,0);
@@ -109,7 +111,7 @@ void StateReportProtocol::_parseSignalInformationReport(BusMessage msg)
     emit signalListChange();
 }
 
-void StateReportProtocol::_parseSlotInformationReport(BusMessage msg)
+void StateSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
 {
     StateReportSlot slot;
     slot.channel = getUint16(msg.data,0);

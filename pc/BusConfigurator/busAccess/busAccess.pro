@@ -4,14 +4,16 @@
 #
 #-------------------------------------------------
 
-QT       += network
-QT       += serialport
-QT       -= gui
+QT += network
+QT += serialport
+QT -= gui
 
 TARGET = busAccess
 TEMPLATE = lib
 
 DEFINES += BUSACCESS_LIBRARY
+
+CONFIG += c++20
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -22,7 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060800    # disables all the APIs deprecated before Qt 6.8.0
 
 SOURCES += \
         ../../QuCLib/source/CANbeSerial.cpp \
@@ -42,16 +44,10 @@ HEADERS += \
         connection/connection.h \
         connection/serialConnection.h \
         connection/tcpConnection.h \
-        connection/udpConnection.h
+        connection/udpConnection.h \
+        roomBusMessage.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../build/busProtocol/release/ -lbusProtocol
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build/busProtocol/debug/ -lbusProtocol
-else:unix: LIBS += -L$$PWD/build/busProtocol/ -lbusProtocol
-
-INCLUDEPATH += $$PWD/../busProtocol
-DEPENDPATH += $$PWD/../busProtocol

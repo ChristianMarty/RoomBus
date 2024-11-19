@@ -1,15 +1,17 @@
 #include "fileTransferProtocol.h"
 #include "../../QuCLib/source/crc.h"
 
-fileTransferProtocol::fileTransferProtocol(busDevice *device):BusProtocol(device)
+FileTransferProtocol::FileTransferProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void fileTransferProtocol::pushData(BusMessage msg)
+void FileTransferProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol != Protocol::FileTransferProtocol) return;
+    if(msg.protocol != RoomBus::Protocol::FileTransferProtocol) return;
 
-    if(msg.command == cmd_response)
+    RoomBus::FileTransferCommand command = (RoomBus::FileTransferCommand)msg.command;
+
+    if(command == RoomBus::FileTransferCommand::Response)
     {
         uint8_t response_id = msg.data.at(0);
         switch(response_id)
@@ -36,7 +38,7 @@ void fileTransferProtocol::pushData(BusMessage msg)
             case rsp_completeWrite:  handle_writeComplete(msg); break;
         }
     }
-    else if(msg.command == cmd_request)
+    else if(command == RoomBus::FileTransferCommand::Request)
     {
         uint8_t response_id = msg.data.at(0);
         switch(response_id)
@@ -44,19 +46,19 @@ void fileTransferProtocol::pushData(BusMessage msg)
             case req_endFileRead:  handle_readEnd(msg); break;
         }
     }
-    else if(msg.command == cmd_read)
+    else if(command == RoomBus::FileTransferCommand::Read)
     {
         handle_read(msg);
     }
-    else if(msg.command == cmd_read_ack)
+    else if(command == RoomBus::FileTransferCommand::ReadAcknowledgment)
     {
 
     }
-    else if(msg.command == cmd_write)
+    else if(command == RoomBus::FileTransferCommand::Write)
     {
         // This should not happen
     }
-    else if(msg.command == cmd_write_ack)
+    else if(command == RoomBus::FileTransferCommand::WriteAcknowledgment)
     {
         handle_writeAck(msg);
 
@@ -65,44 +67,44 @@ void fileTransferProtocol::pushData(BusMessage msg)
 
 
 
-QList<Protocol> fileTransferProtocol::protocol(void)
+QList<RoomBus::Protocol> FileTransferProtocol::protocol(void)
 {
-    QList<Protocol> temp;
-    temp.append(Protocol::FileTransferProtocol);
+    QList<RoomBus::Protocol> temp;
+    temp.append(RoomBus::Protocol::FileTransferProtocol);
     return temp;
 }
 
-void fileTransferProtocol::list(QString path)
+void FileTransferProtocol::list(QString path)
 {
     _files.clear();
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::FileTransferProtocol;
-    msg.command = static_cast<char>(fileTransferProtocol::cmd_request);
-    msg.data.append(static_cast<char>(fileTransferProtocol::req_list));
+    msg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    msg.command = static_cast<char>(RoomBus::FileTransferCommand::Request);
+    msg.data.append(static_cast<char>(FileTransferProtocol::req_list));
 
     sendMessage(msg);
 }
 
-void fileTransferProtocol::makeFile(QString path)
+void FileTransferProtocol::makeFile(QString path)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::FileTransferProtocol;
-    msg.command = static_cast<char>(fileTransferProtocol::cmd_request);
-    msg.data.append(static_cast<char>(fileTransferProtocol::req_makeFile));
+    msg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    msg.command = static_cast<char>(RoomBus::FileTransferCommand::Request);
+    msg.data.append(static_cast<char>(FileTransferProtocol::req_makeFile));
     msg.data.append(path.toUtf8());
 
     sendMessage(msg);
 }
 
-void fileTransferProtocol::deleteFile(QString path)
+void FileTransferProtocol::deleteFile(QString path)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::FileTransferProtocol;
-    msg.command = static_cast<char>(fileTransferProtocol::cmd_request);
-    msg.data.append(static_cast<char>(fileTransferProtocol::req_deleteFile));
+    msg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    msg.command = static_cast<char>(RoomBus::FileTransferCommand::Request);
+    msg.data.append(static_cast<char>(FileTransferProtocol::req_deleteFile));
     msg.data.append(path.toUtf8());
 
     sendMessage(msg);
@@ -112,7 +114,7 @@ void fileTransferProtocol::deleteFile(QString path)
 /*****************************************************************************
  * File Read
  * ***************************************************************************/
-void fileTransferProtocol::readFile(QString path, QString localPath)
+void FileTransferProtocol::readFile(QString path, QString localPath)
 {
 
     _fromDeviceTransfer.progress = 0;
@@ -123,17 +125,17 @@ void fileTransferProtocol::readFile(QString path, QString localPath)
     _fromDeviceTransfer.remotePath = path;
     _fromDeviceTransfer.localPath = localPath;
 
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::FileTransferProtocol;
-    msg.command = static_cast<char>(fileTransferProtocol::cmd_request);
-    msg.data.append(static_cast<char>(fileTransferProtocol::req_startFileRead));
+    msg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    msg.command = static_cast<char>(RoomBus::FileTransferCommand::Request);
+    msg.data.append(static_cast<char>(FileTransferProtocol::req_startFileRead));
     msg.data.append(path.toUtf8());
 
     sendMessage(msg);
 }
 
-void fileTransferProtocol::handle_readStart(BusMessage msg)
+void FileTransferProtocol::handle_readStart(RoomBus::Message msg)
 {
     _fromDeviceTransfer.status = start;
     _fromDeviceTransfer.crc = getUint32(msg.data,1);
@@ -141,18 +143,18 @@ void fileTransferProtocol::handle_readStart(BusMessage msg)
 
     emit readTransfereStatus_change(_fromDeviceTransfer.status, _fromDeviceTransfer.progress);
 
-    BusMessage txMsg;
-    txMsg.protocol = Protocol::FileTransferProtocol;
-    txMsg.command = static_cast<char>(fileTransferProtocol::cmd_read_ack);
+    RoomBus::Message txMsg;
+    txMsg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    txMsg.command = static_cast<char>(RoomBus::FileTransferCommand::ReadAcknowledgment);
     txMsg.data.append(static_cast<char>(rsps_ok));
     sendMessage(txMsg);
 }
 
-void fileTransferProtocol::handle_read(BusMessage msg)
+void FileTransferProtocol::handle_read(RoomBus::Message msg)
 {
-    BusMessage txMsg;
-    txMsg.protocol = Protocol::FileTransferProtocol;
-    txMsg.command = static_cast<char>(fileTransferProtocol::cmd_read_ack);
+    RoomBus::Message txMsg;
+    txMsg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    txMsg.command = static_cast<char>(RoomBus::FileTransferCommand::ReadAcknowledgment);
 
     uint32_t offset = getUint32(msg.data,0);
 
@@ -175,7 +177,7 @@ void fileTransferProtocol::handle_read(BusMessage msg)
     emit readTransfereStatus_change(_fromDeviceTransfer.status, _fromDeviceTransfer.progress);
 }
 
-void fileTransferProtocol::handle_readEnd(BusMessage msg)
+void FileTransferProtocol::handle_readEnd(RoomBus::Message msg)
 {
     uint32_t crc = QuCLib::Crc::crc32(_fromDeviceTransfer.data);
 
@@ -199,7 +201,7 @@ void fileTransferProtocol::handle_readEnd(BusMessage msg)
 /*****************************************************************************
  * File Write
  * ***************************************************************************/
-void fileTransferProtocol::writeFile(QString path, QString localPath)
+void FileTransferProtocol::writeFile(QString path, QString localPath)
 {
 
     _toDeviceTransfer.offset = 0;
@@ -216,11 +218,11 @@ void fileTransferProtocol::writeFile(QString path, QString localPath)
 
     _toDeviceTransfer.crc = QuCLib::Crc::crc32(_toDeviceTransfer.data);
 
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::FileTransferProtocol;
-    msg.command = static_cast<char>(fileTransferProtocol::cmd_request);
-    msg.data.append(static_cast<char>(fileTransferProtocol::req_startFileWrite));
+    msg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    msg.command = static_cast<char>(RoomBus::FileTransferCommand::Request);
+    msg.data.append(static_cast<char>(FileTransferProtocol::req_startFileWrite));
     msg.data.append(packUint32(_toDeviceTransfer.crc));
     msg.data.append(packUint32(_toDeviceTransfer.size));
     msg.data.append(path.toUtf8());
@@ -228,13 +230,13 @@ void fileTransferProtocol::writeFile(QString path, QString localPath)
     sendMessage(msg);
 }
 
-void fileTransferProtocol::handle_writeStart(BusMessage msg)
+void FileTransferProtocol::handle_writeStart(RoomBus::Message msg)
 {
     // Write first part of data
-    BusMessage txMsg;
+    RoomBus::Message txMsg;
 
-    txMsg.protocol = Protocol::FileTransferProtocol;
-    txMsg.command = static_cast<char>(fileTransferProtocol::cmd_write);
+    txMsg.protocol = RoomBus::Protocol::FileTransferProtocol;
+    txMsg.command = static_cast<char>(RoomBus::FileTransferCommand::Write);
     txMsg.data.append(packUint32(_toDeviceTransfer.offset));
     txMsg.data.append(_toDeviceTransfer.data.mid(_toDeviceTransfer.offset,56));
 
@@ -247,7 +249,7 @@ void fileTransferProtocol::handle_writeStart(BusMessage msg)
     emit writeTransfereStatus_change(_toDeviceTransfer.status, _toDeviceTransfer.progress);
 }
 
-void fileTransferProtocol::handle_writeAck(BusMessage msg)
+void FileTransferProtocol::handle_writeAck(RoomBus::Message msg)
 {
     uint8_t status = msg.data.at(0);
 
@@ -258,10 +260,10 @@ void fileTransferProtocol::handle_writeAck(BusMessage msg)
             _toDeviceTransfer.status = transfere;
             _toDeviceTransfer.progress = (uint8_t)(((float)_toDeviceTransfer.offset/(float)_toDeviceTransfer.size)*100);
 
-            BusMessage txMsg;
+            RoomBus::Message txMsg;
 
-            txMsg.protocol = Protocol::FileTransferProtocol;
-            txMsg.command = static_cast<char>(fileTransferProtocol::cmd_write);
+            txMsg.protocol = RoomBus::Protocol::FileTransferProtocol;
+            txMsg.command = static_cast<char>(RoomBus::FileTransferCommand::Write);
             txMsg.data.append(packUint32(_toDeviceTransfer.offset));
             txMsg.data.append(_toDeviceTransfer.data.mid(_toDeviceTransfer.offset,56));
 
@@ -275,11 +277,11 @@ void fileTransferProtocol::handle_writeAck(BusMessage msg)
             _toDeviceTransfer.status = verify;
             _toDeviceTransfer.progress = 100;
 
-            BusMessage txMsg;
+            RoomBus::Message txMsg;
 
-            txMsg.protocol = Protocol::FileTransferProtocol;
-            txMsg.command = static_cast<char>(fileTransferProtocol::cmd_request);
-            txMsg.data.append(static_cast<char>(fileTransferProtocol::req_endFileWrite));
+            txMsg.protocol = RoomBus::Protocol::FileTransferProtocol;
+            txMsg.command = static_cast<char>(RoomBus::FileTransferCommand::Request);
+            txMsg.data.append(static_cast<char>(FileTransferProtocol::req_endFileWrite));
 
             sendMessage(txMsg);
         }
@@ -297,7 +299,7 @@ void fileTransferProtocol::handle_writeAck(BusMessage msg)
     }
 }
 
-void fileTransferProtocol::handle_writeComplete(BusMessage msg)
+void FileTransferProtocol::handle_writeComplete(RoomBus::Message msg)
 {
     if(msg.data.at(1) ==  rsps_writeSuccessful) _toDeviceTransfer.status = complete;
     else _toDeviceTransfer.status = error;

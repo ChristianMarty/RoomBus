@@ -22,7 +22,6 @@ public:
         appReserved
     } messageType;
 
-
     uint32_t messageCode;
     QString massage;
     uint32_t tickTime;
@@ -35,8 +34,8 @@ class MessageLogProtocol : public BusProtocol
 public:
     MessageLogProtocol(busDevice *device);
 
-    void pushData(BusMessage msg);
-    QList<Protocol> protocol(void);
+    void pushData(RoomBus::Message msg);
+    QList<RoomBus::Protocol> protocol(void);
 
     QList<LogMessage> messages() const;
     void clearLog(void);

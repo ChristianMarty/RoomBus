@@ -9,8 +9,8 @@ ValueWidget::ValueWidget(busDevice *busDevice, QWidget *parent) :
     ui->setupUi(this);
 
     _busDevice = busDevice;
-    connect(&_valueProtocol, &ValueProtocol::signalListChange, this, &ValueWidget::on_signalListChange);
-    connect(&_valueProtocol, &ValueProtocol::slotListChange, this, &ValueWidget::on_slotListChange);
+    connect(&_valueProtocol, &ValueSystemProtocol::signalListChange, this, &ValueWidget::on_signalListChange);
+    connect(&_valueProtocol, &ValueSystemProtocol::slotListChange, this, &ValueWidget::on_slotListChange);
 
     _valueProtocol.requestSlotInformation();
     _valueProtocol.requestSignalInformation();

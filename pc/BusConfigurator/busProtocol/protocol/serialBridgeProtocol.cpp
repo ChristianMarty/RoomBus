@@ -1,16 +1,16 @@
 #include "serialBridgeProtocol.h"
 
-serialBridgeProtocol::serialBridgeProtocol(busDevice *device):BusProtocol(device)
+SerialBridgeProtocol::SerialBridgeProtocol(busDevice *device):BusProtocol(device)
 {
 
 }
 
-void serialBridgeProtocol::sendData(uint8_t port, QByteArray data)
+void SerialBridgeProtocol::sendData(uint8_t port, QByteArray data)
 {
-    BusMessage msg;
+    RoomBus::Message msg;
 
-    msg.protocol = Protocol::SerialBridgeProtocol;
-    msg.command = commands_t::data;
+    msg.protocol = RoomBus::Protocol::SerialBridgeProtocol;
+    msg.command = (uint8_t)RoomBus::SerialBridgeCommand::Data;
     //msg.data.append(port);
     //msg.data.append(static_cast<uint8_t>(sbp_status_t::ok));
     msg.data.append(data);
@@ -18,23 +18,23 @@ void serialBridgeProtocol::sendData(uint8_t port, QByteArray data)
     sendMessage(msg);
 }
 
-void serialBridgeProtocol::pushData(BusMessage msg)
+void SerialBridgeProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol == Protocol::SerialBridgeProtocol)
-    {
-        if(msg.command == commands_t::data) _parseData(msg.data);
+    if(msg.protocol != RoomBus::Protocol::SerialBridgeProtocol) return;
 
+    if(msg.command == (uint8_t)RoomBus::SerialBridgeCommand::Data){
+        _parseData(msg.data);
     }
 }
 
-QList<Protocol> serialBridgeProtocol::protocol()
+QList<RoomBus::Protocol> SerialBridgeProtocol::protocol()
 {
-    QList<Protocol> temp;
-    temp.append(Protocol::SerialBridgeProtocol);
+    QList<RoomBus::Protocol> temp;
+    temp.append(RoomBus::Protocol::SerialBridgeProtocol);
     return temp;
 }
 
-void serialBridgeProtocol::_parseData(QByteArray data)
+void SerialBridgeProtocol::_parseData(QByteArray data)
 {
     if(data.size() < 2) return;
 

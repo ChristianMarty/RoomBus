@@ -9,8 +9,8 @@ EventWidget::EventWidget(busDevice *busDevice, QWidget *parent) :
     ui->setupUi(this);
 
     _busDevice = busDevice;
-    connect(&_eventProtocol,&EventProtocol::eventSignalListChange, this, &EventWidget::on_signalListChange);
-    connect(&_eventProtocol,&EventProtocol::eventSlotListChange, this, &EventWidget::on_slotListChange);
+    connect(&_eventProtocol,&EventSystemProtocol::eventSignalListChange, this, &EventWidget::on_signalListChange);
+    connect(&_eventProtocol,&EventSystemProtocol::eventSlotListChange, this, &EventWidget::on_slotListChange);
 
     _eventProtocol.requestSlotInformation();
     _eventProtocol.requestSignalInformation();

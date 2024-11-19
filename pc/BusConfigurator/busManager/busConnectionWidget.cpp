@@ -35,5 +35,3 @@ void busConnectionWidget::_updateUi()
     ui->nameLabel->setText(_roomBusAccess.getConnectionName());
     ui->connectionPathLabel->setText(_roomBusAccess.getConnectionPath());
 }
-
-

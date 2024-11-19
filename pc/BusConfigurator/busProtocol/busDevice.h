@@ -6,7 +6,6 @@
 #include <QTimer>
 #include <QMap>
 
-#include "busMessage.h"
 #include "busProtocol.h"
 #include "../../QuCLib/source/hexFileParser.h"
 
@@ -52,33 +51,32 @@ public:
         uint32_t reg;
      } sysControl_t;
 
-    typedef enum
-    {
-        cmd_heartbeat,
-        cmd_systemInfo,
-        cmd_hardwareName,
-        cmd_applicationName,
-        cmd_deviceName,
-        cmd_heartbeatRequest,
-        cmd_systemInformationRequest,
-        cmd_heartbeatSettings,
-        cmd_writeControl,
-        cmd_setControl,
-        cmd_clrControl,
-        cmd_enterRootMode,
-        cmd_setDeviceName,
-        cmd_setAddress,
+    enum DeviceManagementSubCommand {
+        DMP_SC_Heartbeat,
+        DMP_SC_SystemInformation,
+        DMP_SC_HardwareName,
+        DMP_SC_ApplicationName,
+        DMP_SC_DeviceName,
+        DMP_SC_HeartbeatRequest,
+        DMP_SC_SystemInformationRequest,
+        DMP_SC_HeartbeatSettings,
+        DMP_SC_WriteControl,
+        DMP_SC_SetControl,
+        DMP_SC_ClearControl,
+        DMP_SC_EnterRootMode,
+        DMP_SC_SetDeviceName,
+        DMP_SC_SetAddress,
 
-        cmd_canDiagnosticsRequest = 0xF0,
-        cmd_canDiagnosticsReport = 0xF1,
-        cmd_echo = 0xFA,
-        cmd_reboot = 0xFB,
-        cmd_eraseApp = 0xFC,
-        cmd_eraseAppRsp = 0xFD,
-        cmd_btl = 0xFE,
-        cmd_btlRsp = 0xFF
+        DMP_SC_CanDiagnosticsRequest = 0xF0,
+        DMP_SC_CanDiagnosticsReport = 0xF1,
+        DMP_SC_Echo = 0xFA,
+        DMP_SC_Reboot = 0xFB,
+        DMP_SC_EraseApplication = 0xFC,
+        DMP_SC_EraseApplicationResponse = 0xFD,
+        DMP_SC_Bootload = 0xFE,
+        DMP_SC_BootloadResponse = 0xFF
+    };
 
-    }command_t;
 
     explicit busDevice(QObject *parent = nullptr);
     explicit busDevice(uint8_t deviceAddress, QObject *parent = nullptr);
@@ -94,7 +92,7 @@ public:
     QString deviceIdentificationString(void);
     QString deviceSerialNumberString(void);
 
-    void pushData(BusMessage msg);
+    void pushData(RoomBus::Message msg);
     QDateTime lastHeartbeat() const;
 
     void requestHeartbeat(void);
@@ -153,7 +151,7 @@ public:
     }appBenchmark;
 
 signals:
-    void dataReady(BusMessage msg);
+    void dataReady(RoomBus::Message msg);
     void bootloadStatusUpdate(uint8_t progress, bool error, QString message);
     void statusUpdate(void);
 
@@ -166,7 +164,7 @@ public slots:
 
 private:
 
-    void handleDeviceManagementProtocol(BusMessage msg);
+    void handleDeviceManagementProtocol(RoomBus::Message msg);
 
     QuCLib::HexFileParser _appBinary;
     uint32_t _bootloadDataIndex;
@@ -194,7 +192,7 @@ private:
     uint32_t _serialNumberWord3;
 
     bool _btlWritePending;
-    BusMessage _btlLastWrite;
+    RoomBus::Message _btlLastWrite;
 
     QTimer _btlRetryTimer;
 

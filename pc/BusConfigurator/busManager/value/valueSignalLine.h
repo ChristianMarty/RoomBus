@@ -13,7 +13,7 @@ class ValueSignalLineWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ValueSignalLineWidget(class::ValueProtocol* protocol, ValueProtocol::ValueSignal* valueSignal, QWidget *parent = nullptr);
+    explicit ValueSignalLineWidget(class::ValueSystemProtocol* protocol, ValueSystemProtocol::ValueSignal* valueSignal, QWidget *parent = nullptr);
     ~ValueSignalLineWidget();
 
 signals:
@@ -26,8 +26,8 @@ private slots:
 private:
     Ui::ValueSignalLineWidget *ui;
 
-    ValueProtocol::ValueSignal* _valueSignal;
-    ValueProtocol* _protocol;
+    ValueSystemProtocol::ValueSignal* _valueSignal;
+    ValueSystemProtocol* _protocol;
 };
 
 #endif // VALUE_SIGNAL_LINE_WIDGET_H

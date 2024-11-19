@@ -4,9 +4,9 @@ MessageLogProtocol::MessageLogProtocol(busDevice *device):BusProtocol(device)
 {
 }
 
-void MessageLogProtocol::pushData(BusMessage msg)
+void MessageLogProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol != Protocol::MessageLogProtocolId) return;
+    if(msg.protocol != RoomBus::Protocol::MessageLogProtocolId) return;
     if(msg.data.size() < 8) return;
 
     LogMessage temp;
@@ -45,10 +45,10 @@ void MessageLogProtocol::clearLog(void)
     _messages.clear();
 }
 
-QList<Protocol> MessageLogProtocol::protocol(void)
+QList<RoomBus::Protocol> MessageLogProtocol::protocol(void)
 {
-    QList<Protocol> temp;
-    temp.append(Protocol::MessageLogProtocolId);
+    QList<RoomBus::Protocol> temp;
+    temp.append(RoomBus::Protocol::MessageLogProtocolId);
     return temp;
 }
 
