@@ -34,7 +34,7 @@ public:
         uint16_t timeout;
     };
 
-    StateSystemProtocol(busDevice *device);
+    StateSystemProtocol(RoomBusDevice *device);
 
     void pushData(RoomBus::Message msg);
     QList<RoomBus::Protocol> protocol(void);

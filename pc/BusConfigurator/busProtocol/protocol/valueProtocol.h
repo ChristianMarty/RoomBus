@@ -67,7 +67,7 @@ public:
         uint16_t timeout;
     };
 
-    ValueSystemProtocol(busDevice *device);
+    ValueSystemProtocol(RoomBusDevice *device);
 
     void pushData(RoomBus::Message msg);
     QList<RoomBus::Protocol> protocol(void);

@@ -1,6 +1,6 @@
 #include "serialBridge.h"
 
-SerialBridge::SerialBridge(busDevice *busDevice): _serialBridgeProtocol(busDevice)
+SerialBridge::SerialBridge(RoomBusDevice *busDevice): _serialBridgeProtocol(busDevice)
 {
     connect(&_serialBridgeProtocol,  &SerialBridgeProtocol::receiveData, this, &SerialBridge::on_receiveData);
     connect(&_tcpBridgeServer, &QTcpServer::newConnection, this, &SerialBridge::on_tcpBridgeNewConnection);

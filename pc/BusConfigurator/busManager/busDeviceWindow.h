@@ -27,7 +27,7 @@ class busDeviceWindow : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit busDeviceWindow(busDevice *device, QWidget *parent = nullptr);
+    explicit busDeviceWindow(RoomBusDevice *device, QWidget *parent = nullptr);
     ~busDeviceWindow();
 
     void updateData(void);
@@ -61,7 +61,7 @@ private slots:
 
 private:
     Ui::busDeviceWindow *ui;
-    busDevice *_device;
+    RoomBusDevice *_device;
 
     settingsWidget *_settingsWidget = nullptr;
     echoTestWidget *_echoWidget = nullptr;

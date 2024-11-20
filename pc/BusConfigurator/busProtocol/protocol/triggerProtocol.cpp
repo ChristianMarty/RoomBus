@@ -1,6 +1,6 @@
 #include "triggerProtocol.h"
 
-TriggerSystemProtocol::TriggerSystemProtocol(busDevice *device):BusProtocol(device)
+TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device):BusProtocol(device)
 {
 }
 
@@ -52,7 +52,7 @@ void TriggerSystemProtocol::sendTrigger(QList<uint16_t> triggerChannels)
     for (uint8_t i = 0; i<triggerChannels.size(); i++)
     {
         uint16_t channel = triggerChannels.at(i);
-        msg.data.append(packUint16(channel));
+        msg.data.append(RoomBus::packUint16(channel));
     }
 
     sendMessage(msg);
@@ -123,7 +123,7 @@ void TriggerSystemProtocol::_parseTrigger(RoomBus::Message msg)
 void TriggerSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 {
     TriggerSignal signal;
-    signal.channel = getUint16(msg.data,0);
+    signal.channel = RoomBus::unpackUint16(msg.data,0);
     signal.description = msg.data.remove(0,2);
 
     _triggerSignal[signal.channel] = signal;
@@ -134,7 +134,7 @@ void TriggerSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 void TriggerSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
 {
     TriggerSlot slot;
-    slot.channel = getUint16(msg.data,0);
+    slot.channel = RoomBus::unpackUint16(msg.data,0);
     slot.description = msg.data.remove(0,2);
     slot.trigger = this;
 

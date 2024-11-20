@@ -1,6 +1,6 @@
 #include "valueProtocol.h"
 
-ValueSystemProtocol::ValueSystemProtocol(busDevice *device):BusProtocol(device)
+ValueSystemProtocol::ValueSystemProtocol(RoomBusDevice *device):BusProtocol(device)
 {
 }
 
@@ -103,7 +103,7 @@ QList<ValueSystemProtocol::ValueSignal *> ValueSystemProtocol::valueSignls()
 
 void ValueSystemProtocol::_parseValue(RoomBus::Message msg)
 {
-    uint16_t channel = getUint16(msg.data, 0);
+    uint16_t channel = RoomBus::unpackUint16(msg.data, 0);
 
     uint16_t uomIndex = _valueSignal[channel].uom;
 
@@ -126,10 +126,10 @@ QList<ValueSystemProtocol::ValueSlot *> ValueSystemProtocol::valueSlots()
 void ValueSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 {
     ValueSignal signal;
-    signal.channel = getUint16(msg.data,0);
-    signal.interval = getUint16(msg.data,2);
+    signal.channel = RoomBus::unpackUint16(msg.data,0);
+    signal.interval = RoomBus::unpackUint16(msg.data,2);
 
-    uint16_t uomIndex = (UnitOfMeasure)getUint16(msg.data,4);
+    uint16_t uomIndex = (UnitOfMeasure)RoomBus::unpackUint16(msg.data,4);
     UnitType type = UnitofMeasurements[uomIndex].type;
 
     signal.readOnly = (uomIndex & 0x8000);
@@ -146,8 +146,8 @@ void ValueSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 void ValueSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
 {
     ValueSlot slot;
-    slot.channel = getUint16(msg.data,0);
-    slot.timeout = getUint16(msg.data,2);
+    slot.channel = RoomBus::unpackUint16(msg.data,0);
+    slot.timeout = RoomBus::unpackUint16(msg.data,2);
     slot.description = msg.data.mid(4);
 
     _valueSlot[slot.channel] = slot;
@@ -204,8 +204,8 @@ void ValueSystemProtocol::sendValueCommand(uint16_t channel, ValueData value)
     msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
     msg.command = (uint8_t)RoomBus::ValueSystemCommand::ValueCommand;
 
-    msg.data.append(packUint16(channel));
-    msg.data.append(packUint32(value.Long));
+    msg.data.append(RoomBus::packUint16(channel));
+    msg.data.append(RoomBus::packUint16(value.Long));
 
     sendMessage(msg);
 }

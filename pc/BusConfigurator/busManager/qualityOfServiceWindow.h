@@ -15,7 +15,7 @@ class qualityOfServiceWindow : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit qualityOfServiceWindow(QList<busDevice*> *deviceList, QWidget *parent = nullptr);
+    explicit qualityOfServiceWindow(QList<RoomBusDevice*> *deviceList, QWidget *parent = nullptr);
     ~qualityOfServiceWindow();
 
 private slots:
@@ -37,7 +37,7 @@ private slots:
 private:
     Ui::qualityOfServiceWindow *ui;
 
-    QList<busDevice*> *_deviceList = nullptr;
+    QList<RoomBusDevice*> *_deviceList = nullptr;
 
     QTimer _autoReadTimer;
 };

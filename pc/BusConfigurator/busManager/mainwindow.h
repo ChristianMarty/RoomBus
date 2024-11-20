@@ -35,25 +35,20 @@ private slots:
     void on_deviceTx(RoomBus::Message msg);
 
     void on_scanButton_clicked();
-
     void on_monitorButton_clicked();
-
     void on_qosButton_clicked();
-
-    void on_busDeviceWindowShow(busDevice *device);
+    void on_busDeviceWindowShow(RoomBusDevice *device);
 
 private:
-
-    busDevice *addDevice(uint8_t address);
-    busDevice *getDevice(uint8_t address);
+    RoomBusDevice *addDevice(uint8_t address);
+    RoomBusDevice *getDevice(uint8_t address);
     void updateDevices(void);
 
     Ui::MainWindow *ui;
 
-    QList<busDevice*> _busDeviceList;
+    QList<RoomBusDevice*> _busDeviceList;
     QList<busDeviceWidget*> _busDeviceWidgetLsit;
-    QMap<busDevice*,busDeviceWindow*> _busDeviceWindowMap;
-
+    QMap<RoomBusDevice*,busDeviceWindow*> _busDeviceWindowMap;
 
     void addConnection(void);
 

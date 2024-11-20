@@ -21,7 +21,7 @@ public:
         TriggerSystemProtocol *trigger = nullptr;
     };
 
-    TriggerSystemProtocol(busDevice *device);
+    TriggerSystemProtocol(RoomBusDevice *device);
 
     void pushData(RoomBus::Message msg);
     QList<RoomBus::Protocol> protocol(void);

@@ -16,7 +16,7 @@ class fileTransferWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit fileTransferWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit fileTransferWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~fileTransferWidget();
 
 private slots:

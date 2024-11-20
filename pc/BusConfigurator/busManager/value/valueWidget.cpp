@@ -1,7 +1,7 @@
 #include "valueWidget.h"
 #include "ui_valueWidget.h"
 
-ValueWidget::ValueWidget(busDevice *busDevice, QWidget *parent) :
+ValueWidget::ValueWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ValueWidget),
     _valueProtocol(busDevice)

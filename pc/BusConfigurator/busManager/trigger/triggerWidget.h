@@ -15,7 +15,7 @@ class TriggerWidget : public QDialog
 {
     Q_OBJECT
 public:
-    explicit TriggerWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit TriggerWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~TriggerWidget();
 
 private slots:
@@ -33,7 +33,7 @@ private:
     QList<TriggerSignalLineWidget*> _triggerSignalLines;
     QList<TriggerSlotLineWidget*> _triggerSlotLines;
 
-    busDevice *_busDevice;
+    RoomBusDevice *_busDevice;
 
     class::TriggerSystemProtocol _triggerProtocol;
 };

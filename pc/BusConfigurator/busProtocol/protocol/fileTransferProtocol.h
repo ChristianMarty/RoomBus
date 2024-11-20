@@ -62,7 +62,7 @@ public:
         QString name;
     };
 
-    FileTransferProtocol(busDevice *device);
+    FileTransferProtocol(RoomBusDevice *device);
 
     void pushData(RoomBus::Message msg);
     QList<RoomBus::Protocol> protocol(void);

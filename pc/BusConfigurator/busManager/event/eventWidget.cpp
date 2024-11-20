@@ -1,7 +1,7 @@
 #include "eventWidget.h"
 #include "ui_eventWidget.h"
 
-EventWidget::EventWidget(busDevice *busDevice, QWidget *parent) :
+EventWidget::EventWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EventWidget),
     _eventProtocol(busDevice)

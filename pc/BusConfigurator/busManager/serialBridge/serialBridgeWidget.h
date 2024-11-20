@@ -14,7 +14,7 @@ class SerialBridgeWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SerialBridgeWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit SerialBridgeWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~SerialBridgeWidget();
 
 private slots:

@@ -21,7 +21,7 @@ public:
     };
 
 
-    SerialBridgeProtocol(busDevice *device);
+    SerialBridgeProtocol(RoomBusDevice *device);
 
     void sendData(uint8_t port, QByteArray data);
 

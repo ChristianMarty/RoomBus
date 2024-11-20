@@ -52,33 +52,33 @@ QString ProtocolDecoder::DeviceManagementDataDecoder(RoomBus::DeviceManagementCo
 {
     if(data.isEmpty()) return ""; // TODO: error handling
 
-    busDevice::DeviceManagementSubCommand subcommand = (busDevice::DeviceManagementSubCommand)data.at(0);
+    RoomBusDevice::DeviceManagementSubCommand subcommand = (RoomBusDevice::DeviceManagementSubCommand)data.at(0);
     QString output = "Unknown Command";
 
     switch(subcommand){
-        case busDevice::DMP_SC_Heartbeat: output = "Heartbeat"; break;
-        case busDevice::DMP_SC_SystemInformation: output = "System Information"; break;
-        case busDevice::DMP_SC_HardwareName: output = "Hardware Name: "+QString(data.mid(1)) ; break;
-        case busDevice::DMP_SC_ApplicationName: output = "Application Name: "+QString(data.mid(1)) ; break;
-        case busDevice::DMP_SC_DeviceName: output = "Device Name: "+QString(data.mid(1)) ; break;
-        case busDevice::DMP_SC_HeartbeatRequest: output = "Heartbeat Request"; break;
-        case busDevice::DMP_SC_SystemInformationRequest: output = "System Information Request"; break;
-        case busDevice::DMP_SC_HeartbeatSettings: output = "Heartbeat Settings"; break;
-        case busDevice::DMP_SC_WriteControl: output = "Write Control"; break;
-        case busDevice::DMP_SC_SetControl: output = "Set Control"; break;
-        case busDevice::DMP_SC_ClearControl: output = "Clear Control"; break;
-        case busDevice::DMP_SC_EnterRootMode: output = "Enter Root Mode"; break;
-        case busDevice::DMP_SC_SetDeviceName: output = "Set Device Name"; break;
-        case busDevice::DMP_SC_SetAddress: output = "Set Address"; break;
+        case RoomBusDevice::DMP_SC_Heartbeat: output = "Heartbeat"; break;
+        case RoomBusDevice::DMP_SC_SystemInformation: output = "System Information"; break;
+        case RoomBusDevice::DMP_SC_HardwareName: output = "Hardware Name: "+QString(data.mid(1)) ; break;
+        case RoomBusDevice::DMP_SC_ApplicationName: output = "Application Name: "+QString(data.mid(1)) ; break;
+        case RoomBusDevice::DMP_SC_DeviceName: output = "Device Name: "+QString(data.mid(1)) ; break;
+        case RoomBusDevice::DMP_SC_HeartbeatRequest: output = "Heartbeat Request"; break;
+        case RoomBusDevice::DMP_SC_SystemInformationRequest: output = "System Information Request"; break;
+        case RoomBusDevice::DMP_SC_HeartbeatSettings: output = "Heartbeat Settings"; break;
+        case RoomBusDevice::DMP_SC_WriteControl: output = "Write Control"; break;
+        case RoomBusDevice::DMP_SC_SetControl: output = "Set Control"; break;
+        case RoomBusDevice::DMP_SC_ClearControl: output = "Clear Control"; break;
+        case RoomBusDevice::DMP_SC_EnterRootMode: output = "Enter Root Mode"; break;
+        case RoomBusDevice::DMP_SC_SetDeviceName: output = "Set Device Name"; break;
+        case RoomBusDevice::DMP_SC_SetAddress: output = "Set Address"; break;
 
-        case busDevice::DMP_SC_CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
-        case busDevice::DMP_SC_CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
-        case busDevice::DMP_SC_Echo: output = "Echo"; break;
-        case busDevice::DMP_SC_Reboot: output = "Reboot"; break;
-        case busDevice::DMP_SC_EraseApplication: output = "Erase Application"; break;
-        case busDevice::DMP_SC_EraseApplicationResponse: output = "Erase Application Response"; break;
-        case busDevice::DMP_SC_Bootload: output = "Bootload"; break;
-        case busDevice::DMP_SC_BootloadResponse: output = "Bootload Response"; break;
+        case RoomBusDevice::DMP_SC_CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
+        case RoomBusDevice::DMP_SC_CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
+        case RoomBusDevice::DMP_SC_Echo: output = "Echo"; break;
+        case RoomBusDevice::DMP_SC_Reboot: output = "Reboot"; break;
+        case RoomBusDevice::DMP_SC_EraseApplication: output = "Erase Application"; break;
+        case RoomBusDevice::DMP_SC_EraseApplicationResponse: output = "Erase Application Response"; break;
+        case RoomBusDevice::DMP_SC_Bootload: output = "Bootload"; break;
+        case RoomBusDevice::DMP_SC_BootloadResponse: output = "Bootload Response"; break;
     }
 
     return output;

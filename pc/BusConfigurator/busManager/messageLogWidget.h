@@ -17,7 +17,7 @@ public:
     explicit messageLogWidget(QWidget *parent = nullptr);
     ~messageLogWidget();
 
-    void assignDevice(busDevice *busDevice);
+    void assignDevice(RoomBusDevice *busDevice);
 private slots:
 
     void on_newMessage(LogMessage msg);

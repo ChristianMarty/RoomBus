@@ -4,7 +4,7 @@
 #include "settingsWidget.h"
 #include "echoTestWidget.h"
 
-busDeviceWidget::busDeviceWidget(busDevice *device, QWidget *parent) :
+busDeviceWidget::busDeviceWidget(RoomBusDevice *device, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::busDeviceWidget)
 {
@@ -53,7 +53,7 @@ void busDeviceWidget::updateData(void)
 
 void busDeviceWidget::on_identifyButton_clicked()
 {
-    busDevice::sysControl_t temp;
+    RoomBusDevice::sysControl_t temp;
     temp.reg = 0;
     temp.bit.identify = true;
 

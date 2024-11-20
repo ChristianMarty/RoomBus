@@ -1,6 +1,6 @@
 #include "eventProtocol.h"
 
-EventSystemProtocol::EventSystemProtocol(busDevice *device):BusProtocol(device)
+EventSystemProtocol::EventSystemProtocol(RoomBusDevice *device):BusProtocol(device)
 {
 }
 
@@ -116,8 +116,8 @@ void EventSystemProtocol::_parseEvent(RoomBus::Message msg)
 void EventSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 {
     EventSignal signal;
-    signal.channel = getUint16(msg.data,0);
-    signal.interval = getUint16(msg.data,2);
+    signal.channel = RoomBus::unpackUint16(msg.data,0);
+    signal.interval = RoomBus::unpackUint16(msg.data,2);
     signal.description = msg.data.remove(0,4);
 
     _eventSignal[signal.channel] = signal;
@@ -128,8 +128,8 @@ void EventSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 void EventSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
 {
     EventSlot slot;
-    slot.channel = getUint16(msg.data,0);
-    slot.timeout = getUint16(msg.data,2);
+    slot.channel = RoomBus::unpackUint16(msg.data,0);
+    slot.timeout = RoomBus::unpackUint16(msg.data,2);
     slot.description = msg.data.remove(0,4);
 
     _eventSlot[slot.channel] = slot;

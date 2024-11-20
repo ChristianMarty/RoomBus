@@ -11,7 +11,7 @@ class appPluginInterface
 public:
     virtual ~appPluginInterface() = default;
 
-    virtual QWidget *init(busDevice *device, QWidget *parent) = 0;
+    virtual QWidget *init(RoomBusDevice *device, QWidget *parent) = 0;
     virtual QString getName(void) = 0;
     virtual void receiveData(RoomBus::Message msg) = 0;
 

@@ -1,7 +1,7 @@
 #include "triggerWidget.h"
 #include "ui_triggerWidget.h"
 
-TriggerWidget::TriggerWidget(busDevice *busDevice, QWidget *parent) :
+TriggerWidget::TriggerWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TriggerWidget),
     _triggerProtocol(busDevice)

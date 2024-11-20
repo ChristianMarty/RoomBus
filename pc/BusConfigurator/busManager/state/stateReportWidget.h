@@ -15,7 +15,7 @@ class StateReportWidget : public QDialog
 {
     Q_OBJECT
 public:
-    explicit StateReportWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit StateReportWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~StateReportWidget();
 
 private slots:
@@ -32,7 +32,7 @@ private:
     QList<StateReportSignalLineWidget*> _stateReportSignalLines;
     QList<StateReportSlotLineWidget*> _stateReportSlotLines;
 
-    busDevice *_busDevice;
+    RoomBusDevice *_busDevice;
 
     class::StateSystemProtocol _stateReportProtocol;
 };

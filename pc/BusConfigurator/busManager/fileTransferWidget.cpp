@@ -1,7 +1,7 @@
 #include "fileTransferWidget.h"
 #include "ui_fileTransferWidget.h"
 #include <QFileDialog>
-fileTransferWidget::fileTransferWidget(busDevice *busDevice, QWidget *parent) :
+fileTransferWidget::fileTransferWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::fileTransferWidget),
     _fileTransferProtocol(busDevice)

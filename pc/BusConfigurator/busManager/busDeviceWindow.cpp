@@ -2,7 +2,7 @@
 #include "ui_busDeviceWindow.h"
 #include <QMdiSubWindow>
 
-busDeviceWindow::busDeviceWindow(busDevice *device, QWidget *parent) :
+busDeviceWindow::busDeviceWindow(RoomBusDevice *device, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::busDeviceWindow)
 {

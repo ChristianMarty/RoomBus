@@ -10,7 +10,7 @@
 #include "../../QuCLib/source/hexFileParser.h"
 
 
-class busDevice : public QObject
+class RoomBusDevice : public QObject
 {
     Q_OBJECT
 public:
@@ -78,8 +78,8 @@ public:
     };
 
 
-    explicit busDevice(QObject *parent = nullptr);
-    explicit busDevice(uint8_t deviceAddress, QObject *parent = nullptr);
+    explicit RoomBusDevice(QObject *parent = nullptr);
+    explicit RoomBusDevice(uint8_t deviceAddress, QObject *parent = nullptr);
 
     QString deviceName() const;
     QString applicationName() const;

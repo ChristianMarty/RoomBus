@@ -3,14 +3,14 @@
 
 #include <QDateTime>
 
-echoTestWidget::echoTestWidget(busDevice *busDevice, QWidget *parent) :
+echoTestWidget::echoTestWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::echoWindow)
 {
     ui->setupUi(this);
     _busDevice = busDevice;
 
-    connect(_busDevice,&busDevice::echoReceive,this,&echoTestWidget::on_echoReceive);
+    connect(_busDevice,&RoomBusDevice::echoReceive,this,&echoTestWidget::on_echoReceive);
     connect(&_autoSendTimer,&QTimer::timeout,this,&echoTestWidget::on_sendTimer);
     connect(&_timeoutTimer,&QTimer::timeout,this,&echoTestWidget::on_timeout);
 

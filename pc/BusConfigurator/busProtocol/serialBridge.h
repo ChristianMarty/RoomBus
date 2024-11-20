@@ -17,7 +17,7 @@ class SerialBridge: public QObject
 {
     Q_OBJECT
 public:
-    SerialBridge(busDevice *busDevice);
+    SerialBridge(RoomBusDevice *busDevice);
 
     void tcpBridgeOpen(uint16_t port);
     void tcpBridgeClose(void);

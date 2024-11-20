@@ -55,7 +55,7 @@ void MainWindow::on_newData(void)
             _monitorWindow->on_newMessage(temp);
         }
 
-        busDevice *device = getDevice(temp.sourceAddress);
+        RoomBusDevice *device = getDevice(temp.sourceAddress);
         device->pushData(temp);
     }
 
@@ -81,7 +81,7 @@ void MainWindow::updateDevices(void)
     }
 }
 
-busDevice *MainWindow::getDevice(uint8_t address)
+RoomBusDevice *MainWindow::getDevice(uint8_t address)
 {
     for(int i = 0; i<_busDeviceList.size(); i++)
     {
@@ -91,16 +91,16 @@ busDevice *MainWindow::getDevice(uint8_t address)
         }
     }
 
-    busDevice *temp = addDevice(address);
-    connect(temp,&busDevice::dataReady,this,&MainWindow::on_deviceTx);
+    RoomBusDevice *temp = addDevice(address);
+    connect(temp,&RoomBusDevice::dataReady,this,&MainWindow::on_deviceTx);
 
     temp->setDeviceAddress(address);
     return temp;
 }
 
-busDevice *MainWindow::addDevice(uint8_t address)
+RoomBusDevice *MainWindow::addDevice(uint8_t address)
 {
-    busDevice *temp2 = new busDevice(address);
+    RoomBusDevice *temp2 = new RoomBusDevice(address);
 
     busDeviceWidget *temp = new busDeviceWidget(temp2);
 
@@ -111,7 +111,7 @@ busDevice *MainWindow::addDevice(uint8_t address)
     int i = 0;
     if(nrOfDevice)
     {
-        foreach( busDevice *device, _busDeviceList )
+        foreach( RoomBusDevice *device, _busDeviceList )
         {
             if(device->deviceAddress() > address)
             {
@@ -149,7 +149,7 @@ void MainWindow::on_scanButton_clicked()
     msg.destinationAddress = 0x7F;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0x02;
-    msg.data.append(busDevice::DMP_SC_SystemInformationRequest);
+    msg.data.append(RoomBusDevice::DMP_SC_SystemInformationRequest);
     _busConnection.write(msg, RoomBusAccess::Priority::Normal);
 }
 
@@ -167,7 +167,7 @@ void MainWindow::on_qosButton_clicked()
     this->addDockWidget(Qt::BottomDockWidgetArea,_qosWindow);
 }
 
-void MainWindow::on_busDeviceWindowShow(busDevice *device)
+void MainWindow::on_busDeviceWindowShow(RoomBusDevice *device)
 {
     if(!_busDeviceWindowMap.contains(device))
     {

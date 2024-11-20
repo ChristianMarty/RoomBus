@@ -1,7 +1,7 @@
 #include "stateReportWidget.h"
 #include "ui_stateReportWidget.h"
 
-StateReportWidget::StateReportWidget(busDevice *busDevice, QWidget *parent) :
+StateReportWidget::StateReportWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::StateReportWidget),
     _stateReportProtocol(busDevice)

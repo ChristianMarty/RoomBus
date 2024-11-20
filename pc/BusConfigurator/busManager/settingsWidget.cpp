@@ -3,15 +3,15 @@
 
 #include <QFileDialog>
 
-settingsWidget::settingsWidget(busDevice *busDevice, QWidget *parent) :
+settingsWidget::settingsWidget(RoomBusDevice *busDevice, QWidget *parent) :
   QWidget(parent),
   ui(new Ui::settingsWidget)
 {
     ui->setupUi(this);
 
     _busDevice = busDevice;
-    connect(busDevice,&busDevice::bootloadStatusUpdate, this, &settingsWidget::on_bootloadStatusUpdate);
-    connect(busDevice,&busDevice::statusUpdate, this, &settingsWidget::on_statusUpdate);
+    connect(busDevice,&RoomBusDevice::bootloadStatusUpdate, this, &settingsWidget::on_bootloadStatusUpdate);
+    connect(busDevice,&RoomBusDevice::statusUpdate, this, &settingsWidget::on_statusUpdate);
 
     connect(&_bootloadFileWatcher,&QFileSystemWatcher::fileChanged,this, &settingsWidget::on_bootloadFileChanged);
 
@@ -68,7 +68,7 @@ void settingsWidget::on_ledOnBox_stateChanged(int arg1)
 
 void settingsWidget::on_ledOnBox_clicked(bool checked)
 {
-    busDevice::sysControl_t temp;
+    RoomBusDevice::sysControl_t temp;
     temp.reg = 0;
     temp.bit.ledOnOff = true;
 
@@ -88,7 +88,7 @@ void settingsWidget::on_appRunBox_stateChanged(int arg1)
 
 void settingsWidget::on_appRunBox_clicked(bool checked)
 {
-    busDevice::sysControl_t temp;
+    RoomBusDevice::sysControl_t temp;
     temp.reg = 0;
     temp.bit.appRun = true;
 
@@ -108,7 +108,7 @@ void settingsWidget::on_autostartAppBox_stateChanged(int arg1)
 
 void settingsWidget::on_autostartAppBox_clicked(bool checked)
 {
-    busDevice::sysControl_t temp;
+    RoomBusDevice::sysControl_t temp;
     temp.reg = 0;
     temp.bit.appRunOnStartup = true;
 

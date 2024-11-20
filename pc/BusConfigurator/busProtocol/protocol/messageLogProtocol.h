@@ -32,7 +32,7 @@ class MessageLogProtocol : public BusProtocol
 {
     Q_OBJECT
 public:
-    MessageLogProtocol(busDevice *device);
+    MessageLogProtocol(RoomBusDevice *device);
 
     void pushData(RoomBus::Message msg);
     QList<RoomBus::Protocol> protocol(void);

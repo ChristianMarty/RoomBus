@@ -1,6 +1,6 @@
 #include "messageLogProtocol.h"
 
-MessageLogProtocol::MessageLogProtocol(busDevice *device):BusProtocol(device)
+MessageLogProtocol::MessageLogProtocol(RoomBusDevice *device):BusProtocol(device)
 {
 }
 
@@ -20,8 +20,8 @@ void MessageLogProtocol::pushData(RoomBus::Message msg)
     else if(msg.command == 0x06) temp.messageType = LogMessage::appError;
     else if(msg.command == 0x07) temp.messageType = LogMessage::appReserved;
 
-    temp.tickTime = BusProtocol::getUint32(msg.data, 0);
-    temp.messageCode = BusProtocol::getUint32(msg.data, 4);
+    temp.tickTime = RoomBus::unpackUint32(msg.data, 0);
+    temp.messageCode = RoomBus::unpackUint32(msg.data, 4);
 
     QString temp2 = "";
 

@@ -1,7 +1,7 @@
 #include "qualityOfServiceWindow.h"
 #include "ui_qualityOfServiceWindow.h"
 
-qualityOfServiceWindow::qualityOfServiceWindow(QList<busDevice*> *deviceList, QWidget *parent) :
+qualityOfServiceWindow::qualityOfServiceWindow(QList<RoomBusDevice*> *deviceList, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::qualityOfServiceWindow)
 {
@@ -14,7 +14,7 @@ qualityOfServiceWindow::qualityOfServiceWindow(QList<busDevice*> *deviceList, QW
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(_deviceList->at(i)->deviceAddress())));
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(_deviceList->at(i)->deviceName()));
 
-        connect(_deviceList->at(i),&busDevice::statusUpdate, this, &qualityOfServiceWindow::on_statusUpdate);
+        connect(_deviceList->at(i),&RoomBusDevice::statusUpdate, this, &qualityOfServiceWindow::on_statusUpdate);
     }
 
     connect(&_autoReadTimer, &QTimer::timeout, this, &qualityOfServiceWindow::on_readTimer);
@@ -35,8 +35,8 @@ void qualityOfServiceWindow::on_statusUpdate(void)
         ui->tableWidget->setItem(i,3,new QTableWidgetItem(QString::number(_deviceList->at(i)->canDignostics.txErrorCounter)));
         ui->tableWidget->setItem(i,4,new QTableWidgetItem(QString::number(_deviceList->at(i)->canDignostics.rxErrorCounter)));
 
-        ui->tableWidget->setItem(i,5,new QTableWidgetItem(busDevice::getCanErrorCode(_deviceList->at(i)->canDignostics.lastErrorCode)));
-        ui->tableWidget->setItem(i,6,new QTableWidgetItem(busDevice::getCanErrorCode(_deviceList->at(i)->canDignostics.dataLastErrorCode)));
+        ui->tableWidget->setItem(i,5,new QTableWidgetItem(RoomBusDevice::getCanErrorCode(_deviceList->at(i)->canDignostics.lastErrorCode)));
+        ui->tableWidget->setItem(i,6,new QTableWidgetItem(RoomBusDevice::getCanErrorCode(_deviceList->at(i)->canDignostics.dataLastErrorCode)));
 
         ui->tableWidget->setItem(i,7,new QTableWidgetItem(QString::number(_deviceList->at(i)->appBenchmark.avg)));
         ui->tableWidget->setItem(i,8,new QTableWidgetItem(QString::number(_deviceList->at(i)->appBenchmark.min)));

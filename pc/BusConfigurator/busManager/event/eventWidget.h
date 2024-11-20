@@ -15,7 +15,7 @@ class EventWidget : public QDialog
 {
     Q_OBJECT
 public:
-    explicit EventWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit EventWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~EventWidget();
 
 private slots:
@@ -33,7 +33,7 @@ private:
     QList<EventSignalLineWidget*> _eventSignalLines;
     QList<EventSlotLineWidget*> _eventSlotLines;
 
-    busDevice *_busDevice;
+    RoomBusDevice *_busDevice;
 
     class::EventSystemProtocol _eventProtocol;
 };

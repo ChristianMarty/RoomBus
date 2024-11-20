@@ -15,7 +15,7 @@ class ValueWidget : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ValueWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit ValueWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~ValueWidget();
 
 private slots:
@@ -33,7 +33,7 @@ private:
     QList<ValueSignalLineWidget*> _triggerSignalLines;
     QList<ValueSlotLineWidget*> _triggerSlotLines;
 
-    busDevice *_busDevice;
+    RoomBusDevice *_busDevice;
 
     class::ValueSystemProtocol _valueProtocol;
 };

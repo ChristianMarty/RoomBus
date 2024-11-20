@@ -15,7 +15,7 @@ class echoTestWidget: public QWidget
     Q_OBJECT
 
 public:
-    explicit echoTestWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit echoTestWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~echoTestWidget();
 
     void closeEvent(QCloseEvent *event);
@@ -38,7 +38,7 @@ private slots:
 private:
     Ui::echoWindow *ui;
 
-    busDevice *_busDevice = nullptr;
+    RoomBusDevice *_busDevice = nullptr;
 
     QTimer _autoSendTimer;
     QTimer _timeoutTimer;

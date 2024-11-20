@@ -17,7 +17,7 @@ messageLogWidget::~messageLogWidget()
     if(_logProtocol != nullptr) delete _logProtocol;
 }
 
-void messageLogWidget::assignDevice(busDevice *busDevice)
+void messageLogWidget::assignDevice(RoomBusDevice *busDevice)
 {
     if(_logProtocol == nullptr) _logProtocol = new MessageLogProtocol(busDevice);
     connect(_logProtocol,&MessageLogProtocol::newMessage, this, &messageLogWidget::on_newMessage);

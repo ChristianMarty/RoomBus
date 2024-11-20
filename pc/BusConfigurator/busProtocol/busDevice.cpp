@@ -3,7 +3,7 @@
 #include <busProtocol.h>
 #include "../../QuCLib/source/crc.h"
 
-busDevice::busDevice(QObject *parent) : QObject(parent)
+RoomBusDevice::RoomBusDevice(QObject *parent) : QObject(parent)
 {
     _deviceName = "Unknown Device";
     _hardwareName = "Unknown Hardware";
@@ -11,11 +11,11 @@ busDevice::busDevice(QObject *parent) : QObject(parent)
 
     _btlWritePending = false;
 
-    connect(&_btlRetryTimer, &QTimer::timeout, this, &busDevice::btlRetry );
-    connect(&_heartbeatTimer,  &QTimer::timeout, this, &busDevice::heartbeatTimeout);
+    connect(&_btlRetryTimer, &QTimer::timeout, this, &RoomBusDevice::btlRetry );
+    connect(&_heartbeatTimer,  &QTimer::timeout, this, &RoomBusDevice::heartbeatTimeout);
 }
 
-busDevice::busDevice(uint8_t deviceAddress, QObject *parent): QObject(parent)
+RoomBusDevice::RoomBusDevice(uint8_t deviceAddress, QObject *parent): QObject(parent)
 {
     _deviceAddress = deviceAddress;
 
@@ -25,31 +25,31 @@ busDevice::busDevice(uint8_t deviceAddress, QObject *parent): QObject(parent)
 
     _btlWritePending = false;
 
-    connect(&_btlRetryTimer, &QTimer::timeout, this, &busDevice::btlRetry );
-    connect(&_heartbeatTimer,  &QTimer::timeout, this, &busDevice::heartbeatTimeout);
+    connect(&_btlRetryTimer, &QTimer::timeout, this, &RoomBusDevice::btlRetry );
+    connect(&_heartbeatTimer,  &QTimer::timeout, this, &RoomBusDevice::heartbeatTimeout);
 }
 
-QString busDevice::deviceName() const
+QString RoomBusDevice::deviceName() const
 {
     return _deviceName;
 }
 
-QString busDevice::hardwareName() const
+QString RoomBusDevice::hardwareName() const
 {
     return _hardwareName;
 }
 
-QString busDevice::applicationName() const
+QString RoomBusDevice::applicationName() const
 {
     return _applicationName;
 }
 
-uint8_t busDevice::deviceAddress() const
+uint8_t RoomBusDevice::deviceAddress() const
 {
     return _deviceAddress;
 }
 
-QString busDevice::kernelVersionString(void)
+QString RoomBusDevice::kernelVersionString(void)
 {
     uint8_t high = (uint8_t)((_kernelVersion >> 8) & 0xFF);
     uint8_t low = (uint8_t)(_kernelVersion & 0xFF);
@@ -57,7 +57,7 @@ QString busDevice::kernelVersionString(void)
     return QString::number(high,10).rightJustified(2, '0')+"."+QString::number(low,10).rightJustified(2, '0');
 }
 
-QString busDevice::hardwareVersionString(void)
+QString RoomBusDevice::hardwareVersionString(void)
 {
     uint8_t high = (uint8_t)((_hwVersion >> 8) & 0xFF);
     uint8_t low = (uint8_t)(_hwVersion & 0xFF);
@@ -65,7 +65,7 @@ QString busDevice::hardwareVersionString(void)
     return QString::number(high,10).rightJustified(2, '0')+"."+QString::number(low,10).rightJustified(2, '0');
 }
 
-QString busDevice::deviceIdentificationString(void)
+QString RoomBusDevice::deviceIdentificationString(void)
 {
   /*  QString temp;
 
@@ -85,7 +85,7 @@ QString busDevice::deviceIdentificationString(void)
     }
 }
 
-QString busDevice::deviceSerialNumberString(void)
+QString RoomBusDevice::deviceSerialNumberString(void)
 {
     QString temp;
 
@@ -97,12 +97,12 @@ QString busDevice::deviceSerialNumberString(void)
     return temp;
 }
 
-void busDevice::setDeviceAddress(const uint8_t &deviceAddress)
+void RoomBusDevice::setDeviceAddress(const uint8_t &deviceAddress)
 {
     _deviceAddress = deviceAddress;
 }
 
-void busDevice::sendEcho(QByteArray txData)
+void RoomBusDevice::sendEcho(QByteArray txData)
 {
     if(txData.size() >63) txData.truncate(63);
     RoomBus::Message msg;
@@ -116,22 +116,22 @@ void busDevice::sendEcho(QByteArray txData)
     emit dataReady(msg);
 }
 
-QString busDevice::getCanErrorCode(busDevice::canDignostics_t::errorCode_t errorCode)
+QString RoomBusDevice::getCanErrorCode(RoomBusDevice::canDignostics_t::errorCode_t errorCode)
 {
     switch (errorCode) {
-        case busDevice::canDignostics_t::errorCode_t::NONE:  return "NONE";
-        case busDevice::canDignostics_t::errorCode_t::STUFF:  return "STUFF";
-        case busDevice::canDignostics_t::errorCode_t::FORM:  return "FORM";
-        case busDevice::canDignostics_t::errorCode_t::ACK:  return "ACK";
-        case busDevice::canDignostics_t::errorCode_t::BIT1:  return "BIT1";
-        case busDevice::canDignostics_t::errorCode_t::BIT0:  return "BIT0";
-        case busDevice::canDignostics_t::errorCode_t::CRC:  return "CRC";
-        case busDevice::canDignostics_t::errorCode_t::NC:  return "NC";
+        case RoomBusDevice::canDignostics_t::errorCode_t::NONE:  return "NONE";
+        case RoomBusDevice::canDignostics_t::errorCode_t::STUFF:  return "STUFF";
+        case RoomBusDevice::canDignostics_t::errorCode_t::FORM:  return "FORM";
+        case RoomBusDevice::canDignostics_t::errorCode_t::ACK:  return "ACK";
+        case RoomBusDevice::canDignostics_t::errorCode_t::BIT1:  return "BIT1";
+        case RoomBusDevice::canDignostics_t::errorCode_t::BIT0:  return "BIT0";
+        case RoomBusDevice::canDignostics_t::errorCode_t::CRC:  return "CRC";
+        case RoomBusDevice::canDignostics_t::errorCode_t::NC:  return "NC";
         default: return "Unknown";
     }
 }
 
-void busDevice::startFirmwareUpload(QString hexPath)
+void RoomBusDevice::startFirmwareUpload(QString hexPath)
 {
     _bootloadDataIndex = 0;
 
@@ -181,26 +181,26 @@ void busDevice::startFirmwareUpload(QString hexPath)
     eraseApp();
 }
 
-void busDevice::appEraseComplete(void)
+void RoomBusDevice::appEraseComplete(void)
 {
     emit bootloadStatusUpdate(10,false,"App Erase Complete");
     writeBinaryChunk();
 }
 
-void busDevice::btlRetry(void)
+void RoomBusDevice::btlRetry(void)
 {
     if(_btlWritePending) emit dataReady(_btlLastWrite);
     else _btlRetryTimer.stop();
 
 }
 
-void busDevice::heartbeatTimeout()
+void RoomBusDevice::heartbeatTimeout()
 {
     _timeoutStatus = true;
     _heartbeatTimer.stop();
 }
 
-void busDevice::writeBinaryChunk(void)
+void RoomBusDevice::writeBinaryChunk(void)
 {
     if(_appBinary.binary().count() == 0)
     {
@@ -246,7 +246,7 @@ void busDevice::writeBinaryChunk(void)
     }
 }
 
-void busDevice::eraseApp(void)
+void RoomBusDevice::eraseApp(void)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -257,7 +257,7 @@ void busDevice::eraseApp(void)
     emit dataReady(msg);
 }
 
-void busDevice::enterRootMode(void)
+void RoomBusDevice::enterRootMode(void)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -270,7 +270,7 @@ void busDevice::enterRootMode(void)
     emit dataReady(msg);
 }
 
-void busDevice::exitRootMode(void)
+void RoomBusDevice::exitRootMode(void)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -282,7 +282,7 @@ void busDevice::exitRootMode(void)
     emit dataReady(msg);
 }
 
-void busDevice::writeAddress(uint8_t address)
+void RoomBusDevice::writeAddress(uint8_t address)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -294,7 +294,7 @@ void busDevice::writeAddress(uint8_t address)
     emit dataReady(msg);
 }
 
-void busDevice::writeDeviceName(QString name)
+void RoomBusDevice::writeDeviceName(QString name)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -306,7 +306,7 @@ void busDevice::writeDeviceName(QString name)
     emit dataReady(msg);
 }
 
-void busDevice::requestHeartbeat(void)
+void RoomBusDevice::requestHeartbeat(void)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -317,7 +317,7 @@ void busDevice::requestHeartbeat(void)
     emit dataReady(msg);
 }
 
-void busDevice::requestSystemInfo(void)
+void RoomBusDevice::requestSystemInfo(void)
 {    
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -328,7 +328,7 @@ void busDevice::requestSystemInfo(void)
     emit dataReady(msg);
 }
 
-void busDevice::requestCanDiagnostics(void)
+void RoomBusDevice::requestCanDiagnostics(void)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -339,7 +339,7 @@ void busDevice::requestCanDiagnostics(void)
     emit dataReady(msg);
 }
 
-void busDevice::requestSystemRestart()
+void RoomBusDevice::requestSystemRestart()
 {
     enterRootMode();
 
@@ -352,7 +352,7 @@ void busDevice::requestSystemRestart()
     emit dataReady(msg);
 }
 
-void busDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t systemInfoInterval)
+void RoomBusDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t systemInfoInterval)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -368,7 +368,7 @@ void busDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t syst
     emit dataReady(msg);
 }
 
-void busDevice::writeControl(sysControl_t sysControl)
+void RoomBusDevice::writeControl(sysControl_t sysControl)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -385,7 +385,7 @@ void busDevice::writeControl(sysControl_t sysControl)
     emit dataReady(msg);
 }
 
-void busDevice::writeSetControl(sysControl_t sysControl)
+void RoomBusDevice::writeSetControl(sysControl_t sysControl)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -402,7 +402,7 @@ void busDevice::writeSetControl(sysControl_t sysControl)
     emit dataReady(msg);
 }
 
-void busDevice::writeClearControl(sysControl_t sysControl)
+void RoomBusDevice::writeClearControl(sysControl_t sysControl)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
@@ -419,37 +419,37 @@ void busDevice::writeClearControl(sysControl_t sysControl)
     emit dataReady(msg);
 }
 
-busDevice::sysStatus_t busDevice::sysStatus()
+RoomBusDevice::sysStatus_t RoomBusDevice::sysStatus()
 {
     return _sysStatus;
 }
 
-bool busDevice::timeoutStatus()
+bool RoomBusDevice::timeoutStatus()
 {
     return _timeoutStatus;
 }
 
-uint16_t busDevice::heartbeatInterval() const
+uint16_t RoomBusDevice::heartbeatInterval() const
 {
     return _heartbeatInterval;
 }
 
-uint16_t busDevice::systemInfoInterval() const
+uint16_t RoomBusDevice::systemInfoInterval() const
 {
     return _extendedHeartbeatInterval;
 }
 
-void busDevice::addProtocol(BusProtocol* protocol)
+void RoomBusDevice::addProtocol(BusProtocol* protocol)
 {
     _protocols.append(protocol);
 }
 
-void busDevice::removeProtocol(BusProtocol* protocol)
+void RoomBusDevice::removeProtocol(BusProtocol* protocol)
 {
     _protocols.removeOne(protocol);
 }
 
-void busDevice::pushData(RoomBus::Message msg)
+void RoomBusDevice::pushData(RoomBus::Message msg)
 {
     if(msg.sourceAddress != _deviceAddress) return;
 
@@ -474,7 +474,7 @@ void busDevice::pushData(RoomBus::Message msg)
     }
 }
 
-void busDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
+void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
 {
     _lastHeartbeat = QDateTime::currentDateTime();
     QByteArray data = msg.data;
@@ -488,24 +488,24 @@ void busDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
 
         if(data.size() != 41) return;
 
-        _hwVersion = BusProtocol::getUint16(data,5);
-        _kernelVersion = BusProtocol::getUint16(data,7);
-        _heartbeatInterval = BusProtocol::getUint16(data,9);
-        _extendedHeartbeatInterval = BusProtocol::getUint16(data,11);
-        _appCRC = BusProtocol::getUint32(data,13);
-        _appStartAddress = BusProtocol::getUint32(data,17);
-        _deviceIdentificationCode = BusProtocol::getUint32(data,21);
-        _serialNumberWord0 = BusProtocol::getUint32(data,25);
-        _serialNumberWord1 = BusProtocol::getUint32(data,29);
-        _serialNumberWord2 = BusProtocol::getUint32(data,33);
-        _serialNumberWord3 = BusProtocol::getUint32(data,37);
+        _hwVersion = RoomBus::unpackUint16(data,5);
+        _kernelVersion = RoomBus::unpackUint16(data,7);
+        _heartbeatInterval = RoomBus::unpackUint16(data,9);
+        _extendedHeartbeatInterval = RoomBus::unpackUint16(data,11);
+        _appCRC = RoomBus::unpackUint32(data,13);
+        _appStartAddress = RoomBus::unpackUint32(data,17);
+        _deviceIdentificationCode = RoomBus::unpackUint32(data,21);
+        _serialNumberWord0 = RoomBus::unpackUint32(data,25);
+        _serialNumberWord1 = RoomBus::unpackUint32(data,29);
+        _serialNumberWord2 = RoomBus::unpackUint32(data,33);
+        _serialNumberWord3 = RoomBus::unpackUint32(data,37);
 
         _heartbeatTimer.setInterval(_heartbeatInterval*2500);
 
     case DMP_SC_Heartbeat:
         {
             if(data.size() != 5) break;
-            uint32_t status = BusProtocol::getUint32(data,1);
+            uint32_t status = RoomBus::unpackUint32(data,1);
             _sysStatus = *((sysStatus_t*) &status);
 
             _timeoutStatus = false;
@@ -556,9 +556,9 @@ void busDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
 
             if(data.size() > 5)
             {
-                appBenchmark.avg = BusProtocol::getUint32(data,5);
-                appBenchmark.min = BusProtocol::getUint32(data,9);
-                appBenchmark.max = BusProtocol::getUint32(data,13);
+                appBenchmark.avg = RoomBus::unpackUint32(data,5);
+                appBenchmark.min = RoomBus::unpackUint32(data,9);
+                appBenchmark.max = RoomBus::unpackUint32(data,13);
             }
 
             emit statusUpdate();
@@ -579,7 +579,7 @@ void busDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
     }
 }
 
-QDateTime busDevice::lastHeartbeat() const
+QDateTime RoomBusDevice::lastHeartbeat() const
 {
     return _lastHeartbeat;
 }

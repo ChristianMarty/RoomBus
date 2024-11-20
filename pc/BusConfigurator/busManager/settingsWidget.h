@@ -14,7 +14,7 @@ class settingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit settingsWidget(busDevice *busDevice, QWidget *parent = nullptr);
+    explicit settingsWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
     ~settingsWidget();
 
     void updateData(void);
@@ -53,7 +53,7 @@ private slots:
 private:
     Ui::settingsWidget *ui;
 
-    busDevice *_busDevice;
+    RoomBusDevice *_busDevice;
 
     QFileSystemWatcher _bootloadFileWatcher;
 };

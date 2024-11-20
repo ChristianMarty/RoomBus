@@ -3,7 +3,7 @@
 
 #include <QFileDialog>
 
-SerialBridgeWidget::SerialBridgeWidget(busDevice *busDevice, QWidget *parent) :
+SerialBridgeWidget::SerialBridgeWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SerialBridgeWidget)
 {

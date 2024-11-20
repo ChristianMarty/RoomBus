@@ -14,13 +14,13 @@ class busDeviceWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit busDeviceWidget(busDevice *device, QWidget *parent = nullptr);
+    explicit busDeviceWidget(RoomBusDevice *device, QWidget *parent = nullptr);
     ~busDeviceWidget();
 
     void updateData(void);
 
 signals:
-    void busDeviceShow(busDevice *device);
+    void busDeviceShow(RoomBusDevice *device);
 
 private slots:
     void on_identifyButton_clicked();
@@ -28,7 +28,7 @@ private slots:
 
 private:
     Ui::busDeviceWidget *ui;
-    busDevice *_device;
+    RoomBusDevice *_device;
 
 
 };

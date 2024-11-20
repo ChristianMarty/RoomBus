@@ -1,6 +1,6 @@
 #include "stateReportProtocol.h"
 
-StateSystemProtocol::StateSystemProtocol(busDevice *device):BusProtocol(device)
+StateSystemProtocol::StateSystemProtocol(RoomBusDevice *device):BusProtocol(device)
 {
 }
 
@@ -91,7 +91,7 @@ void StateSystemProtocol::_parseStateReport(RoomBus::Message msg)
 {
     for(uint8_t i = 0; i < msg.data.length(); i+=3)
     {
-        uint16_t channel = getUint16(msg.data.mid(i,2), 0);
+        uint16_t channel = RoomBus::unpackUint16(msg.data.mid(i,2), 0);
         StateSystemProtocol::SignalState state = (StateSystemProtocol::SignalState) msg.data.at(i+2);
 
         _signalState[channel] = state;
@@ -102,8 +102,8 @@ void StateSystemProtocol::_parseStateReport(RoomBus::Message msg)
 void StateSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 {
     StateReportSignal signal;
-    signal.channel = getUint16(msg.data,0);
-    signal.interval = getUint16(msg.data,2);
+    signal.channel = RoomBus::unpackUint16(msg.data,0);
+    signal.interval = RoomBus::unpackUint16(msg.data,2);
     signal.description = msg.data.remove(0,4);
 
     _stateReportSignal[signal.channel] = signal;
@@ -114,8 +114,8 @@ void StateSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
 void StateSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
 {
     StateReportSlot slot;
-    slot.channel = getUint16(msg.data,0);
-    slot.timeout = getUint16(msg.data,2);
+    slot.channel = RoomBus::unpackUint16(msg.data,0);
+    slot.timeout = RoomBus::unpackUint16(msg.data,2);
     slot.description = msg.data.remove(0,4);
 
     _stateReportSlot[slot.channel] = slot;
