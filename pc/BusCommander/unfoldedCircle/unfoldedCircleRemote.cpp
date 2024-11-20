@@ -2,20 +2,26 @@
 #include "unfoldedCircle/entity/light.h"
 #include "unfoldedCircle/entity/switch.h"
 
+#include "roomBus/roomBus.h"
+
 using namespace UnfoldedCircle;
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 
-Server::Server(QObject *parent)
+Server::Server(RoomBusInterface *roomBusInterface, QObject *parent)
     : QObject{parent}
+    ,_roomBusInterface{roomBusInterface}
 {
-
     connect(&_server, &QWebSocketServer::newConnection, this, &Server::on_newConnection);
     _server.listen(QHostAddress::Any, _port);
 
     qDebug(("Server listening on port "+ QString::number(_port)).toLocal8Bit());
+
+    if(_roomBusInterface){
+        connect(_roomBusInterface->busConnection(), &RoomBusAccess::newData, this, &Server::on_newRoomBusData);
+    }
 }
 
 Server::~Server()
@@ -28,21 +34,40 @@ void Server::registerDriver(QString remoteIp, uint32_t pin)
     _driver.sendDriverRegistration(remoteIp, pin);
 }
 
-
 void Server::on_newConnection()
 {
     QWebSocket *socket = _server.nextPendingConnection();
-    _remotes.insert(new Remote(socket));
+    _remotes.insert(new Remote(_roomBusInterface, socket));
 }
 
-Remote::Remote(QWebSocket *socket):
-    _socket{socket}
+void Server::on_newRoomBusData()
+{
+    while(_roomBusInterface->busConnection()->rxMsgBuffer.size())
+    {
+        RoomBus::Message temp = _roomBusInterface->busConnection()->rxMsgBuffer.first();
+        _roomBusInterface->busConnection()->rxMsgBuffer.removeFirst();
+
+        for(Remote *remote: _remotes){
+            remote->pushRoomBusMessage(temp);
+        }
+    }
+}
+
+Remote::Remote(RoomBusInterface *roomBusInterface, QWebSocket *socket)
+    :_socket{socket}
+    ,_roomBusInterface{roomBusInterface}
 {
     connect(_socket, &QWebSocket::textMessageReceived, this, &Remote::on_textMessage);
     connect(_socket, &QWebSocket::binaryMessageReceived, this, &Remote::on_binaryMessage);
     connect(_socket, &QWebSocket::disconnected, this, &Remote::on_socketDisconnected);
 
-    addEntity(new Light{"Licht 1",1, QSet<Light::Feature>{Light::Feature::Toggle}});
+    addEntity(new Light{"Licht 1",1, QSet<Light::Feature>{Light::Feature::Toggle},
+                Light::RoomBusChannel{
+                    .onTrigger = 4,
+                    .offTrigger = 5,
+                    .toggleTrigger = 6,
+                    .stateChannel= 2}}
+              );
 
     QString msg = socket->peerAddress().toString();
     qDebug(msg.toLocal8Bit());
@@ -93,6 +118,24 @@ void Remote::on_binaryMessage(QByteArray message)
 void Remote::on_socketDisconnected()
 {
 
+}
+
+RoomBusInterface *Remote::roomBusInterface()
+{
+    return _roomBusInterface;
+}
+
+void Remote::pushRoomBusMessage(const RoomBus::Message &message)
+{
+    for(Entity *entity:_entities){
+        if(message.protocol == RoomBus::Protocol::StateSystemProtocol){
+            for(uint8_t i = 0; i < message.data.length(); i+=3){
+                uint16_t channel = RoomBus::unpackUint16(message.data.mid(i,2), 0);
+                uint8_t state = message.data.at(i+2);
+                entity->stateSystemHandler(channel, state);
+            }
+        }
+    }
 }
 
 void Remote::_getDriverVersionHandler(uint32_t id)

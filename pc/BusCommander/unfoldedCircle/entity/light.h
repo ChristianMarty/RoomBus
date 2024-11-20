@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "entity.h"
+
 namespace UnfoldedCircle
 {
 
@@ -10,6 +11,14 @@ class Light : public Entity
 {
     Q_OBJECT
 public:
+
+    struct RoomBusChannel{
+        uint16_t onTrigger;
+        uint16_t offTrigger;
+        uint16_t toggleTrigger;
+
+        uint16_t stateChannel;
+    };
 
     enum class Feature {
         OnOff,
@@ -37,7 +46,9 @@ public:
         Toggle
     };
 
-    explicit Light(QString name, int entityId, QSet<Feature> features = QSet<Feature>{});
+    explicit Light(QString name, int entityId, QSet<Feature> features = QSet<Feature>{}, RoomBusChannel roomBusChannel = RoomBusChannel{});
+
+    void stateSystemHandler(uint16_t channel, uint8_t state) override;
 
     void commandHandler(QJsonObject data) override;
 
@@ -48,15 +59,9 @@ public:
 signals:
 
 private:
-    uint16_t _onTriggerChannel;
-    uint16_t _offTriggerChannel;
-    uint16_t _toggleTriggerChannel;
-    uint16_t _stateChannel;
-
+    RoomBusChannel _roomBusChannel;
     QSet<Feature> _features;
-
-    State _state;
-
+    State _state = State::Unknown;
 };
 
 }

@@ -5,6 +5,10 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+namespace RoomBus {
+    class Message;
+}
+
 namespace UnfoldedCircle
 {
 class Remote;
@@ -32,6 +36,9 @@ public:
 
     virtual void commandHandler(QJsonObject data) {Q_UNUSED(data)};
 
+    virtual void stateSystemHandler(uint16_t channel, uint8_t state){Q_UNUSED(channel); Q_UNUSED(state);};
+    virtual void valueSystemHandler(const RoomBus::Message &message){Q_UNUSED(message)};
+
     virtual QJsonObject json(void) const;
 
     int entityId() const;
@@ -45,10 +52,9 @@ protected:
 
 
     void _sendEntityChange(QJsonObject attributes = QJsonObject{});
-
-private:
     Remote *_remote = nullptr;
 
+private:
     QString _name;
     int _entityId;
     Type _type;

@@ -1,15 +1,23 @@
-#ifndef ROOMBUS_H
-#define ROOMBUS_H
+#ifndef ROOM_BUS_INTERFACE_H
+#define ROOM_BUS_INTERFACE_H
 
 #include <QObject>
+#include "busAccess.h"
 
-class RoomBus : public QObject
+class RoomBusInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit RoomBus(QObject *parent = nullptr);
+    explicit RoomBusInterface(QObject *parent = nullptr);
+    ~RoomBusInterface(void);
 
-signals:
+    void sendTrigger(uint16_t triggerChannel);
+
+    RoomBusAccess *busConnection(void);
+
+private:
+    RoomBusAccess _busConnection;
+    uint8_t _sourceAddress = 0x7E;
 };
 
-#endif // ROOMBUS_H
+#endif // ROOM_BUS_INTERFACE_H

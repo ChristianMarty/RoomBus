@@ -1,8 +1,8 @@
 #include <QCoreApplication>
-#include "unfoldedCircle/unfoldedCircleRemote.h"
-
 #include <QCommandLineParser>
-#include "busAccess.h"
+
+#include "unfoldedCircle/unfoldedCircleRemote.h"
+#include "roomBus/roomBus.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
 
     parser.process(app);
 
-    UnfoldedCircle::Server remote;
+    RoomBusInterface roomBusInterface;
+    UnfoldedCircle::Server remote{&roomBusInterface};
 
     if(parser.isSet(ipOption)&&parser.isSet(pinOption)){
         const QString ip = parser.value(ipOption);
@@ -30,9 +31,6 @@ int main(int argc, char *argv[])
 
         remote.registerDriver(ip, pin.toInt());
     }
-
-    RoomBusAccess busAccess;
-    busAccess.openSerialConnection("COM8");
 
     return app.exec();
 }
