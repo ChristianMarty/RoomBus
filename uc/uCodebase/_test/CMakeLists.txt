@@ -12,7 +12,7 @@ add_executable(TestuCodebase
         ../utility/string.c
         ../utility/perlin.c
         ../driver/SAMx5x/tickTimer.c
-        ../protocol/valueReportProtocol.cpp
+        ../protocol/valueSystemProtocol.cpp
 )
 
 target_include_directories(TestuCodebase PRIVATE ..)

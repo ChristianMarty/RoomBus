@@ -124,9 +124,9 @@ const stateSystemProtocol_t stateSystem = {
 //**** Trigger Configuration ******************************************************************************************
 
 const tsp_triggerSignal_t triggerSignals[] = {
-	{ 0x06, "Button 1"},
-	{ 0x09, "Button 2"},
-	{ 0x0C, "Button 3"},
+	{ 0x07, "Button 1"},
+	{ 0x0A, "Button 2"},
+	{ 0x0D, "Button 3"},
 		
 	{ 0x5E, "Amp"},		
 			

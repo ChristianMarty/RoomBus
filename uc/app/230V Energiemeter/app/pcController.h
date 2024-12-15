@@ -8,10 +8,10 @@
 
 #ifndef PCCONTROLLER_H_
 #define PCCONTROLLER_H_
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 #include "utility/edgeDetect.h"
-#include "Raumsteuerung/stateReportProtocol.h"
-#include "Raumsteuerung/bistableRelay.h"
+#include "protocol/stateSystemProtocol.h"
+#include "utility/bistableRelay.h"
 
 
 #define  PC_BUTTON_LIGHT IO_A05
@@ -21,13 +21,13 @@ struct {
 	bool initTurnOn;
 	bool initTurnOff;
 
-	srp_state_t reportedState;
+	ssp_state_t reportedState;
 	
-	srp_state_t peripheralState;
-	srp_state_t computerState;
+	ssp_state_t peripheralState;
+	ssp_state_t computerState;
 	
-	srp_state_t _peripheralStateOld;
-	srp_state_t _computerStateOld;
+	ssp_state_t _peripheralStateOld;
+	ssp_state_t _computerStateOld;
 
 	bsRelay_t peripheralRelay;
 	bsRelay_t computerRelay;
@@ -72,8 +72,8 @@ void pcController_init(const kernel_t *kernel)
 	pcController.peripheralState = srp_state_undefined;
 	pcController.computerState = srp_state_undefined;
 	
-	pcController._peripheralStateOld = srp_state_transitioning;
-	pcController._computerStateOld = srp_state_transitioning;
+	pcController._peripheralStateOld = ssp_state_transitioning;
+	pcController._computerStateOld = ssp_state_transitioning;
 	
 	kernel->tickTimer.reset(&buttonBlinkTimer);
 	kernel->tickTimer.reset(&pcIsOnTimoutTimer);

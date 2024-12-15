@@ -2,20 +2,17 @@
 #define LIGHT_BUS_MODUL_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
+#include "common/kernel.h"
+#include "common/io_same51jx.h"
+#include "common/typedef.h"
 
-#include "Raumsteuerung/lightBus.h"
-
-#include "kernel/busController_IO.h"
-
-#include "lightBusModul.h"
-
+#include "interface/lightBus.h"
 
 #include "utility/cobs.h"
 
-#include "drv/SAMx5x/dmx.h"
-#include "drv/SAMx5x/dma.h"
-#include "drv/SAMx5x/uart.h"
+#include "driver/SAMx5x/dmx.h"
+#include "driver/SAMx5x/dma.h"
+#include "driver/SAMx5x/uart.h"
 
 typedef enum {
 	lightBusModul_channel_1,
@@ -40,16 +37,16 @@ typedef struct {
 }lightBusModul_t;
 
 
-void lightBusModul_init(const kernel_t *kernel, lightBusModul_t *lightBusModul);
-void lightBusModul_handler(const kernel_t *kernel, lightBusModul_t *lightBusModul);
+void lightBusModul_init(lightBusModul_t *lightBusModul);
+void lightBusModul_handler(lightBusModul_t *lightBusModul);
 
-void lightBusModul_send(const kernel_t *kernel, lightBusModul_channel_t channel, const uint8_t *data, uint8_t size);
-void lightBusModul_set(const kernel_t *kernel, lightBusModul_channel_t channel, uint8_t address, lightBus_fade_t fade0, uint16_t ch0, lightBus_fade_t fade1, uint16_t ch1, lightBus_fade_t fade2, uint16_t ch2, lightBus_fade_t fade3, uint16_t ch3);
-void lightBusModul_execute(const kernel_t *kernel, lightBusModul_channel_t channel, uint8_t address);
+void lightBusModul_send(lightBusModul_channel_t channel, const uint8_t *data, uint8_t size);
+void lightBusModul_set(lightBusModul_channel_t channel, uint8_t address, lightBus_fade_t fade0, uint16_t ch0, lightBus_fade_t fade1, uint16_t ch1, lightBus_fade_t fade2, uint16_t ch2, lightBus_fade_t fade3, uint16_t ch3);
+void lightBusModul_execute(lightBusModul_channel_t channel, uint8_t address);
 
-uint16_t lightBusModul_uart_dataAvailable(const kernel_t *kernel, lightBusModul_t *lightBusModul);
-void lightBusModul_uart_dataClear(const kernel_t *kernel, lightBusModul_t *lightBusModul);
-uint8_t *lightBusModul_uart_data(const kernel_t *kernel, lightBusModul_t *lightBusModul);
+uint16_t lightBusModul_uart_dataAvailable(lightBusModul_t *lightBusModul);
+void lightBusModul_uart_dataClear(lightBusModul_t *lightBusModul);
+uint8_t *lightBusModul_uart_data(lightBusModul_t *lightBusModul);
 
 
 #endif /* LIGHT_BUS_MODUL_H_ */

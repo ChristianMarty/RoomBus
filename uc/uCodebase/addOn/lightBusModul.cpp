@@ -1,11 +1,14 @@
 
-#include "lightBusModul.h"
-#include "Raumsteuerung/lightBus.h"
 
-#include "drv/SAMx5x/uart.h"
-#include "drv/SAMx5x/pin.h"
+#include "lightBusModul.h"
+#include "interface/lightBus.h"
+
+#include "driver/SAMx5x/uart.h"
+#include "driver/SAMx5x/pin.h"
 #include "utility/cobs.h"
 #include "utility/softCRC.h"
+
+#include "common/kernel.h"
 
 
 lightBus_t lightBus_1;
@@ -59,43 +62,43 @@ void uart_rxInterrupt(void)
 }
 
 
-uint16_t lightBusModul_uart_dataAvailable(const kernel_t *kernel, lightBusModul_t *lightBusModul)
+uint16_t lightBusModul_uart_dataAvailable(lightBusModul_t *lightBusModul)
 {
 	return uart_rxSize;
 }
 
-uint8_t *lightBusModul_uart_data(const kernel_t *kernel, lightBusModul_t *lightBusModul)
+uint8_t *lightBusModul_uart_data(lightBusModul_t *lightBusModul)
 {
 	return uart_rxBuffer;
 }
 
-void lightBusModul_uart_dataClear(const kernel_t *kernel, lightBusModul_t *lightBusModul)
+void lightBusModul_uart_dataClear(lightBusModul_t *lightBusModul)
 {
 	uart_rxSize = 0;
 }
 
-void lightBusModul_send(const kernel_t *kernel, lightBusModul_channel_t channel, const uint8_t *data, uint8_t size)
+void lightBusModul_send(lightBusModul_channel_t channel, const uint8_t *data, uint8_t size)
 {
 	switch(channel){
-		case lightBusModul_channel_1: lightBus_send(kernel, &lightBus_1, data, size); break;
-		case lightBusModul_channel_2: lightBus_send(kernel, &lightBus_2, data, size); break;
+		case lightBusModul_channel_1: lightBus_send(&lightBus_1, data, size); break;
+		case lightBusModul_channel_2: lightBus_send(&lightBus_2, data, size); break;
 	}
 }
 
 
-void lightBusModul_set(const kernel_t *kernel, lightBusModul_channel_t channel, uint8_t address, lightBus_fade_t fade0, uint16_t ch0, lightBus_fade_t fade1, uint16_t ch1, lightBus_fade_t fade2, uint16_t ch2, lightBus_fade_t fade3, uint16_t ch3)
+void lightBusModul_set(lightBusModul_channel_t channel, uint8_t address, lightBus_fade_t fade0, uint16_t ch0, lightBus_fade_t fade1, uint16_t ch1, lightBus_fade_t fade2, uint16_t ch2, lightBus_fade_t fade3, uint16_t ch3)
 {
 	switch(channel){
-		case lightBusModul_channel_1: lightBus_set(kernel, &lightBus_1, address, fade0, ch0, fade1, ch1, fade2, ch2, fade3, ch3); break;
-		case lightBusModul_channel_2: lightBus_set(kernel, &lightBus_2, address, fade0, ch0, fade1, ch1, fade2, ch2, fade3, ch3); break;
+		case lightBusModul_channel_1: lightBus_set(&lightBus_1, address, fade0, ch0, fade1, ch1, fade2, ch2, fade3, ch3); break;
+		case lightBusModul_channel_2: lightBus_set(&lightBus_2, address, fade0, ch0, fade1, ch1, fade2, ch2, fade3, ch3); break;
 	}	
 }
 
-void lightBusModul_execute(const kernel_t *kernel, lightBusModul_channel_t channel, uint8_t address)
+void lightBusModul_execute(lightBusModul_channel_t channel, uint8_t address)
 {
 	switch(channel){
-		case lightBusModul_channel_1: lightBus_execute(kernel, &lightBus_1, address); break;
-		case lightBusModul_channel_2: lightBus_execute(kernel, &lightBus_2, address); break;
+		case lightBusModul_channel_1: lightBus_execute(&lightBus_1, address); break;
+		case lightBusModul_channel_2: lightBus_execute(&lightBus_2, address); break;
 	}
 }
 
@@ -104,14 +107,14 @@ dma_transfer_t *dma_dmxTx;
 dmx_c dmx;
 uint32_t dmx_timer;
 
-void lightBusModul_init(const kernel_t *kernel, lightBusModul_t *lightBusModul)
+void lightBusModul_init(lightBusModul_t *lightBusModul)
 {
 		_lightBusModul = lightBusModul;
 		
 		if(lightBusModul->dmx_enable)
 		{
 			// Init DMX
-			dmx.init(kernel->clk_16MHz, SERCOM2);
+			dmx.init(kernel.clk_16MHz, SERCOM2);
 			pin_enablePeripheralMux(IO_D04, PIN_FUNCTION_C);
 			pin_enablePeripheralMux(IO_D05, PIN_FUNCTION_C);
 			
@@ -126,48 +129,48 @@ void lightBusModul_init(const kernel_t *kernel, lightBusModul_t *lightBusModul)
 			dma_init();
 			dma_dmxTx = dma_getTransfer(DMA_CH00);
 			
-			kernel->tickTimer.reset(&dmx_timer);
+			kernel.tickTimer.reset(&dmx_timer);
 		
 		}
 			
 		// Init Light 1 BUS
-		lightBus_init(kernel, &lightBus_1, SERCOM5);
+		lightBus_init(&lightBus_1, SERCOM5);
 		pin_enablePeripheralMux(IO_D12, PIN_FUNCTION_C);
 		pin_enablePeripheralMux(IO_D13, PIN_FUNCTION_C);
-		kernel->nvic.assignInterruptHandler(SERCOM5_2_IRQn,uart_5_onRx);
-		kernel->nvic.assignInterruptHandler(SERCOM5_1_IRQn,uart_5_onTx);
+		kernel.nvic.assignInterruptHandler(SERCOM5_2_IRQn,uart_5_onRx);
+		kernel.nvic.assignInterruptHandler(SERCOM5_1_IRQn,uart_5_onTx);
 		
 		lightBus_1.onReceive = lightBus_1_onReceive;
 		
 		// Init Light 2 BUS
-		lightBus_init(kernel, &lightBus_2, SERCOM1);
+		lightBus_init(&lightBus_2, SERCOM1);
 		pin_enablePeripheralMux(IO_D08, PIN_FUNCTION_C);
 		pin_enablePeripheralMux(IO_D09, PIN_FUNCTION_C);
-		kernel->nvic.assignInterruptHandler(SERCOM1_2_IRQn,uart_1_onRx);
-		kernel->nvic.assignInterruptHandler(SERCOM1_1_IRQn,uart_1_onTx);
+		kernel.nvic.assignInterruptHandler(SERCOM1_2_IRQn,uart_1_onRx);
+		kernel.nvic.assignInterruptHandler(SERCOM1_1_IRQn,uart_1_onTx);
 		
 		lightBus_2.onReceive = lightBus_2_onReceive;
 			
 		// Init UART Interface 
-		uart.initUart(kernel->clk_16MHz, SERCOM4, 500000,uart_c::none);
+		uart.initUart(kernel.clk_16MHz, SERCOM4, 500000,uart_c::none);
 		pin_enablePeripheralMux(IO_D00, PIN_FUNCTION_C);
 		pin_enablePeripheralMux(IO_D01, PIN_FUNCTION_C);
 			
-		kernel->nvic.assignInterruptHandler(SERCOM4_2_IRQn, uart_rxInterrupt);
+		kernel.nvic.assignInterruptHandler(SERCOM4_2_IRQn, uart_rxInterrupt);
 		
 
 }
 
 
-void lightBusModul_handler(const kernel_t *kernel, lightBusModul_t *lightBusModul)
+void lightBusModul_handler(lightBusModul_t *lightBusModul)
 {
-	lightBus_handler(kernel, &lightBus_1);
-	lightBus_handler(kernel, &lightBus_2);
+	lightBus_handler(&lightBus_1);
+	lightBus_handler(&lightBus_2);
 	
 	if(lightBusModul->dmx_enable)
 	{
 		// DMX Update
-		if(kernel->tickTimer.delay1ms(&dmx_timer,25))
+		if(kernel.tickTimer.delay1ms(&dmx_timer,25))
 		{
 			lightBusModul->dmx_data[0] = 0x00; // Break
 			lightBusModul->dmx_data[1] = 0x00;

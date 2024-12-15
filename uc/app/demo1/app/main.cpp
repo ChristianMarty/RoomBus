@@ -11,10 +11,10 @@
 
 #include "driver/SAMx5x/genericClockController.h"
 
-#include "protocol/triggerProtocol.h"
-#include "protocol/eventProtocol.h"
-#include "protocol/stateReportProtocol.h"
-#include "protocol/valueReportProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
+#include "protocol/eventSystemProtocol.h"
+#include "protocol/stateSystemProtocol.h"
+#include "protocol/valueSystemProtocol.h"
 
 #include "utility/edgeDetect.h"
 
@@ -108,26 +108,26 @@ const eventSystemProtocol_t eventSystem = {
 
 //**** State Configuration ********************************************************************************************
 
-void led2Action(uint16_t stateChannelNumber, srp_state_t state)
+void led2Action(uint16_t stateChannelNumber, ssp_state_t state)
 {
 	if(state == srp_state_on)pin_setOutput(LED2, false);
 	else pin_setOutput(LED2, true);
 }
 
-const srp_stateSignal_t stateReportSignal[] = {
+const ssp_stateSignal_t stateReportSignal[] = {
 	{0x0100, "Button 3 Signal", 10}
 };
-#define stateReportSignalListSize (sizeof(stateReportSignal)/sizeof(srp_stateSignal_t))
+#define stateReportSignalListSize (sizeof(stateReportSignal)/sizeof(ssp_stateSignal_t))
 
-const srp_stateSlot_t stateReportSlots[] = {
+const ssp_stateSlot_t stateReportSlots[] = {
 	{0x0100, "LED 3 Slot", 10, led2Action}
 };
-#define stateReportSlotListSize (sizeof(stateReportSlots)/sizeof(srp_stateSlot_t))
+#define stateReportSlotListSize (sizeof(stateReportSlots)/sizeof(ssp_stateSlot_t))
 
-srp_itemState_t stateReportSignalStatusList[stateReportSignalListSize];
-srp_itemState_t stateReportSlotStatusList[stateReportSlotListSize];
+ssp_itemState_t stateReportSignalStatusList[stateReportSignalListSize];
+ssp_itemState_t stateReportSlotStatusList[stateReportSlotListSize];
 
-const stateReportProtocol_t stateReportSystem = {
+const stateSystemProtocol_t stateReportSystem = {
 	.signals = stateReportSignal,
 	.signalSize = stateReportSignalListSize,
 	.slots = stateReportSlots,
@@ -140,28 +140,28 @@ bool state1 = false;
 void trigger1Action(uint16_t triggerChannelNumber)
 {
 	state1 = !state1;
-	if(state1) srp_setStateByIndex(&stateReportSystem, 0, srp_state_on);
-	else srp_setStateByIndex(&stateReportSystem, 0, srp_state_off);
+	if(state1) ssp_setStateByIndex(&stateReportSystem, 0, srp_state_on);
+	else ssp_setStateByIndex(&stateReportSystem, 0, srp_state_off);
 }
 
 
 //**** Value Configuration ********************************************************************************************
 
-const vrp_valueSignal_t valueReportSignal[] = {
-	{0x0100, "Value Signal", 10, true, {.Number = 10.0}, {.Number = 20.0}, uom_number, nullptr},
-	{0x0101, "Value Signal 2", 10, false, {.Long = 0}, {.Long = 255}, uom_long, nullptr}
+const vsp_valueSignal_t valueReportSignal[] = {
+	{0x0100, "Value Signal", 10, true, {.Number = 10.0}, {.Number = 20.0}, vsp_uom_number, nullptr},
+	{0x0101, "Value Signal 2", 10, false, {.Long = 0}, {.Long = 255}, vsp_uom_long, nullptr}
 };
-#define valueReportSignalListSize (sizeof(valueReportSignal)/sizeof(vrp_valueSignal_t))
+#define valueReportSignalListSize (sizeof(valueReportSignal)/sizeof(vsp_valueSignal_t))
 
-const vrp_valueSlot_t valueReportSlots[] = {
+const vsp_valueSlot_t valueReportSlots[] = {
 	{0x0100, "Value Slot", 10, nullptr}
 };
-#define valueReportSlotListSize (sizeof(valueReportSlots)/sizeof(vrp_valueSlot_t))
+#define valueReportSlotListSize (sizeof(valueReportSlots)/sizeof(vsp_valueSlot_t))
 
-vrp_itemState_t valueReportSignalStatusList[valueReportSignalListSize];
-vrp_itemState_t valueReportSlotStatusList[valueReportSlotListSize];
+vsp_itemState_t valueReportSignalStatusList[valueReportSignalListSize];
+vsp_itemState_t valueReportSlotStatusList[valueReportSlotListSize];
 
-const valueReportProtocol_t valueReportSystem = {
+const valueSystemProtocol_t valueReportSystem = {
 	.signals = valueReportSignal,
 	.signalSize = valueReportSignalListSize,
 	.slots = valueReportSlots,
@@ -176,10 +176,10 @@ bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, c
 {
 	switch(protocol)
 	{
-		case busProtocol_triggerProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_eventProtocol:			return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
-		case busProtocol_stateReportProtocol:	return srp_receiveHandler(&stateReportSystem, sourceAddress, command, data, size);
-		case busProtocol_valueReportProtocol:	return vrp_receiveHandler(&valueReportSystem, sourceAddress, command, data, size);
+		case busProtocol_triggerSystemProtocol:	return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
+		case busProtocol_eventSystemProtocol:	return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
+		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateReportSystem, sourceAddress, command, data, size);
+		case busProtocol_valueSystemProtocol:	return vsp_receiveHandler(&valueReportSystem, sourceAddress, command, data, size);
 	}
 	return false;
 }
@@ -189,7 +189,7 @@ bool led3;
 bool led4;
 
 uint32_t valueTimer;
-vrp_valueData_t val1;
+vsp_valueData_t val1;
 int main(void)
 {
 	// App Init Code
@@ -219,8 +219,8 @@ int main(void)
 		
 		tsp_initialize(&triggerSystem);
 		esp_initialize(&eventSystem);
-		srp_initialize(&stateReportSystem);
-		vrp_initialize(&valueReportSystem);
+		ssp_initialize(&stateReportSystem);
+		vsp_initialize(&valueReportSystem);
 		
 		kernel.tickTimer.reset(&valueTimer);
 		val1.Number = 0;
@@ -234,8 +234,8 @@ int main(void)
 	{	
 		tsp_mainHandler(&triggerSystem);
 		esp_mainHandler(&eventSystem);
-		srp_mainHandler(&stateReportSystem);
-		vrp_mainHandler(&valueReportSystem);
+		ssp_mainHandler(&stateReportSystem);
+		vsp_mainHandler(&valueReportSystem);
 		
 		if(ed_onFalling(&button[0], pin_getInput(BUTTON1))){
 			uint8_t triggerList[] = {0};
@@ -258,13 +258,13 @@ int main(void)
 			pin_setOutput(LED4, !led4);
 		}
 		
-		srp_state_t state = srp_getStateByIndex(&stateReportSystem, 0);
+		ssp_state_t state = ssp_getStateByIndex(&stateReportSystem, 0);
 		if(state == srp_state_on)pin_setOutput(LED1, !true);
 		else pin_setOutput(LED1, !false);
 		
 		if(kernel.tickTimer.delay1ms(&valueTimer, 1000)){
 			val1.Number += 1.7;
-			vrp_sendValueReport(&valueReportSystem, 0x0100, val1);
+			vsp_sendValueReportByChannel(&valueReportSystem, 0x0100, val1);
 		}
 	}
 	

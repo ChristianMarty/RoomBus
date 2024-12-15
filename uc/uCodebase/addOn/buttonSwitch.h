@@ -26,7 +26,6 @@ typedef struct {
 }buttonSwitch_userInput_t;
 	
 typedef struct{
-	
 	uint8_t address;
 	uint8_t port;
 	

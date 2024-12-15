@@ -1,8 +1,7 @@
 
 #include "lightBus.h"
-#include "drv/SAMx5x/pin.h"
+#include "driver/SAMx5x/pin.h"
 #include "utility/softCRC.h"
-
 
 uint8_t rxBuffer[100];
 volatile uint8_t rxSize = 0;
@@ -20,7 +19,7 @@ void lightBus_onRx(lightBus_t *lightBus)
 		if(rxByte == 0x00) rxByte = 0x55;
 		else if(rxByte== 0x55) rxByte = 0x00;
 		
-		rxSize = cobs_decodeStream(&lightBus->cobsDecodeStream, rxByte, &rxBuffer[0]);// , sizeof(rxBuffer)
+		rxSize = cobs_decodeStream<0x55>(&lightBus->cobsDecodeStream, rxByte, &rxBuffer[0]);// , sizeof(rxBuffer)
 	//}
 }
 
@@ -30,15 +29,15 @@ void lightBus_onTx(lightBus_t *lightBus)
 }
 
 
-void lightBus_init(const kernel_t *kernel, lightBus_t *lightBus, Sercom *sercom_p)
+void lightBus_init(lightBus_t *lightBus, Sercom *sercom_p)
 {
-	lightBus->uartCom.initUart(kernel->clk_16MHz, sercom_p, 14400, uart_c::odd);	
-	kernel->tickTimer.reset(&lightBus->com_timer);	
+	lightBus->uartCom.initUart(kernel.clk_16MHz, sercom_p, 4800, uart_c::none);	
+	kernel.tickTimer.reset(&lightBus->com_timer);	
 	
 	cobs_decodeStreamStart(&lightBus->cobsDecodeStream);
 }
 
-void lightBus_handler(const kernel_t *kernel, lightBus_t *lightBus)
+void lightBus_handler(lightBus_t *lightBus)
 {
 	if(rxSize > 0)
 	{
@@ -52,14 +51,14 @@ void lightBus_handler(const kernel_t *kernel, lightBus_t *lightBus)
 	
 	//if(lightBus->state == lightBus_state_transmit && !lightBus->uartCom.txBusy()) lightBus->state = lightBus_state_receive;
 	
-	if(kernel->tickTimer.delay1ms(&lightBus->com_timer, 100))
+	if(kernel.tickTimer.delay1ms(&lightBus->com_timer, 100))
 	{
 		
 	}
 
 }
 
-bool lightBus_send(const kernel_t *kernel, lightBus_t *lightBus, const uint8_t *data, uint8_t size)
+bool lightBus_send(lightBus_t *lightBus, const uint8_t *data, uint8_t size)
 {
 	//lightBus->state = lightBus_state_transmit;
 	if(lightBus->uartCom.txBusy()) return 0; 
@@ -78,14 +77,8 @@ bool lightBus_send(const kernel_t *kernel, lightBus_t *lightBus, const uint8_t *
 	size ++;
 	
 	txBuffer[0] = 0;
-	size = cobs_encode(&txBuffer[1],&temp[0],size);
+	size = cobs_encode<0x55>(&txBuffer[1],&temp[0],size);
  	size ++;
-	
-	for(uint8_t i = 0; i< size; i++)
-	{
-		if(txBuffer[i] == 0x00) txBuffer[i] = 0x55;
-		else if(txBuffer[i] == 0x55) txBuffer[i] = 0x00;
-	}
 	
 	lightBus->uartCom.sendData(&txBuffer[0],size);
 	
@@ -95,7 +88,7 @@ bool lightBus_send(const kernel_t *kernel, lightBus_t *lightBus, const uint8_t *
 #define LIGHTBUS_CMD_SET_ALL 0x04
 #define LIGHTBUS_CMD_EXECUTE 0x05
 
-void lightBus_set(const kernel_t *kernel, lightBus_t *lightBus, uint8_t address, lightBus_fade_t fade0, uint16_t ch0, lightBus_fade_t fade1, uint16_t ch1, lightBus_fade_t fade2, uint16_t ch2, lightBus_fade_t fade3, uint16_t ch3)
+void lightBus_set(lightBus_t *lightBus, uint8_t address, lightBus_fade_t fade0, uint16_t ch0, lightBus_fade_t fade1, uint16_t ch1, lightBus_fade_t fade2, uint16_t ch2, lightBus_fade_t fade3, uint16_t ch3)
 {
 	uint8_t data[13];
 	data[0] = (address<<4) | LIGHTBUS_CMD_SET_ALL;
@@ -115,13 +108,13 @@ void lightBus_set(const kernel_t *kernel, lightBus_t *lightBus, uint8_t address,
 	data[11] = (ch3>>8)&0xFF;
 	data[12] = ch3&0xFF;
 	
-	lightBus_send(kernel,lightBus,data,sizeof(data));
+	lightBus_send(lightBus,data,sizeof(data));
 }
 
-void lightBus_execute(const kernel_t *kernel, lightBus_t *lightBus, uint8_t address)
+void lightBus_execute(lightBus_t *lightBus, uint8_t address)
 {
 	uint8_t data[1];
 	data[0] = (address<<4) | LIGHTBUS_CMD_EXECUTE;
 
-	lightBus_send(kernel,lightBus,data,sizeof(data));
+	lightBus_send(lightBus,data,sizeof(data));
 }

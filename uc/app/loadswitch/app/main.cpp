@@ -91,43 +91,43 @@ const stateSystemProtocol_t stateSystem = {
 //**** Trigger Configuration ******************************************************************************************
 
 const tsp_triggerSlot_t triggerSlots[] = {
-	{ 0x00, "Power On", mainPowerOnOff },
-	{ 0x01, "Power Off", mainPowerOnOff},
+	{ 0x01, "Power On", mainPowerOnOff },
+	{ 0x02, "Power Off", mainPowerOnOff},
 	
-	{ 0x02, "Output All On", outputOnOff},
-	{ 0x03, "Output All Off", outputOnOff},
+	{ 0x03, "Output All On", outputOnOff},
+	{ 0x04, "Output All Off", outputOnOff},
 		
-	{ 0x04, "Output 1 On", outputOnOff},
-	{ 0x05, "Output 1 Off", outputOnOff},
-	{ 0x06, "Output 1 Toggle", outputOnOff},
+	{ 0x05, "Output 1 On", outputOnOff},
+	{ 0x06, "Output 1 Off", outputOnOff},
+	{ 0x07, "Output 1 Toggle", outputOnOff},
 	
-	{ 0x07, "Output 2 On", outputOnOff},
-	{ 0x08, "Output 2 Off", outputOnOff},
-	{ 0x09, "Output 2 Toggle", outputOnOff},
+	{ 0x08, "Output 2 On", outputOnOff},
+	{ 0x09, "Output 2 Off", outputOnOff},
+	{ 0x0A, "Output 2 Toggle", outputOnOff},
 			
-	{ 0x0A, "Output 3 On", outputOnOff},
-	{ 0x0B, "Output 3 Off", outputOnOff},
-	{ 0x0C, "Output 3 Toggle", outputOnOff},
+	{ 0x0B, "Output 3 On", outputOnOff},
+	{ 0x0C, "Output 3 Off", outputOnOff},
+	{ 0x0D, "Output 3 Toggle", outputOnOff},
 	
-	{ 0x0D, "Output 4 On", outputOnOff},
-	{ 0x0E, "Output 4 Off", outputOnOff},
-	{ 0x0F, "Output 4 Toggle", outputOnOff},
+	{ 0x0E, "Output 4 On", outputOnOff},
+	{ 0x0F, "Output 4 Off", outputOnOff},
+	{ 0x10, "Output 4 Toggle", outputOnOff},
 	
-	{ 0x10, "Output 5 On", outputOnOff},
-	{ 0x11, "Output 5 Off", outputOnOff},
-	{ 0x12, "Output 5 Toggle", outputOnOff},
+	{ 0x11, "Output 5 On", outputOnOff},
+	{ 0x12, "Output 5 Off", outputOnOff},
+	{ 0x13, "Output 5 Toggle", outputOnOff},
 	
-	{ 0x13, "Output 6 On", outputOnOff},
-	{ 0x14, "Output 6 Off", outputOnOff},
-	{ 0x15, "Output 6 Toggle", outputOnOff},
+	{ 0x14, "Output 6 On", outputOnOff},
+	{ 0x15, "Output 6 Off", outputOnOff},
+	{ 0x16, "Output 6 Toggle", outputOnOff},
 		
-	{ 0x16, "Output 7 On", outputOnOff},
-	{ 0x17, "Output 7 Off", outputOnOff},
-	{ 0x18, "Output 7 Toggle", outputOnOff},
+	{ 0x17, "Output 7 On", outputOnOff},
+	{ 0x18, "Output 7 Off", outputOnOff},
+	{ 0x19, "Output 7 Toggle", outputOnOff},
 		
-	{ 0x19, "Output 8 On", outputOnOff},
-	{ 0x1A, "Output 8 Off", outputOnOff},
-	{ 0x1B, "Output 8 Toggle", outputOnOff},
+	{ 0x1A, "Output 8 On", outputOnOff},
+	{ 0x1B, "Output 8 Off", outputOnOff},
+	{ 0x1C, "Output 8 Toggle", outputOnOff},
 		
 // **** AMP *********************************************************************************************************** 		
 	{ 0x40, "Amp Main On", ampPowerOnOff },
@@ -189,10 +189,10 @@ const triggerSystemProtocol_t triggerSystem = {
 //**** Event Configuration ********************************************************************************************
 
 const esp_eventSlot_t eventSlots[] = {
-	{0x00, "12V Power Supply", 30000, nullptr},
-	{0x01, "LED Power", 30000, nullptr},
-	{0x02, "A/V Aux Power", 30000, nullptr},
-	{0x03, "Amp Power", 60000, nullptr}
+	{0x01, "12V Power Supply", 30000, nullptr},
+	{0x02, "LED Power", 30000, nullptr},
+	{0x03, "A/V Aux Power", 30000, nullptr},
+	{0x04, "Amp Power", 60000, nullptr}
 };
 #define eventSlotListSize ARRAY_LENGTH(eventSlots)
 
@@ -269,11 +269,11 @@ void mainOnOffControl()
 
 void outputOnOff(uint16_t triggerChannelNumber)
 {
-	if(triggerChannelNumber == 2) output = 0xFF;
-	else if(triggerChannelNumber == 3) output = 0x00;
+	if(triggerChannelNumber == 3) output = 0xFF;
+	else if(triggerChannelNumber == 4) output = 0x00;
 	else
 	{
-		triggerChannelNumber -= 4;
+		triggerChannelNumber -= 5;
 			
 		if(triggerChannelNumber%3 == 0)
 		{
@@ -440,9 +440,8 @@ void setAmpStandby(uint8_t state)
 }
 
 
-bool mainOutEventOld;
-bool ampPowerEventOld;
-
+bool mainPowerOld;
+bool ampPowerOld;
 
 int main(void)
 {
@@ -452,11 +451,11 @@ int main(void)
 		Reset_Handler();
 
 		output = 0;
-		outputOld = 0xFF;
+		outputOld = output;
 		setOutput(output);
 		
 		amp = 0;
-		ampOld = 0xFF;
+		ampOld = amp;
 		setAmpStandby(amp);
 		
 		pin_enableOutput(IO_D00);
@@ -490,8 +489,8 @@ int main(void)
 		onOffState = onOff_idel;
 		ampOnOffState = onOff_idel;
 		
-		mainOutEventOld = esp_getStateByIndex(&eventSystem, 0);
-		ampPowerEventOld = esp_getStateByIndex(&eventSystem, 2);
+		mainPowerOld = esp_getStateByIndex(&eventSystem, 0);
+		ampPowerOld = esp_getStateByIndex(&eventSystem, 2);
 		
 		kernel.appSignals->appReady = true;
 	}
@@ -516,36 +515,49 @@ int main(void)
 		else output &= 0xBF;
 			
 		// Output Power Control	
-		if((outputOld != output) || (mainOutEventOld != esp_getStateByIndex(&eventSystem, 0)))
+		uint8_t mainPower = esp_getStateByIndex(&eventSystem, 0);
+		if((outputOld != output) || (mainPowerOld != mainPower))
 		{
 			setOutput(output);
 			
 			outputOld = output;
-			mainOutEventOld = esp_getStateByIndex(&eventSystem, 0);
+			mainPowerOld = mainPower;
 			
-			if((output > 0) || mainOutEventOld) onOffState = onOff_on;
+			if(output || mainPower) onOffState = onOff_on;
 			else onOffState = onOff_turnOff;
 		}
 
 		// Amp control
-		if((ampOld != amp) || (ampPowerEventOld != esp_getStateByIndex(&eventSystem, 2)))
+		uint8_t ampPower = esp_getStateByIndex(&eventSystem, 2);
+		if((ampOld != amp) || (ampPowerOld != ampPower))
 		{
 			setAmpStandby(amp);
 			
 			ampOld = amp;
-			ampPowerEventOld = esp_getStateByIndex(&eventSystem, 2);
+			ampPowerOld = ampPower;
 			
-			if((amp > 0)||(esp_getStateByIndex(&eventSystem, 2) == true)) ampOnOffState = onOff_on;
+			if(amp || ampPower) ampOnOffState = onOff_on;
 			else ampOnOffState = onOff_turnOff;
 		}
-		
 	}
 	
 	// App deinit code
     if(kernel.kernelSignals->shutdownApp)
     {
-		setOutput(0);
-		kernel.appSignals->shutdownReady = true;
+		if(kernel.appSignals->appReady == true)
+		{
+			setOutput(0);
+			setAmpStandby(0);
+			bsRelay_set(&mainRelay, false);
+			bsRelay_set(&ampPowerRelay, false);
+		}
+		kernel.appSignals->appReady = false;
+		
+		bsRelay_handler(&mainRelay);
+		bsRelay_handler(&ampPowerRelay);
+		
+		if(bsRelay_state(&mainRelay) == bsRelay_off && bsRelay_state(&ampPowerRelay) == bsRelay_off){
+			kernel.appSignals->shutdownReady = true;
+		}
     }
-	
 }

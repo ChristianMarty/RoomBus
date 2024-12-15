@@ -1,6 +1,6 @@
 #ifdef TEST_RUN
 
-#include "../utility/bytearray.h"
+#include "utility/bytearray.h"
 
 TEST_CASE( "Test Bytearray", "[bytearray]" ) {
 

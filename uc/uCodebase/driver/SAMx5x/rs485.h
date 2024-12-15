@@ -13,7 +13,7 @@
 #include "genericClockController.h"
 #include "utility/bytearray.h"
 #include "sercom.h"
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 
 typedef enum {
 	rs485_state_idle,

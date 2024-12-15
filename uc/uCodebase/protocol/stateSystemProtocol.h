@@ -83,8 +83,8 @@ bool ssp_receiveHandler(const stateSystemProtocol_t *ssp, uint8_t sourceAddress,
 void ssp_setStateByIndex(const stateSystemProtocol_t *ssp, uint8_t stateChannelIndex, ssp_state_t state);
 ssp_state_t ssp_getStateByIndex(const stateSystemProtocol_t *ssp, uint8_t stateChannelIndex);
 
-#endif /* STATE_SYSTEM_PROTOCOL_H_ */
-
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* STATE_SYSTEM_PROTOCOL_H_ */

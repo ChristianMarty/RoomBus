@@ -1,6 +1,4 @@
-#ifdef TEST_RUN
-
-#include "../utility/string.h"
+#include "utility/string.h"
 
 TEST_CASE( "Test string_getLength", "[string_getLength]" ) {
 
@@ -80,10 +78,8 @@ TEST_CASE( "Test string_append", "[string_append]" ) {
         char str1[20] = "Test";
         const char str2[] = "222";
         char test[] = "Test222";
-        string_append(str1,str2);
-        REQUIRE(match_string(str1,test,sizeof(test)));
+        string_append(str1, str2);
+        REQUIRE(match_string(str1, test, sizeof(test)));
     }
 
 }
-
-#endif

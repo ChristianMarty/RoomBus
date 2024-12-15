@@ -103,7 +103,7 @@ bool nextion_sendCommand(nextion_t *nextion, uint8_t *command)
 		nextion->_txCounter++;
 		commandIndex++;
 		
-		if(nextion->_txCounter+3 >= sizeof(nextion->_txBuffer)){
+		if(nextion->_txCounter+3U >= sizeof(nextion->_txBuffer)){
 			return false;
 		}
 	}

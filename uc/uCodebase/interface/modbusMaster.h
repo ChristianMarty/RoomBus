@@ -2,11 +2,11 @@
 #define MODBUSMASTER_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
+#include "common/kernel.h"
 
-#include "utility/cobs.h"
-#include "kernel/busController_IO.h"
-#include "drv/SAMx5x/rs485.h"
+#include "utility/cobs_u8.h"
+#include "common/io_same51jx.h"
+#include "driver/SAMx5x/rs485.h"
 
 typedef void (*lb_onReceive_t)(const uint8_t *data, uint8_t size, bool error);
 

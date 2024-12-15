@@ -1,6 +1,6 @@
 #ifdef TEST_RUN
 
-#include "../utility/edgeDetect.h"
+#include "utility/edgeDetect.h"
 
 TEST_CASE( "Test edgeDetect", "[ed_onChange]" ) {
 

@@ -1,30 +1,26 @@
-/*
- * app.cpp
- *
- * Created: 20.04.2019 20:05:30
- * Author : Christian
- */ 
+//**********************************************************************************************************************
+// FileName : main.cpp
+// FilePath :
+// Author   : Christian Marty
+// Date		: 15.06.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#include "main.h"
 
-#include "sam.h"
-#include "kernel/kernel.h"
-#include "kernel/busController_IO.h"
+#include "protocol/stateSystemProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
+#include "protocol/eventSystemProtocol.h"
+#include "protocol/serialBridgeProtocol.h"
 
-#include "Raumsteuerung/stateReportProtocol.h"
-#include "Raumsteuerung/triggerProtocol.h"
-#include "Raumsteuerung/eventProtocol.h"
-#include "Raumsteuerung/serialBridgProtocol.h"
-
-#include "Raumsteuerung/lightBus.h"
-#include "Raumsteuerung/bistableRelay.h"
-
-#include "utility/edgeDetect.h"
+#include "interface/lightBus.h"
+#include "interface/modbusMaster.h"
 
 #include "powerMeterRead.h"
 #include "pcController.h"
 
-int main(const kernel_t *kernel);
-void onReceive(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
-kernel_t const *_kernel;
+int main(void);
+bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
+kernel_t kernel __attribute__((section(".kernelCall")));
 
 __attribute__((section(".appHeader"))) appHead_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
@@ -40,12 +36,33 @@ lightBus_t lightBus_1;
 
 struct{
 	bsRelay_t relay;
-	srp_state_t outputState;
-	srp_state_t outputStateOld;
+	ssp_state_t outputState;
+	ssp_state_t outputStateOld;
 } auxiliaryOutput;
 
+//**** State Configuration ********************************************************************************************
+#define STATE_SIGNAL_INTERVAL 10
+const ssp_stateSignal_t stateSignals[] = {
+	{0x01, "PC Status", STATE_SIGNAL_INTERVAL},
+	{0x00, "K3 - Auxiliary Status", STATE_SIGNAL_INTERVAL},
+	{0x02, "K2 - Peripheral Relay Status", STATE_SIGNAL_INTERVAL},
+	{0x03, "K1 - Computer Relay Status", STATE_SIGNAL_INTERVAL}
+};
+#define stateSystemSignaListSize ARRAY_LENGTH(stateSignals)
 
-void triggerHandler(uint8_t triggerChannelNumber)
+ssp_itemState_t stateSystemSignaStatusList[stateSystemSignaListSize];
+
+const stateSystemProtocol_t stateSystem = {
+	.signals = stateSignals,
+	.signalSize = stateSystemSignaListSize,
+	.slots = nullptr,
+	.slotSize = 0,
+	._signalState = stateSystemSignaStatusList,
+	._slotState = nullptr
+};
+
+//**** Trigger Configuration ******************************************************************************************
+void triggerHandler(uint16_t triggerChannelNumber)
 {
 	switch(triggerChannelNumber)
 	{		
@@ -59,55 +76,29 @@ void triggerHandler(uint8_t triggerChannelNumber)
 }
 
 const tsp_triggerSlot_t triggerSlotList[] = {
-	{UNFILTERED, 0x00, "Aux On",      triggerHandler},
-	{UNFILTERED, 0x01, "Aux Off",     triggerHandler},
-	{UNFILTERED, 0x02, "Aux Toggle",  triggerHandler},
+	{0x00, "Aux On",      triggerHandler},
+	{0x01, "Aux Off",     triggerHandler},
+	{0x02, "Aux Toggle",  triggerHandler},
 				
-	{UNFILTERED, 0x03, "PC Turn On",  triggerHandler},
-	{UNFILTERED, 0x04, "PC Turn Off", triggerHandler}
+	{0x03, "PC Turn On",  triggerHandler},
+	{0x04, "PC Turn Off", triggerHandler}
 	
 };
-#define triggerSlotListSize (sizeof(triggerSlotList)/sizeof(tsp_triggerSlot_t))
+#define triggerSlotListSize ARRAY_LENGTH(triggerSlotList)
 
-esp_eventState_t eventState[1];
-const esp_eventSignal_t eventSignals[] = {
-};
-
-const eventSystemProtocol_t eventSystem = {
-	.signals = eventSignals,
-	.signalSize = (sizeof(eventSignals)/sizeof(esp_eventSignal_t)),
-	.slots = nullptr,
-	.slotSize = 0
-};
-
-
-const srp_stateReportChannel_t stateReportList[] = {
-	{0x01, "PC Status", &pcController.reportedState},
-	{0x00, "K3 - Auxiliary Status", &auxiliaryOutput.outputState},
-	{0x02, "K2 - Peripheral Relay Status", &pcController.peripheralState},
-	{0x03, "K1 - Computer Relay Status", &pcController.computerState}
-};
-#define stateReportListSize (sizeof(stateReportList)/sizeof(srp_stateReportChannel_t))
-
-
-const stateReportProtocol_t stateReport = {
-	.states = nullptr,
-	.stateSize = 0,
-	.channels = stateReportList,
-	.channelSize = (sizeof(stateReportList)/sizeof(srp_stateReportChannel_t))
-};
-
-tsp_itemStatus_t _slotsStatus[triggerSlotListSize];
-const triggerSlotProtocol_t triggerSystem = {
+tsp_itemState_t triggerSlotStateList[triggerSlotListSize];
+const triggerSystemProtocol_t triggerSystem = {
 	.signals = nullptr,
 	.signalSize = 0,
 	.slots = triggerSlotList,
 	.slotSize = triggerSlotListSize,
-	._slotsStatus = &_slotsStatus[0]
+	._signalState = nullptr,
+	._slotState = triggerSlotStateList
 };
 
 
-// --- serialBridgeProtocol -----------------------------------------------------------------------
+
+//**** Serial Bridge Configuration ************************************************************************************
 
 void sbp_transmit_port0(const uint8_t *data, uint8_t size);
 const sbp_port_t serialPortList[] = {
@@ -117,14 +108,14 @@ const sbp_port_t serialPortList[] = {
 
 void sbp_transmit_port0(const uint8_t *data, uint8_t size)
 {
-	lightBus_send(_kernel, &lightBus_1, data, size); 
+	lightBus_send(kernel, &lightBus_1, data, size); 
 }
 
 void lightBus_onReceive(const uint8_t *data, uint8_t size, bool error)
 {
 	sbp_status_t status = sbp_status_t::sbp_state_ok;
 	if(error) status = sbp_status_t::sbp_state_crcError;
-	sbp_sendData(_kernel,0x7E,0,status,data,size);
+	sbp_sendData(kernel,0x7E,0,status,data,size);
 }
 
 const serialBridgeProtocol_t serialBridge = {
@@ -138,11 +129,10 @@ void onReceive(const kernel_t *kernel, uint8_t sourceAddress, busProtocol_t prot
 {	
 	switch(protocol)
 	{
-		case busProtocol_triggerProtocol:		tsp_receiveHandler(kernel, sourceAddress, command, data, size, &triggerSystem); break;
-		case busProtocol_stateReportProtocol:	srp_receiveHandler(kernel, sourceAddress, command, data, size, &stateReport); break;
-		case busProtocol_eventProtocol:			esp_receiveHandler(kernel, sourceAddress, command, data, size, &eventSystem); break;
-		case busProtocol_serialBridgeProtocol:	sbp_receiveHandler(kernel, sourceAddress, command, data, size, &serialBridge); break;
-		case busProtocol_valueReportProtocol:	vrp_receiveHandler(kernel, sourceAddress, command, data, size, &valueReportProtocol); break;
+		case busProtocol_triggerSystemProtocol:	tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size); break;
+		case busProtocol_stateSystemProtocol:	ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size); break;
+		case busProtocol_serialBridgeProtocol:	sbp_receiveHandler(&serialBridge, sourceAddress, command, data, size); break;
+		case busProtocol_valueSystemProtocol:	vsp_receiveHandler(&valueSystem, sourceAddress, command, data, size); break;
 	}
 }
 
@@ -185,10 +175,8 @@ void modbusMaster_onReadingCompleted(const modbusMaster_reading_t *reading)
 }
 
 // ------------------------------------------------------------------------------------------------
-int main(const kernel_t *kernel)
+int main(void)
 {
-	_kernel = kernel;
-	
 	// App init Code
 	if(kernel->kernelSignals->initApp)
 	{

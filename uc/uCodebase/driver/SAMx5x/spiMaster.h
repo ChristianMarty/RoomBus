@@ -3,8 +3,8 @@
 #define SPI_MASTER_H_
 
 #include "sam.h"
-#include "drv/SAMx5x/genericClockController.h"
-#include "kernel/kernel.h"
+#include "driver/SAMx5x/genericClockController.h"
+#include "common/kernel.h"
 
 #define  I2C_MASTER_TIMEOUT 1000
 
@@ -62,9 +62,9 @@ typedef enum
 
 class spiMaster_c
 {
-	public:
+public:
 	
-	void init(const kernel_t *kernel, Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor);
+	void init(Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor);
 	
 	void handler(void);
 	
@@ -78,10 +78,9 @@ class spiMaster_c
 
 	bool busy(void);
 	
-	private:
+private:
 
 	Sercom *_sercom_p;
-	const kernel_t *_kernel;
 	gclk_generator_t _clkGenerator;
 	uint8_t _clockDevisor;
 	

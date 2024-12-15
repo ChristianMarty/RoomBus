@@ -67,6 +67,29 @@ public:
         uint16_t timeout;
     };
 
+    enum class ValueCommand{
+        vsp_vCmd_setMinimum = 0x00,
+        vsp_vCmd_setMaximum,
+        vsp_vCmd_invert,
+
+        vsp_vCmd_setLongValueReject = 0x10,
+        vsp_vCmd_setLongValueClamp,
+
+        vsp_vCmd_addLongReject = 0x20,
+        vsp_vCmd_addLongClamp,
+
+        vsp_vCmd_subtractLongReject = 0x30,
+        vsp_vCmd_subtractLongClamp,
+
+
+        vsp_vCmd_setNumberValueReject = 0x40,
+        vsp_vCmd_setNumberValueClamp,
+
+        vsp_vCmd_addNumberReject = 0x50,
+        vsp_vCmd_addNumberClamp
+
+    };
+
     ValueSystemProtocol(RoomBusDevice *device);
 
     void pushData(RoomBus::Message msg);

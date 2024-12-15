@@ -53,7 +53,6 @@ const valueSystemProtocol_t valueSystem = {
 	._slotState = nullptr
 };
 
-
 uint8_t val;
 uint8_t val2;
 void midi_controllerChangeChange(uint8_t index)

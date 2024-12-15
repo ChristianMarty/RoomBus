@@ -205,7 +205,8 @@ void ValueSystemProtocol::sendValueCommand(uint16_t channel, ValueData value)
     msg.command = (uint8_t)RoomBus::ValueSystemCommand::ValueCommand;
 
     msg.data.append(RoomBus::packUint16(channel));
-    msg.data.append(RoomBus::packUint16(value.Long));
+    msg.data.append((uint8_t)ValueCommand::vsp_vCmd_setLongValueClamp);
+    msg.data.append(RoomBus::packUint32(value.Long));
 
     sendMessage(msg);
 }

@@ -12,6 +12,7 @@ public:
     ~RoomBusInterface(void);
 
     void sendTrigger(uint16_t triggerChannel);
+    void sendValue(uint16_t valueChannel, uint32_t value);
 
     RoomBusAccess *busConnection(void);
 

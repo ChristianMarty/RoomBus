@@ -41,6 +41,9 @@ encoderSwitch_t encoderSwitch_0;
 buttonSwitch_t buttonSwitch_0;
 i2cMaster_c i2c;
 
+uint32_t startupDelay;
+bool run;
+
 void i2cMbInterrupt(void)
 {
 	i2c.MbInterrupt();
@@ -70,7 +73,7 @@ const ssp_stateSlot_t stateSystemSlot[] = {
 		
 	{0x29, "Rotary Button LED", SLOT_TIMEOUT, nullptr}
 };
-#define stateSystemSlotListSize (sizeof(stateSystemSlot)/sizeof(ssp_stateSlot_t))
+#define stateSystemSlotListSize ARRAY_LENGTH(stateSystemSlot)
 
 ssp_itemState_t stateSystemSlotStatusList[stateSystemSlotListSize];
 
@@ -87,16 +90,16 @@ const stateSystemProtocol_t stateSystem = {
 //**** Trigger Configuration ******************************************************************************************
 
 const tsp_triggerSignal_t triggerSignals[] = {
-	{ 0x06, "Button 1"},
-	{ 0x09, "Button 2"},
-	{ 0x0C, "Button 3"},
-	{ 0x15, "Button 4"},
-	{ 0x12, "Button 5"},
-	{ 0x0F, "Button 6"},
+	{ 0x07, "Button 1"},
+	{ 0x0A, "Button 2"},
+	{ 0x0D, "Button 3"},
+	{ 0x16, "Button 4"},
+	{ 0x13, "Button 5"},
+	{ 0x10, "Button 6"},
 		
 	{ 0x5E, "Amp Button"}
 };
-#define triggerSignalListSize (sizeof(triggerSignals)/sizeof(tsp_triggerSignal_t))
+#define triggerSignalListSize ARRAY_LENGTH(triggerSignals)
 
 tsp_itemState_t triggerSignalStateList[triggerSignalListSize];
 
@@ -114,7 +117,7 @@ const triggerSystemProtocol_t triggerSystem = {
 const vsp_valueSlot_t valueSlots[] = {
 	{ 0x01, "Rotary Knob 1", SLOT_TIMEOUT, nullptr}
 };
-#define valueSlotListSize (sizeof(valueSlots)/sizeof(vsp_valueSlot_t))
+#define valueSlotListSize ARRAY_LENGTH(valueSlots)
 
 vsp_itemState_t valueSlotStateList[valueSlotListSize];
 
@@ -145,6 +148,9 @@ int main(void)
 	if(kernel.kernelSignals->initApp)
 	{
 		Reset_Handler();
+		
+		kernel.tickTimer.reset(&startupDelay);
+		run = false;
 		
 		pin_enableOutput(IO_D03); // Reset
 		pin_setOutput(IO_D03, true);
@@ -178,13 +184,15 @@ int main(void)
 		tsp_initialize(&triggerSystem);
 		vsp_initialize(&valueSystem);
 		ssp_initialize(&stateSystem);
-				
+		
 		kernel.appSignals->appReady = true;
 	}
+	
 
 	// Main code here
 	if(kernel.appSignals->appReady == true)
 	{
+				
 		tsp_mainHandler(&triggerSystem);
 		vsp_mainHandler(&valueSystem);
 		ssp_mainHandler(&stateSystem);
@@ -215,40 +223,49 @@ int main(void)
 			encoderSwitch_setPowerLed(&encoderSwitch_0, false);
 		}
 		
-		// Handle Button Change
-		buttonSwitch_userInput_t buttonInput = buttonSwitch_getUserInput(&buttonSwitch_0);
-		if(buttonInput.old != buttonInput.current)
-		{
-			uint8_t indexList[6] = {0,0,0,0,0,0};
-			uint8_t index = 0;
-			
-			for(uint8_t i = 0; i < sizeof(indexList); i++)
+		// delay for hardware startup
+		if(run == false && kernel.tickTimer.delay1ms(&startupDelay, 1000)){
+			buttonSwitch_getUserInput(&buttonSwitch_0);
+			encoderSwitch_getUserInput(&encoderSwitch_0);
+			run = true;
+		}
+		
+		if(run){
+			// Handle Button Change
+			buttonSwitch_userInput_t buttonInput = buttonSwitch_getUserInput(&buttonSwitch_0);
+			if(buttonInput.old != buttonInput.current)
 			{
-				if(buttonInput.current & 0x01){
-					indexList[index] = i;
-					index++;
+				uint8_t indexList[6] = {0,0,0,0,0,0};
+				uint8_t index = 0;
+			
+				for(uint8_t i = 0; i < sizeof(indexList); i++)
+				{
+					if(buttonInput.current & 0x01){
+						indexList[index] = i;
+						index++;
+					}
+					buttonInput.current = (buttonInput.current>>1);
 				}
-				buttonInput.current = (buttonInput.current>>1);
+			
+				tsp_sendTriggersByIndex(&triggerSystem, &indexList[0], index);
 			}
-			
-			tsp_sendTriggersByIndex(&triggerSystem, &indexList[0], index);
-		}
 		
-		// Handle Encoder Change
-		encoderSwitch_userInput_t encoderInput = encoderSwitch_getUserInput(&encoderSwitch_0);
+			// Handle Encoder Change
+			encoderSwitch_userInput_t encoderInput = encoderSwitch_getUserInput(&encoderSwitch_0);
 		
-		if(encoderInput.down){
-			vsp_valueData_t value = {.Long = (uint32_t)(encoderInput.down*3)};
-			vsp_sendValueCommandByIndex(&valueSystem, 0, vsp_vCmd_subtractLongClamp, value);
+			if(encoderInput.down){
+				vsp_valueData_t value = {.Long = (uint32_t)(encoderInput.down*3)};
+				vsp_sendValueCommandByIndex(&valueSystem, 0, vsp_vCmd_subtractLongClamp, value);
 			
-		}else if(encoderInput.up){
-			vsp_valueData_t value = {.Long = (uint32_t)(encoderInput.up*3)};
-			vsp_sendValueCommandByIndex(&valueSystem, 0, vsp_vCmd_addLongClamp, value);
-		}
+			}else if(encoderInput.up){
+				vsp_valueData_t value = {.Long = (uint32_t)(encoderInput.up*3)};
+				vsp_sendValueCommandByIndex(&valueSystem, 0, vsp_vCmd_addLongClamp, value);
+			}
 
-		if(encoderInput.button != encoderInput.oldButton && encoderInput.button)
-		{
-			tsp_sendTriggerByIndex(&triggerSystem, 6);
+			if(encoderInput.button != encoderInput.oldButton && encoderInput.button)
+			{
+				tsp_sendTriggerByIndex(&triggerSystem, 6);
+			}
 		}
 		
 	}

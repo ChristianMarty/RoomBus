@@ -1,6 +1,6 @@
 #ifdef TEST_RUN
 
-#include "../utility/perlin.h"
+#include "utility/perlin.h"
 
 TEST_CASE( "Test perlin", "[perlin]" ) {
 

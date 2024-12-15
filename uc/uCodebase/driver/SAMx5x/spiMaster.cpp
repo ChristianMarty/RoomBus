@@ -5,12 +5,11 @@
 #include "sercom.h"
 
 
-void spiMaster_c::init(const kernel_t *kernel, Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor)
+void spiMaster_c::init(Sercom *sercom_p, gclk_generator_t clkGenerator, uint8_t clockDevisor)
 {
 	sercom_initClock(clkGenerator,sercom_p);
 	_clockDevisor = clockDevisor;
-	
-	_kernel = kernel;
+
 	_sercom_p = sercom_p;
 	_clkGenerator = clkGenerator;
 	
@@ -27,8 +26,6 @@ void spiMaster_c::init(const kernel_t *kernel, Sercom *sercom_p, gclk_generator_
 	while(_sercom_p->SPI.SYNCBUSY.bit.SWRST);
 	
 	_sercom_p->SPI.CTRLA.bit.ENABLE = true;
-	
-
 	
 }
 

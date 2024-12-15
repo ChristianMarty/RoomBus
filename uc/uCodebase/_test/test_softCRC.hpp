@@ -1,7 +1,7 @@
 #ifdef TEST_RUN
 
-#include "../utility/softCRC.h"
-#include "../utility/bytearray.h"
+#include "utility/softCRC.h"
+#include "utility/bytearray.h"
 
 TEST_CASE( "Test crc16", "[crc16]" ) {
 

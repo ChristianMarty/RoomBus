@@ -113,7 +113,7 @@ const triggerSystemProtocol_t triggerSystem = {
 
 //**** Event Configuration ********************************************************************************************
 const esp_eventSignal_t eventSignals[] = {
-	{0x02, "A/V Aux Power", POWER_DELIVERY_EVENT_TIMEOUT}
+	{0x03, "A/V Aux Power", POWER_DELIVERY_EVENT_TIMEOUT}
 };
 #define eventSignalListSize ARRAY_LENGTH(eventSignals)
 

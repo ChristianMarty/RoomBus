@@ -1,6 +1,6 @@
 
 #include "modbusMaster.h"
-#include "drv/SAMx5x/pin.h"
+#include "driver/SAMx5x/pin.h"
 #include "utility/softCRC.h"
 
 #include "utility/string.h"

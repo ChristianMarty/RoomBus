@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #include "typedef.h"
-#include "sam.h"
+
 
 #include "kernel/littleFS/lfs.h"
 #include "driver/SAMx5x/genericClockController.h"

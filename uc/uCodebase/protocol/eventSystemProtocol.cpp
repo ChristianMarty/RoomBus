@@ -59,7 +59,6 @@ void esp_mainHandler(const eventSystemProtocol_t* esp)
 	
 	// send slot information
 	for(uint8_t i = 0;  i < esp->slotSize; i++) {
-		
 		if(esp->_slotState[i].sendInformationPending == true){
 			if(_esp_sendEventSlotInformation(&esp->slots[i])) {
 				esp->_slotState[i].sendInformationPending = false;

@@ -79,6 +79,7 @@ void tsp_sendTriggersByIndex(const triggerSystemProtocol_t* tsp, const uint8_t *
 bool tsp_sendTriggerByIndex(const triggerSystemProtocol_t* tsp, uint8_t index)
 {
 	if(tsp->signalSize < index) return false;
+	
 	tsp->_signalState[index].sendTriggerPending = true;
 	return true;
 }

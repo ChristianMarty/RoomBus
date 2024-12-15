@@ -147,8 +147,6 @@ namespace RoomBus {
     static inline QByteArray packUint16(uint16_t value)
     {
         QByteArray temp;
-        temp.append(static_cast<char>(static_cast<uint8_t>(value>>24)));
-        temp.append(static_cast<char>(static_cast<uint8_t>(value>>16)));
         temp.append(static_cast<char>(static_cast<uint8_t>(value>>8)));
         temp.append(static_cast<char>(static_cast<uint8_t>(value)));
         return temp;
@@ -157,6 +155,8 @@ namespace RoomBus {
     static inline QByteArray packUint32(uint32_t value)
     {
         QByteArray temp;
+        temp.append(static_cast<char>(static_cast<uint8_t>(value>>24)));
+        temp.append(static_cast<char>(static_cast<uint8_t>(value>>16)));
         temp.append(static_cast<char>(static_cast<uint8_t>(value>>8)));
         temp.append(static_cast<char>(static_cast<uint8_t>(value)));
         return temp;

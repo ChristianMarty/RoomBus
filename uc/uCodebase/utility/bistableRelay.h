@@ -1,8 +1,13 @@
-
+//**********************************************************************************************************************
+// FileName : bistableRelay.h
+// FilePath : utility/
+// Author   : Christian Marty
+// Date		: 15.06.2024
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifndef BISTABLE_RELAY_H_
 #define BISTABLE_RELAY_H_
 
-#include "sam.h"
 #include "common/typedef.h"
 #include "common/kernel.h"
 #include "driver/SAMx5x/pin.h"
