@@ -160,6 +160,64 @@ char *string_append(char *str1, const char *str2)
 	return out;
 }
 
+bool string_isEqual(const char *str1, const char *str2, uint8_t maxLength)
+{
+    uint8_t j = 0;
+    while((str1[j] != 0) && (str2[j] != 0) && (str1[j] == str2[j]) && (j<maxLength)){
+        j++;
+    }
+
+    if(str1[j] == str2[j]) return true;
+    else return false;
+}
+
+int string_parseInteger(const char *string, uint8_t maxLength)
+{
+    int output = 0;
+    uint8_t i = 0;
+    while(string[i] != 0 && i<maxLength){
+        if(string[i] < '0' || string[i] > '9'){
+            return 0;
+        }
+        output *= 10;
+        output += string[i]-'0';
+        i++;
+    }
+    return output;
+}
+
+float string_parseNumber(const char *string, uint8_t maxLength)
+{
+    float output = 0;
+    int decimal = 0;
+    uint8_t i = 0;
+    while(string[i] != 0 && i<maxLength){
+        if((string[i] < '0' || string[i] > '9') && string[i] != '.'){
+            return 0;
+        }
+        if(string[i] == '.'){
+            decimal = i;
+        }else {
+            output *= 10;
+            output += (float)(string[i] - '0');
+        }
+        i++;
+    }
+    decimal = i-1-decimal;
+
+    int divisor = 1;
+    while(decimal--){
+        divisor*=10;
+    }
+    output = output/(float)divisor;
+    if(string[0] == '-'){
+        output *= -1;
+    }
+
+    return output;
+}
+
+
 #ifdef __cplusplus
 	}
 #endif

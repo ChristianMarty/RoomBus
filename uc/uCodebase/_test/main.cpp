@@ -24,5 +24,6 @@
 
 #include "test_valueReportProtocol.hpp"
 
+#include "test_iniParser.h"
 
 

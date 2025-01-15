@@ -9,6 +9,7 @@
 #define STRING2_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 	extern "C" {
@@ -31,6 +32,12 @@ char *string_uInt32ToHex(uint32_t value, char *outStr);
 char *string_uInt64ToHex(uint64_t value, char *outStr);
 
 char *string_append(char *str1, const char *str2);
+
+bool string_isEqual(const char *str1, const char *str2, uint8_t maxLength);
+
+int string_parseInteger(const char *string, uint8_t maxLength);
+
+float string_parseNumber(const char *string, uint8_t maxLength);
 
 #ifdef __cplusplus
 	}
