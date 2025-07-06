@@ -143,7 +143,7 @@ void RoomBusDevice::startFirmwareUpload(QString hexPath)
 
     if(_appBinary.errorCount())
     {
-        foreach(const QuCLib::HexFileParser::fileError &error, _appBinary.errors() )
+        for(const QuCLib::HexFileParser::FileError &error: _appBinary.errors() )
         {
             QString errorMessage = "Line "+QString::number(error.lineIndex)+": "+QuCLib::HexFileParser::errorMessage(error);
             emit bootloadStatusUpdate(0,true,errorMessage);
@@ -157,7 +157,7 @@ void RoomBusDevice::startFirmwareUpload(QString hexPath)
         return;
     }
 
-    uint32_t size = _appBinary.binary().at(0).data.count()-4;
+    uint32_t size = _appBinary.binary().at(0).data.length()-4;
     QByteArray sizeArray;
     sizeArray.append((char)(size&0xFF));
     sizeArray.append((char)((size>>8)&0xFF));
@@ -212,7 +212,7 @@ void RoomBusDevice::writeBinaryChunk(void)
 
     QByteArray data = _appBinary.binary().at(0).data;
 
-    if(_bootloadDataIndex < data.count())
+    if(_bootloadDataIndex < data.length())
     {
         RoomBus::Message msg;
         msg.destinationAddress = _deviceAddress;
@@ -227,7 +227,7 @@ void RoomBusDevice::writeBinaryChunk(void)
 
         for(uint8_t i= 0; i<32;i++)
         {
-            if(_bootloadDataIndex >= data.count()) break;
+            if(_bootloadDataIndex >= data.length()) break;
 
             msg.data.append(static_cast<char>(data.at(static_cast<int>(_bootloadDataIndex))));
             _bootloadDataIndex++;
