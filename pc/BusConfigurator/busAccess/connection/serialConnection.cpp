@@ -6,8 +6,15 @@ SerialConnection::SerialConnection(QString port, uint32_t baud)
     :_port{port}
     ,_baud{baud}
 {
-    connect(&_serialPort, &QSerialPort::readyRead, this, &SerialConnection::on_readyRead);
-    connect(&_serialPort, &QSerialPort::errorOccurred, this, &SerialConnection::on_errorOccurred);
+    _canSerial.setBaudrate(CANbeSerial::Baud500k);
+    _canSerial.setDataBaudrate(CANbeSerial::Baud500k);
+    _canSerial.setTxPaddingEnable(true, 0x00);
+
+    connect(&_canSerial, &CANbeSerial::writeReady, this, &SerialConnection::on_canBeSerial_writeReady);
+    connect(&_canSerial, &CANbeSerial::readReady, this, &SerialConnection::on_canBeSerial_readReady);
+
+    connect(&_serialPort, &QSerialPort::readyRead, this, &SerialConnection::on_serialPort_readyRead);
+    connect(&_serialPort, &QSerialPort::errorOccurred, this, &SerialConnection::on_serialPort_errorOccurred);
 }
 
 SerialConnection::~SerialConnection()
@@ -21,6 +28,8 @@ void SerialConnection::open(void)
     _serialPort.setBaudRate(_baud) ;
     _serialPort.setParity(QSerialPort::Parity::NoParity);
     _serialPort.open(QIODeviceBase::ReadWrite);
+
+    _canSerial.setEnabled(true);
 
     emit connectionChanged();
 }
@@ -42,22 +51,40 @@ QString SerialConnection::getConnectionPath()
     return _port;
 }
 
-bool SerialConnection::write(QByteArray data)
+bool SerialConnection::write(RoomBus::Message message)
 {
     if(!_serialPort.isOpen()){
         return false;
     }
 
-    _serialPort.write(data,data.size());
+    CanBusFrame frame;
+    frame.identifier = RoomBus::toCanIdentifier(message);
+    frame.extended = true;
+    frame.fd = true;
+    frame.data = message.data;
+    frame.rtr = false;
+
+    _canSerial.write(frame);
+
     return true;
 }
 
-void SerialConnection::on_readyRead(void)
+void SerialConnection::on_canBeSerial_writeReady(QByteArray data)
 {
-    emit receive(_serialPort.readAll());
+    _serialPort.write(data,data.size());
 }
 
-void SerialConnection::on_errorOccurred(QSerialPort::SerialPortError error)
+void SerialConnection::on_canBeSerial_readReady(CanBusFrame frame)
+{
+    emit received(RoomBus::toMessage(frame.identifier, frame.data));
+}
+
+void SerialConnection::on_serialPort_readyRead(void)
+{
+    _canSerial.receive(_serialPort.readAll());
+}
+
+void SerialConnection::on_serialPort_errorOccurred(QSerialPort::SerialPortError error)
 {
     switch(error){
         case QSerialPort::NoError: _lastErrorMessage = "No error occurred."; break;

@@ -1,10 +1,20 @@
  #include "roomBus.h"
 
-RoomBusInterface::RoomBusInterface(QObject *parent)
+RoomBusInterface::RoomBusInterface(Type type,  QString port, QObject *parent)
     : QObject{parent}
+    , _type{type}
 {
-    qDebug("Open com port");
-    _busConnection.openSerialConnection("COM8");
+    switch(type){
+        case Type::Serial:
+            qDebug(QString("Open serial port: "+port).toLocal8Bit());
+            _busConnection.openSerialConnection(port);
+            break;
+
+        case Type::Can:
+            qDebug(QString("Open SocketCan port: "+port).toLocal8Bit());
+            _busConnection.openSocketCanConnection(port);
+            break;
+    }
 }
 
 RoomBusInterface::~RoomBusInterface()

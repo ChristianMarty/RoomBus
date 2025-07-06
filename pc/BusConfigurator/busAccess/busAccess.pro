@@ -6,6 +6,7 @@
 
 QT += network
 QT += serialport
+QT += serialbus
 QT -= gui
 
 TARGET = busAccess
@@ -32,6 +33,7 @@ SOURCES += \
         ../../QuCLib/source/crc.cpp \
         busAccess.cpp \
         connection/serialConnection.cpp \
+        connection/socketCanConnection.cpp \
         connection/tcpConnection.cpp \
         connection/udpConnection.cpp
 
@@ -43,6 +45,7 @@ HEADERS += \
         busaccess_global.h  \
         connection/connection.h \
         connection/serialConnection.h \
+        connection/socketCanConnection.h \
         connection/tcpConnection.h \
         connection/udpConnection.h \
         roomBusMessage.h

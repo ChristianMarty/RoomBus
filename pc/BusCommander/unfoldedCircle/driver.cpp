@@ -6,7 +6,7 @@
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
-#include <QHttpHeaders>
+//#include <QHttpHeaders>
 
 using namespace UnfoldedCircle;
 
@@ -41,12 +41,16 @@ void Driver::sendDriverRegistration(QString remoteIp, uint32_t pin)
 
     QByteArray userHeader = "Basic "+QString("web-configurator:" + QString::number(pin)).toLocal8Bit().toBase64();
 
-    QHttpHeaders headers;
+   /* QHttpHeaders headers;
     headers.append(QHttpHeaders::WellKnownHeader::ContentType, "application/json");
-    headers.append("Authorization", userHeader);
+    headers.append("Authorization", userHeader);*/
 
     request.setUrl(QUrl("http://"+remoteIp+"/api/intg/drivers"));
-    request.setHeaders(headers);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", userHeader);
+
+   // request.setHeaders(headers);
 
     manager->post(request, data.toJson(QJsonDocument::Compact));
 }

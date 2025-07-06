@@ -4,12 +4,13 @@
 #include <QJsonValue>
 
 #include "roomBus/roomBus.h"
-#include "unfoldedCircle/unfoldedCircleRemote.h"
+#include "unfoldedCircle/remote.h"
+#include "unfoldedCircle/server.h"
 
 using namespace UnfoldedCircle;
 
-UnfoldedCircle::Light::Light(QString name, int entityId, QSet<Feature> features, RoomBusChannel roomBusChannel)
-    :Entity(name, entityId, Type::lightEntity)
+UnfoldedCircle::Light::Light(QString name, QSet<Feature> features, RoomBusChannel roomBusChannel)
+    :Entity(name, Type::lightEntity)
     ,_roomBusChannel{roomBusChannel}
     ,_features{features}   
 {
@@ -37,17 +38,39 @@ void Light::commandHandler(QJsonObject data)
     else if(commandId == "toggle") command = Command::Toggle;
     else return; // todo: error handler
 
+    QJsonObject parameter = data["params"].toObject();
+
+
     switch(command){
         case Command::On:
-            _remote->roomBusInterface()->sendTrigger(_roomBusChannel.onTrigger);
+            _server->roomBusInterface()->sendTrigger(_roomBusChannel.onTrigger);
+
+            if(_features.contains(Feature::Dim) && !parameter.isEmpty()){
+                if(parameter.contains("brightness")){
+                    uint32_t brightness = parameter["brightness"].toInt();
+                    brightness = brightness*0xFF;
+                    if(brightness>0xffff)brightness = 0xffff;
+                    _server->roomBusInterface()->sendValue(_roomBusChannel.brightnessChannel, brightness);
+                }
+            }
+
+            if(_features.contains(Feature::ColorTemperature)&& !parameter.isEmpty()){
+                if(parameter.contains("color_temperature")){
+                    uint32_t temperature = parameter["color_temperature"].toInt();
+                    temperature = (uint32_t)((float)temperature*(float)2.55);
+                    if(temperature>255)temperature = 255;
+                    _server->roomBusInterface()->sendValue(_roomBusChannel.temperatureChannel, temperature);
+                }
+
+            }
             break;
 
         case Command::Off:
-            _remote->roomBusInterface()->sendTrigger(_roomBusChannel.offTrigger);
+            _server->roomBusInterface()->sendTrigger(_roomBusChannel.offTrigger);
             break;
 
         case Command::Toggle:
-            _remote->roomBusInterface()->sendTrigger(_roomBusChannel.toggleTrigger);
+            _server->roomBusInterface()->sendTrigger(_roomBusChannel.toggleTrigger);
             break;
     }
 }

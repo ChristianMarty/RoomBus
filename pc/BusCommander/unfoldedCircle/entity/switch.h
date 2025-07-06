@@ -32,7 +32,7 @@ public:
         Readable
     };
 
-    explicit Switch(QString name, int entityId);
+    explicit Switch(QString name);
 };
 
 }

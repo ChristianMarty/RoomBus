@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 
-#include "unfoldedCircle/unfoldedCircleRemote.h"
+#include "unfoldedCircle/server.h"
 #include "roomBus/roomBus.h"
 
 int main(int argc, char *argv[])
@@ -16,13 +16,29 @@ int main(int argc, char *argv[])
 
     QCommandLineOption ipOption(QStringList("ip"),"IP address of the remote","ip");
     QCommandLineOption pinOption(QStringList("pin"),"IP address of the remote", "pin");
+    QCommandLineOption comOption(QStringList("com"),"COM port of CANbeSerial interface", "com");
+    QCommandLineOption canOption(QStringList("can"),"CAN interface", "can");
 
     parser.addOption(ipOption);
     parser.addOption(pinOption);
+    parser.addOption(comOption);
+    parser.addOption(canOption);
+
 
     parser.process(app);
 
-    RoomBusInterface roomBusInterface;
+    QString port;
+    RoomBusInterface::Type type = RoomBusInterface::Type::Undefined;
+    if(parser.isSet(comOption)){
+        port = parser.value(comOption);
+        type = RoomBusInterface::Type::Serial;
+    }
+    if(parser.isSet(canOption)){
+        port = parser.value(canOption);
+        type = RoomBusInterface::Type::Can;
+    }
+
+    RoomBusInterface roomBusInterface{type, port};
     UnfoldedCircle::Server remote{&roomBusInterface};
 
     if(parser.isSet(ipOption)&&parser.isSet(pinOption)){

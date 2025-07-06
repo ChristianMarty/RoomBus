@@ -4,13 +4,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "unfoldedCircle/unfoldedCircleRemote.h"
+#include "unfoldedCircle/server.h"
+#include "unfoldedCircle/remote.h"
 
 using namespace UnfoldedCircle;
 
-Entity::Entity(QString name, int entityId, Type type)
+Entity::Entity(QString name, Type type)
     :_name{name},
-    _entityId{entityId},
     _type{type}
 {
 }
@@ -35,7 +35,7 @@ QJsonObject Entity::_json(QJsonArray features) const
 
 void Entity::_sendEntityChange(QJsonObject attributes)
 {
-    if(_remote == nullptr) return;
+    if(_server == nullptr) return;
 
     QJsonObject data{
         {"entity_type", _typeToString(_type)},
@@ -43,7 +43,7 @@ void Entity::_sendEntityChange(QJsonObject attributes)
         {"attributes", attributes}
     };
 
-    _remote->_sendEvent(Remote::Event::entityChangeEvent, data);
+    _server->sendEvent(Remote::Event::entityChangeEvent, data);
 }
 
 QString Entity::_typeToString(Type type) const
@@ -67,12 +67,13 @@ QString Entity::_typeToString(Type type) const
     return typeString;
 }
 
-void Entity::setRemote(Remote *newRemote)
-{
-    _remote = newRemote;
-}
-
 int Entity::entityId() const
 {
     return _entityId;
+}
+
+void Entity::setServer(Server *newServer, int entityId)
+{
+    _server = newServer;
+    _entityId = entityId;
 }

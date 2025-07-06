@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
     settings.readFile("C:/Users/Christian/Raumsteuerung/RoomBus/pc/BusConfigurator/settings.xml");
 
     connect(&_busConnection, &RoomBusAccess::newData,this, &MainWindow::on_newData);
-    _busConnection.setDefaultPriority(RoomBusAccess::Priority::Low);
 
     addConnection();
 }
@@ -65,7 +64,8 @@ void MainWindow::on_newData(void)
 void MainWindow::on_deviceTx(RoomBus::Message msg)
 {
     msg.sourceAddress = 0;
-    _busConnection.write(msg,RoomBusAccess::Priority::Normal);
+    msg.priority = RoomBus::Priority::Normal;
+    _busConnection.write(msg);
 }
 
 void MainWindow::updateDevices(void)
@@ -150,7 +150,8 @@ void MainWindow::on_scanButton_clicked()
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0x02;
     msg.data.append(RoomBusDevice::DMP_SC_SystemInformationRequest);
-    _busConnection.write(msg, RoomBusAccess::Priority::Normal);
+    msg.priority = RoomBus::Priority::Normal;
+    _busConnection.write(msg);
 }
 
 void MainWindow::on_monitorButton_clicked()

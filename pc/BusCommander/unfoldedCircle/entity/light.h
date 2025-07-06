@@ -18,6 +18,9 @@ public:
         uint16_t toggleTrigger;
 
         uint16_t stateChannel;
+
+        uint16_t brightnessChannel;
+        uint8_t temperatureChannel;
     };
 
     enum class Feature {
@@ -46,7 +49,7 @@ public:
         Toggle
     };
 
-    explicit Light(QString name, int entityId, QSet<Feature> features = QSet<Feature>{}, RoomBusChannel roomBusChannel = RoomBusChannel{});
+    explicit Light(QString name, QSet<Feature> features = QSet<Feature>{}, RoomBusChannel roomBusChannel = RoomBusChannel{});
 
     void stateSystemHandler(uint16_t channel, uint8_t state) override;
 

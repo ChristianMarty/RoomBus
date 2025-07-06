@@ -11,7 +11,7 @@ namespace RoomBus {
 
 namespace UnfoldedCircle
 {
-class Remote;
+class Server;
 
 class Entity : public QObject
 {
@@ -32,7 +32,7 @@ public:
         irEmitterEntity
     };
 
-    explicit Entity(QString name, int entityId, Type type);
+    explicit Entity(QString name, Type type);
 
     virtual void commandHandler(QJsonObject data) {Q_UNUSED(data)};
 
@@ -43,7 +43,7 @@ public:
 
     int entityId() const;
 
-    void setRemote(Remote *newRemote);
+    void setServer(Server *newServer, int entityId);
 
 signals:
 
@@ -52,7 +52,7 @@ protected:
 
 
     void _sendEntityChange(QJsonObject attributes = QJsonObject{});
-    Remote *_remote = nullptr;
+    Server *_server = nullptr;
 
 private:
     QString _name;

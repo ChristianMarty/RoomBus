@@ -1,0 +1,19 @@
+qmake6
+
+qt6-base-dev
+
+libqt6websockets6
+
+libqt6network6
+
+libqt6serialport6
+libqt6serialport6-dev
+
+libqt6serialbus6
+libqt6serialbus6-dev
+
+
+sudo ip link set can0 up type can bitrate 500000 dbitrate 500000 sample-point 0.75 dsample-point 0.75 sjw 2 fd on
+./BusCommander --ip 192.168.1.174 --pin 5286 --can can0
+
+./BusCommander --ip 192.168.1.174 --pin 5286 --com /dev/serial/by-id/usb-Openlight_Labs_CANable2_CANbeSerial_Firmware_2053388A4D4D-if00

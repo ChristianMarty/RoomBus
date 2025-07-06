@@ -2,6 +2,7 @@
 #define CONNECTION_H
 
 #include <QObject>
+#include "roomBusMessage.h"
 
 class RoomBusConnection : public QObject
 {
@@ -12,7 +13,7 @@ public:
 
     virtual bool connected(void) {return _isConnected;};
 
-    virtual bool write(QByteArray data) {Q_UNUSED(data); return false;};
+    virtual bool write(RoomBus::Message message) {Q_UNUSED(message); return false;};
 
     virtual QString lastError(void) {return _lastErrorMessage;};
 
@@ -20,7 +21,7 @@ public:
     virtual QString getConnectionPath(void){return "";};
 
 signals:
-    void receive(QByteArray data);
+    void received(RoomBus::Message message);
     void connectionChanged(void);
 
 protected:

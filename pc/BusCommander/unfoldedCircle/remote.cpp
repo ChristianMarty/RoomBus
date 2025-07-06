@@ -1,8 +1,8 @@
-#include "unfoldedCircleRemote.h"
-#include "unfoldedCircle/entity/light.h"
-#include "unfoldedCircle/entity/switch.h"
+#include "remote.h"
+#include "server.h"
 
 #include "roomBus/roomBus.h"
+
 
 using namespace UnfoldedCircle;
 
@@ -10,73 +10,33 @@ using namespace UnfoldedCircle;
 #include <QJsonObject>
 #include <QJsonArray>
 
-Server::Server(RoomBusInterface *roomBusInterface, QObject *parent)
-    : QObject{parent}
-    ,_roomBusInterface{roomBusInterface}
-{
-    connect(&_server, &QWebSocketServer::newConnection, this, &Server::on_newConnection);
-    _server.listen(QHostAddress::Any, _port);
-
-    qDebug(("Server listening on port "+ QString::number(_port)).toLocal8Bit());
-
-    if(_roomBusInterface){
-        connect(_roomBusInterface->busConnection(), &RoomBusAccess::newData, this, &Server::on_newRoomBusData);
-    }
-}
-
-Server::~Server()
-{
-    qDeleteAll(_remotes);
-}
-
-void Server::registerDriver(QString remoteIp, uint32_t pin)
-{
-    _driver.sendDriverRegistration(remoteIp, pin);
-}
-
-void Server::on_newConnection()
-{
-    QWebSocket *socket = _server.nextPendingConnection();
-    _remotes.insert(new Remote(_roomBusInterface, socket));
-}
-
-void Server::on_newRoomBusData()
-{
-    while(_roomBusInterface->busConnection()->rxMsgBuffer.size())
-    {
-        RoomBus::Message temp = _roomBusInterface->busConnection()->rxMsgBuffer.first();
-        _roomBusInterface->busConnection()->rxMsgBuffer.removeFirst();
-
-        for(Remote *remote: _remotes){
-            remote->pushRoomBusMessage(temp);
-        }
-    }
-}
-
-Remote::Remote(RoomBusInterface *roomBusInterface, QWebSocket *socket)
+Remote::Remote(Server &server, RoomBusInterface *roomBusInterface, QWebSocket *socket)
     :_socket{socket}
+    ,_server{server}
     ,_roomBusInterface{roomBusInterface}
 {
     connect(_socket, &QWebSocket::textMessageReceived, this, &Remote::on_textMessage);
     connect(_socket, &QWebSocket::binaryMessageReceived, this, &Remote::on_binaryMessage);
+    connect(_socket, &QWebSocket::connected, this, &Remote::on_socketConnected);
     connect(_socket, &QWebSocket::disconnected, this, &Remote::on_socketDisconnected);
-
-    addEntity(new Light{"Licht 1",1, QSet<Light::Feature>{Light::Feature::Toggle},
-                Light::RoomBusChannel{
-                    .onTrigger = 4,
-                    .offTrigger = 5,
-                    .toggleTrigger = 6,
-                    .stateChannel= 2}}
-              );
 
     QString msg = socket->peerAddress().toString();
     qDebug(msg.toLocal8Bit());
 }
 
-void Remote::addEntity(Entity *entity)
+Remote::~Remote()
 {
-    entity->setRemote(this);
-    _entities.insert(entity->entityId(), entity);
+    delete _socket;
+}
+
+void Remote::on_socketConnected()
+{
+
+}
+
+void Remote::on_socketDisconnected()
+{
+    emit disconnected(this);
 }
 
 void Remote::on_textMessage(QString message)
@@ -115,10 +75,6 @@ void Remote::on_binaryMessage(QByteArray message)
     qWarning(msg.toLocal8Bit());
 }
 
-void Remote::on_socketDisconnected()
-{
-
-}
 
 RoomBusInterface *Remote::roomBusInterface()
 {
@@ -127,7 +83,7 @@ RoomBusInterface *Remote::roomBusInterface()
 
 void Remote::pushRoomBusMessage(const RoomBus::Message &message)
 {
-    for(Entity *entity:_entities){
+    for(Entity *entity:_server.entities()){
         if(message.protocol == RoomBus::Protocol::StateSystemProtocol){
             for(uint8_t i = 0; i < message.data.length(); i+=3){
                 uint16_t channel = RoomBus::unpackUint16(message.data.mid(i,2), 0);
@@ -136,6 +92,32 @@ void Remote::pushRoomBusMessage(const RoomBus::Message &message)
             }
         }
     }
+}
+
+void Remote::sendEvent(Event event, QJsonObject data)
+{
+    QString msg;
+    switch(event){
+    case entityChangeEvent: msg = "entity_change"; break;
+    case deviceStateEvent: msg = "device_state"; break;
+    default:
+        return;
+    }
+
+    QJsonObject json {
+        {"kind", "event"},
+        {"msg", msg},
+        {"cat", "ENTITY"},
+        {"msg_data", data}
+    };
+
+    QJsonDocument frame;
+    frame.setObject(json);
+
+    _socket->sendTextMessage(frame.toJson());
+
+    QString debug = "Send "+msg+": "+frame.toJson();
+    qDebug(debug.toLocal8Bit());
 }
 
 void Remote::_getDriverVersionHandler(uint32_t id)
@@ -155,7 +137,7 @@ void Remote::_getAvailableEntitiesHandler(uint32_t id)
 {
     QJsonArray entities;
 
-    for(const Entity *entity: _entities){
+    for(const Entity *entity: _server.entities()){
         entities.append(entity->json());
     }
 
@@ -168,14 +150,16 @@ void Remote::_getAvailableEntitiesHandler(uint32_t id)
 void Remote::_entityCommandHandler(uint32_t id, QJsonObject data)
 {
     uint32_t entityId = data["entity_id"].toString().toInt();
-    if(!_entities.contains(entityId)){
+
+
+    if(!_server.entities().contains(entityId)){
         // todo: send error response
         return;
     }
 
     _sendResponse(id, Response::result, QJsonObject{});
 
-    _entities[entityId]->commandHandler(data);
+    _server.entities()[entityId]->commandHandler(data);
 }
 
 void Remote::_sendResponse(uint32_t id, Response response, QJsonObject data)
@@ -196,32 +180,6 @@ void Remote::_sendResponse(uint32_t id, Response response, QJsonObject data)
         {"req_id", QJsonValue((int )id)},
         {"msg", msg},
         {"code", 200}, // todo: ahhh
-        {"msg_data", data}
-    };
-
-    QJsonDocument frame;
-    frame.setObject(json);
-
-    _socket->sendTextMessage(frame.toJson());
-
-    QString debug = "Send "+msg+": "+frame.toJson();
-    qDebug(debug.toLocal8Bit());
-}
-
-void Remote::_sendEvent(Event event, QJsonObject data)
-{
-    QString msg;
-    switch(event){
-        case entityChangeEvent: msg = "entity_change"; break;
-        case deviceStateEvent: msg = "device_state"; break;
-    default:
-        return;
-    }
-
-    QJsonObject json {
-        {"kind", "event"},
-        {"msg", msg},
-        {"cat", "ENTITY"},
         {"msg_data", data}
     };
 

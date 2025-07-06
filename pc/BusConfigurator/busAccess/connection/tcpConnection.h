@@ -3,7 +3,7 @@
 
 #include <QTcpServer>
 #include <QTcpSocket>
-
+#include "../../QuCLib/source/CANbeSerial.h"
 #include "connection.h"
 
 class TcpConnection : public RoomBusConnection
@@ -16,22 +16,27 @@ public:
     void open(void) override;
     void close(void) override;
 
-    bool write(QByteArray data) override;
+    bool write(RoomBus::Message message) override;
 
     QString getConnectionName(void) override;
     QString getConnectionPath(void) override;
 
 private slots:
+    void on_canBeSerial_writeReady(QByteArray data);
+    void on_canBeSerial_readReady(CanBusFrame frame);
+
     void on_readyRead(void);
     void on_tcpConnect(void);
     void on_tcpDisconnect(void);
     void on_stateChanged(QAbstractSocket::SocketState socketState);
 
 private:
-    QTcpSocket _tcpClient;
-
     QString _ip;
     uint16_t _port;
+
+    QTcpSocket _tcpClient;
+
+    CANbeSerial _canSerial;
 };
 
 #endif // TCP_CONNECTION_H

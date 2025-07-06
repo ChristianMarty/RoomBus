@@ -3,7 +3,7 @@
 
 #include <QSerialPort>
 #include <QSerialPortInfo>
-
+#include "../../QuCLib/source/CANbeSerial.h"
 #include "connection.h"
 
 class SerialConnection : public RoomBusConnection
@@ -16,19 +16,25 @@ public:
     void open(void) override;
     void close(void) override;
 
-    bool write(QByteArray data) override;
+    bool write(RoomBus::Message message) override;
 
     QString getConnectionName(void) override;
     QString getConnectionPath(void) override;
 
 private slots:
-    void on_readyRead(void);
-    void on_errorOccurred(QSerialPort::SerialPortError error);
+    void on_canBeSerial_writeReady(QByteArray data);
+    void on_canBeSerial_readReady(CanBusFrame frame);
+
+    void on_serialPort_readyRead(void);
+    void on_serialPort_errorOccurred(QSerialPort::SerialPortError error);
 
 private:
     QString _port;
-    QSerialPort _serialPort;
     uint32_t _baud;
+
+    QSerialPort _serialPort;
+
+    CANbeSerial _canSerial;
 };
 
 #endif // SERIAL_CONNECTION_H

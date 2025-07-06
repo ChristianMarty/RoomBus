@@ -1,4 +1,5 @@
 QT = core
+QT += network
 QT += websockets
 
 CONFIG += c++20 cmdline
@@ -14,7 +15,8 @@ SOURCES += \
         unfoldedCircle/entity/entity.cpp \
         unfoldedCircle/entity/light.cpp \
         unfoldedCircle/entity/switch.cpp \
-        unfoldedCircle/unfoldedCircleRemote.cpp
+        unfoldedCircle/remote.cpp \
+        unfoldedCircle/server.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -27,7 +29,8 @@ HEADERS += \
     unfoldedCircle/entity/entity.h \
     unfoldedCircle/entity/light.h \
     unfoldedCircle/entity/switch.h \
-    unfoldedCircle/unfoldedCircleRemote.h
+    unfoldedCircle/remote.h \
+    unfoldedCircle/server.h
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../BusConfigurator/build/busAccess/release/ -lbusAccess

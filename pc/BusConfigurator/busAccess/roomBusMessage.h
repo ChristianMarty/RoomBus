@@ -6,6 +6,7 @@
 namespace RoomBus {
 
     static constexpr uint8_t BroadcastAddress = 0x7F;
+    static constexpr uint8_t canDlsCode[16] = {0,1,2,3,4,5,6,7,8,12,16,20,24,32,48,64};
 
     enum class Protocol {
         DeviceManagementProtocol = 0,
@@ -19,10 +20,18 @@ namespace RoomBus {
         SerialBridgeProtocol = 12
     };
 
+    enum class Priority {
+        Reserved = 0,
+        High = 1,
+        Normal = 2,
+        Low = 3
+    };
+
     struct Message{
         uint8_t sourceAddress;
         uint8_t destinationAddress;
         Protocol protocol;
+        Priority priority = Priority::Low;
         uint8_t command;
         QByteArray data;
     };
@@ -111,6 +120,49 @@ namespace RoomBus {
         PortInfoReport = 4,
         PortInfoRequest = 5
     };
+
+
+    static inline uint32_t toCanIdentifier(Message message)
+    {
+        uint8_t paddingLength = 0;
+
+        if(message.data.size() > 8){
+            for(uint8_t i = 7; i < sizeof(canDlsCode); i++){
+                if(canDlsCode[i] >= message.data.size()){
+                    paddingLength = canDlsCode[i] - message.data.size();
+                    break;
+                }
+            }
+        }
+
+        uint32_t canId = 0;
+        canId |= (static_cast<uint32_t>(message.priority)<<27) & 0x18000000;
+        canId |= (static_cast<uint32_t>(message.sourceAddress)<<20) & 0x07F00000;
+        canId |= (static_cast<uint32_t>(message.destinationAddress)<<13) & 0x000FE000;
+        canId |= (static_cast<uint32_t>(message.protocol)<<7) & 0x00001F80;
+        canId |= (static_cast<uint32_t>(message.command)<<4) & 0x00000070;
+        canId |= (static_cast<uint32_t>(paddingLength)) & 0x0000000F;
+
+        return canId;
+    }
+
+    static inline Message toMessage(uint32_t identifier, QByteArray data)
+    {
+        Message message;
+
+        message.priority = static_cast<RoomBus::Priority>((identifier >>27)&0x03);
+        message.sourceAddress = static_cast<uint8_t>(identifier >>20)&0x7F;
+        message.destinationAddress = static_cast<uint8_t>(identifier >>13)&0x7F;
+        message.protocol = static_cast<RoomBus::Protocol>((identifier >>7)&0x3F);
+        message.command = static_cast<uint8_t>(identifier>>4)&0x07;
+
+        uint8_t paddingLength = identifier &0x0F;
+
+        message.data = data.mid(0, data.size()-paddingLength);
+
+        return message;
+    }
+
 
 
     static inline uint8_t unpackUint8(QByteArray data, uint32_t index)

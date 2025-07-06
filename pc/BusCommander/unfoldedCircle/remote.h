@@ -1,22 +1,24 @@
-#ifndef UNFOLDEDCIRCLEREMOTE_H
-#define UNFOLDEDCIRCLEREMOTE_H
+#ifndef REMOTE_H
+#define REMOTE_H
 
 #include <QObject>
-#include <QWebSocketServer>
-#include <QWebSocket>
 
 #include "entity/entity.h"
 #include "driver.h"
 
+#include <QWebSocketServer>
+#include <QWebSocket>
+
 class RoomBusInterface;
 namespace UnfoldedCircle
 {
-
+class Server;
 class Remote : public QObject
 {
     Q_OBJECT
 public:
-    explicit Remote(RoomBusInterface *roomBusInterface, QWebSocket *socket);
+    explicit Remote(Server &server, RoomBusInterface *roomBusInterface, QWebSocket *socket);
+    ~Remote(void);
 
     enum MessageKind {
         EventKind,
@@ -46,53 +48,37 @@ public:
         deviceStateEvent
     };
 
-    void addEntity(Entity *entity);
     void sendEntityChange(QJsonObject data);
+
+    void sendEvent(Event event, QJsonObject data);
 
     friend Entity;
 
     RoomBusInterface *roomBusInterface();
     void pushRoomBusMessage(const RoomBus::Message &message);
 
+signals:
+    void disconnected(Remote* remote);
+
 private slots:
+    void on_socketConnected(void);
+    void on_socketDisconnected(void);
+
     void on_textMessage(QString message);
     void on_binaryMessage(QByteArray message);
-    void on_socketDisconnected(void);
 
 private:
     QWebSocket *_socket;
+    Server &_server;
     RoomBusInterface *_roomBusInterface = nullptr;
-    QMap<int, Entity *> _entities;
 
     void _getDriverVersionHandler(uint32_t id);
     void _getAvailableEntitiesHandler(uint32_t id);
     void _entityCommandHandler(uint32_t id, QJsonObject data);
 
     void _sendResponse(uint32_t id, Response response, QJsonObject data);
-    void _sendEvent(Event event, QJsonObject data);
-};
 
-class Server : public QObject
-{
-    Q_OBJECT
-public:
-    explicit Server(RoomBusInterface *roomBusInterface = nullptr, QObject *parent = nullptr);
-    ~Server();
-
-    void registerDriver(QString remoteIp, uint32_t pin);
-
-private slots:
-    void on_newConnection(void);
-    void on_newRoomBusData(void);
-
-private:
-    RoomBusInterface *_roomBusInterface = nullptr;
-    QWebSocketServer _server{QStringLiteral("UnfoldedCircleRemote2Integration"),QWebSocketServer::NonSecureMode, this};
-
-    uint32_t _port = 9999;
-    QSet<Remote*> _remotes;
-    Driver _driver{"192.168.1.138", _port};
 };
 
 }
-#endif // UNFOLDEDCIRCLEREMOTE_H
+#endif // REMOTE_H
