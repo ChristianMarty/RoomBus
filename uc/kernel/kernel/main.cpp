@@ -32,7 +32,7 @@
 
 #include "utility/string.h"
 #include "utility/softCRC.h"
-#include "utility/cobs.h"
+#include "utility/cobs.hpp"
 
 uint32_t ledTimer;
 uint32_t greenLedTimer;

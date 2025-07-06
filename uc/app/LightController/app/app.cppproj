@@ -306,9 +306,9 @@
       <SubType>compile</SubType>
       <Link>protocol\valueSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\..\uCodebase\utility\cobs.h">
+    <Compile Include="..\..\..\uCodebase\utility\cobs.hpp">
       <SubType>compile</SubType>
-      <Link>lib\cobs.h</Link>
+      <Link>lib\cobs.hpp</Link>
     </Compile>
     <Compile Include="..\..\..\uCodebase\utility\softCRC.h">
       <SubType>compile</SubType>
