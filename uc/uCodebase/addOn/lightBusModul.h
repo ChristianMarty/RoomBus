@@ -8,7 +8,7 @@
 
 #include "interface/lightBus.h"
 
-#include "utility/cobs.h"
+#include "utility/cobs.hpp"
 
 #include "driver/SAMx5x/dmx.h"
 #include "driver/SAMx5x/dma.h"

@@ -28,8 +28,8 @@ typedef enum {
 void mlp_sysMessage(const char *message)
 {
 	bus_message_t msg;
-	
-	bus_getMessageSlot(&msg);
+	if(!bus_getMessageSlot(&msg)) return;
+
 	bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_logging, mlp_cmdSysMessage, busPriority_low);
 	bus_pushWord32(&msg, tickTimer_getTickTime());
 	bus_pushWord32(&msg, 0);
@@ -40,8 +40,8 @@ void mlp_sysMessage(const char *message)
 void mlp_sysWarning(const char *message)
 {
 	bus_message_t msg;
-	
-	bus_getMessageSlot(&msg);
+	if(!bus_getMessageSlot(&msg)) return;
+
 	bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_logging, mlp_cmdSysWarning, busPriority_low);
 	bus_pushWord32(&msg, tickTimer_getTickTime());
 	bus_pushWord32(&msg, 0);
@@ -52,8 +52,8 @@ void mlp_sysWarning(const char *message)
 void mlp_sysError(const char *message)
 {
 	bus_message_t msg;
+	if(!bus_getMessageSlot(&msg)) return;
 
-	bus_getMessageSlot(&msg);
 	bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_logging, mlp_cmdSysError, busPriority_low);
 	bus_pushWord32(&msg, tickTimer_getTickTime());
 	bus_pushWord32(&msg, 0);
@@ -64,8 +64,8 @@ void mlp_sysError(const char *message)
 void mlp_appMessage(const char *message)
 {
 	bus_message_t msg;
-	
-	bus_getMessageSlot(&msg);
+	if(!bus_getMessageSlot(&msg)) return;
+
 	bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_logging, mlp_cmdAppMessage, busPriority_low);
 	bus_pushWord32(&msg, tickTimer_getTickTime());
 	bus_pushWord32(&msg, 0);
@@ -76,8 +76,8 @@ void mlp_appMessage(const char *message)
 void mlp_appWarning(const char *message)
 {
 	bus_message_t msg;
-	
-	bus_getMessageSlot(&msg);
+	if(!bus_getMessageSlot(&msg)) return;
+
 	bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_logging, mlp_cmdAppWarning, busPriority_low);
 	bus_pushWord32(&msg, tickTimer_getTickTime());
 	bus_pushWord32(&msg, 0);
@@ -88,8 +88,8 @@ void mlp_appWarning(const char *message)
 void mlp_appError(const char *message)
 {
 	bus_message_t msg;
-	
-	bus_getMessageSlot(&msg);
+	if(!bus_getMessageSlot(&msg)) return;
+
 	bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_logging, mlp_cmdAppError, busPriority_low);
 	bus_pushWord32(&msg, tickTimer_getTickTime());
 	bus_pushWord32(&msg, 0);

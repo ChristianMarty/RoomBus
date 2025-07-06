@@ -58,9 +58,9 @@ typedef struct{
 }ssp_stateSignal_t;
 
 typedef struct{
-	const uint16_t channel;
+	uint16_t channel;
 	const char *description;
-	const uint16_t timeout; // in s
+	uint16_t timeout; // in s
 	
 	const ssp_stateChangeAction_t action;
 }ssp_stateSlot_t;

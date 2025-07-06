@@ -217,6 +217,32 @@ float string_parseNumber(const char *string, uint8_t maxLength)
     return output;
 }
 
+void string_removeFront(char *string, uint8_t removeLength, uint8_t maxLength)
+{
+    if(removeLength>maxLength) string[0] = 0;
+
+    uint8_t i;
+    for(i= 0; i < maxLength-removeLength; i++){
+        string[i] = string[i+removeLength];
+    }
+
+    string[i] = 0;
+}
+
+uint16_t string_readLine(const char *string, uint16_t maxLength)
+{
+    uint16_t length = 0;
+    while(string[length] != '\r' && string[length] != '\n')
+    {
+        length++;
+        if(length >= maxLength || string[length] == 0x00){
+            return 0;
+        }
+    }
+    return length;
+}
+
+
 
 #ifdef __cplusplus
 	}

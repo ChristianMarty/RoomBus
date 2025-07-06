@@ -36,15 +36,12 @@ void systemControl_run(systemControl_t *self)
 
 bool systemControl_hasChanged(systemControl_t *self)
 {
-	if( (self->sysControl->reg != self->sysControlOld.reg) || (self->sysStatus->reg != self->sysStatusOld.reg) )
-	{
+	if( (self->sysControl->reg != self->sysControlOld.reg) || (self->sysStatus->reg != self->sysStatusOld.reg) ){
 		self->sysControlOld.reg = self->sysControl->reg;
 		self->sysStatusOld.reg = self->sysStatus->reg;
 		
 		return true;
-	} 
-	else
-	{
+	}else{
 		return false;
 	}
 }

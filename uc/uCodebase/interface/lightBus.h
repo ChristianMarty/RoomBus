@@ -6,7 +6,7 @@
 
 #include "common/io_same51jx.h"
 #include "driver/SAMx5x/uart.h"
-#include "utility/cobs.h"
+#include "utility/cobs.hpp"
 
 typedef void (*lb_onReceive_t)(const uint8_t *data, uint8_t size, bool error);
 typedef enum {

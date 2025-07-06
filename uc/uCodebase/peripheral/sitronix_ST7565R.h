@@ -14,16 +14,26 @@ extern "C" {
 
 
 typedef enum{
-	ST7565R_voltageRegulatorInternalResistorRatio = 0x20,
+	ST7565R_setUpperColumnAddress = 0x00,
+	ST7565R_setLowerColumnAddress = 0x10,
+	
+	ST7565R_voltageRegulatorInternalResistorRatio0 = 0x20,
+	ST7565R_voltageRegulatorInternalResistorRatio1 = 0x21,
+	ST7565R_voltageRegulatorInternalResistorRatio2 = 0x22,
+	ST7565R_voltageRegulatorInternalResistorRatio3 = 0x23,
+	ST7565R_voltageRegulatorInternalResistorRatio4 = 0x24,
+	ST7565R_voltageRegulatorInternalResistorRatio5 = 0x25,
+	ST7565R_voltageRegulatorInternalResistorRatio6 = 0x26,
+	ST7565R_voltageRegulatorInternalResistorRatio7 = 0x27,
 	
 	ST7565R_powerControl = 0x28,
 	
-	ST7565R_line0 = 0x40,
+	ST7565R_startLine0 = 0x40,
 	
-	ST7565R_electronicVolumeMode = 0x81,
+	ST7565R_electronicVolumeModeSet = 0x81,
 	
-	ST7565R_adcSelectNormal = 0xA0,
-	ST7565R_adcSelectReverse = 0xA1,
+	ST7565R_driverDirectionNormal = 0xA0,
+	ST7565R_driverDirectionReverse = 0xA1,
 	
 	ST7565R_lcdBias1d9= 0xA2,
 	ST7565R_lcdBias1d7= 0xA3,
@@ -53,7 +63,7 @@ typedef enum{
 	ST7565R_page8 = 0xB8,
 	
 	ST7565R_commonOutputModeNormal = 0xC0,
-	
+	ST7565R_commonOutputModeReverse = 0xC8,
 	
 	
 	

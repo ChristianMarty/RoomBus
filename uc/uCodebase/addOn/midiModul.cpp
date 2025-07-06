@@ -1,6 +1,7 @@
 
 #include "driver/SAMx5x/pin.h"
 #include "common/io_same51jx.h"
+#include "common/kernel.h"
 
 #include "midiModul.h"
 
@@ -9,37 +10,34 @@ midi_t midi_2;
 
 void midi_1_onRx(void)
 {
-	midi_onRx(&midi_1);
+	midi_rxInterrupt(&midi_1);
 }
 
 void midi_1_onTx(void)
 {
-	midi_onTx(&midi_1);
+	midi_txInterrupt(&midi_1);
 }
 
 void midi_2_onRx(void)
 {
-	midi_onRx(&midi_2);
+	midi_rxInterrupt(&midi_2);
 }
 
 void midi_2_onTx(void)
 {
-	midi_onTx(&midi_2);
+	midi_txInterrupt(&midi_2);
 }
 
 void midiModul_init(const midiModul_t *midiModul)
 {
-	midi_1.sercom_p = SERCOM5;
-	midi_2.sercom_p = SERCOM2;
+	midi_init(&midi_1, SERCOM5);
+	midi_init(&midi_2, SERCOM2);
 	
 	midi_1.controllerChange = midiModul->controllerChange_1;
 	midi_1.controllerChangeSize = midiModul->controllerChangeSize_1;
 	
 	midi_2.controllerChange = midiModul->controllerChange_2;
 	midi_2.controllerChangeSize = midiModul->controllerChangeSize_2;
-	
-	midi_init(&midi_1);
-	midi_init(&midi_2);	
 	
 	pin_enablePeripheralMux(IO_D12, PIN_FUNCTION_C);
 	pin_enablePeripheralMux(IO_D13, PIN_FUNCTION_C);

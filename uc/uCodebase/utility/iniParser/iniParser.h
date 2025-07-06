@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
     iniParser_integer,
@@ -21,11 +22,13 @@ typedef struct {
     const char* name;
     const iniParser_item_type_t type;
     const union {
-        int* integer;
+        uint16_t* integer;
         float* number;
-        char* string;
+		struct {
+            char* data;
+            const int dataSize;
+		}string; 
     } data;
-    const int dataSize;
 } iniParser_item_t;
 
 typedef struct {
@@ -41,7 +44,9 @@ typedef struct {
     const iniParser_section_t *_currentSection;
 } iniParser_t;
 
-void iniParser_run(iniParser_t *iniParser, const char* line, uint8_t maxLength);
+// returns true -> sucess / returns false -> error
+void iniParser_reset(iniParser_t *iniParser);
+bool iniParser_run(iniParser_t *iniParser, const char* line, uint8_t lineLength);
 
 #ifdef __cplusplus
 }

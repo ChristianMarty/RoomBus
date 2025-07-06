@@ -1,6 +1,6 @@
 
-#ifndef MIDI_H_
-#define MIDI_H_
+#ifndef MIDI_I_H_
+#define MIDI_I_H_
 
 #include "sam.h"
 #include "common/kernel.h"
@@ -31,7 +31,7 @@ typedef struct{
 	
 }midi_t;
 
-void midi_init(midi_t *midi);
+void midi_init(midi_t *midi, Sercom *sercom);
 void midi_handler(midi_t *midi);
 
 bool midi_sendControllerChange(midi_t *midi, uint8_t channel, uint8_t command, uint8_t value);
@@ -39,4 +39,4 @@ bool midi_sendControllerChange(midi_t *midi, uint8_t channel, uint8_t command, u
 void midi_onRx(midi_t *midi);
 void midi_onTx(midi_t *midi);
 
-#endif /* MIDI_H_ */
+#endif /* MIDI_I_H_ */

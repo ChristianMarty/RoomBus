@@ -5,7 +5,7 @@
 
 #include "driver/SAMx5x/uart.h"
 #include "driver/SAMx5x/pin.h"
-#include "utility/cobs.h"
+#include "utility/cobs.hpp"
 #include "utility/softCRC.h"
 
 #include "common/kernel.h"

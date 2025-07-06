@@ -1,6 +1,6 @@
 #ifdef TEST_RUN
 
-#include "utility/cobs.h"
+#include "utility/cobs.hpp"
 
 TEST_CASE( "Test cobs_encode", "[cobs_encode]" ) {
 

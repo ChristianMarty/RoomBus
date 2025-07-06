@@ -194,7 +194,7 @@ void bus_writeHeader(bus_message_t *message, uint8_t destAddr, busProtocol_t pro
 
 void bus_pushByte(bus_message_t *message, uint8_t data)
 {
-	if(message->length >=64) return; // Don't allow to push more than CAN-FD max size. TODO:  Add error handling
+	if(message->length >= 64) return; // Don't allow to push more than CAN-FD max size. TODO:  Add error handling
 	
 	txBuffer[message->bufferIndex].data[message->length] = data;
 	message->length++;
@@ -221,14 +221,13 @@ void bus_pushWord32(bus_message_t *message, uint32_t data)
 void bus_pushString(bus_message_t *message, const char *data)
 {
 	const uint8_t *temp = (const uint8_t*)data;
-	bus_pushArray(message,&temp[0],string_getLength(&data[0]));
+	bus_pushArray(message, &temp[0], string_getLength(&data[0]));
 }
 
 void bus_pushArray(bus_message_t *message, const uint8_t *data, uint8_t dataSize)
 {
-	for(uint8_t i= 0; i< dataSize; i++)
-	{
-		bus_pushByte(message,data[i]);
+	for(uint8_t i= 0; i< dataSize; i++){
+		bus_pushByte(message, data[i]);
 	}
 }
 

@@ -1,6 +1,6 @@
 //**********************************************************************************************************************
 // FileName : kernel.h
-// FilePath : protocol/
+// FilePath : common/
 // Author   : Christian Marty
 // Date		: 16.08.2024
 // Website  : www.christian-marty.ch/RoomBus

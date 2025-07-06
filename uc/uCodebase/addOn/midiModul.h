@@ -2,7 +2,7 @@
 #ifndef MIDI_MODUL_H_
 #define MIDI_MODUL_H_
 
-#include "interface/midi.h"
+#include "driver/SAMx5x/midi.h"
 
 typedef struct{
 	midi_controllerChange_t *controllerChange_1;

@@ -125,9 +125,9 @@ typedef struct{
 }vsp_valueSignal_t;
 
 typedef struct{
-	const uint16_t channel;
+	uint16_t channel;
 	const char *description;
-	const uint16_t timeout; // in s
+	uint16_t timeout; // in s
 	
 	const vsp_valueChangeAction_t action;
 }vsp_valueSlot_t;

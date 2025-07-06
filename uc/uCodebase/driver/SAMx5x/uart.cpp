@@ -16,7 +16,7 @@ uart_c::uart_c()
 
 void uart_c::initUart(gclk_generator_t clkGenerator, Sercom *sercom_p, uint32_t baudrate, sercomParity_t parity)
 {
-	sercom_initClock(clkGenerator,sercom_p);
+	sercom_initClock(clkGenerator, sercom_p);
 		
 	_sercom_p = sercom_p;
 
@@ -67,12 +67,12 @@ void uart_c::sendBytearray(bytearray_t *data)
 	uart_c::sendData(data->data,data->size);
 }
 
-void uart_c::sendData(uint8_t *data,uint8_t size)
+void uart_c::sendData(uint8_t *data, uint8_t size)
 {
-	txData = data;
-	_txSize = size;
 	_txIndex = 0;
 	_txBusy = true;
+	txData = data;
+	_txSize = size;
 	writeByte(txData[_txIndex]);
 	_txIndex++;
 }
@@ -88,13 +88,10 @@ uint8_t uart_c::RxInterrupt(void)
 
 void uart_c::TxInterrupt(void)
 {
-	if(_txIndex<_txSize)
-	{
+	if(_txIndex<_txSize){
 		writeByte(txData[_txIndex]);
 		_txIndex++;
-	}
-	else
-	{
+	}else{
 		_txBusy = false;
 	}
 	

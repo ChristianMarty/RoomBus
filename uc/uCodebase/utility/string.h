@@ -33,11 +33,23 @@ char *string_uInt64ToHex(uint64_t value, char *outStr);
 
 char *string_append(char *str1, const char *str2);
 
+
 bool string_isEqual(const char *str1, const char *str2, uint8_t maxLength);
 
 int string_parseInteger(const char *string, uint8_t maxLength);
 
 float string_parseNumber(const char *string, uint8_t maxLength);
+
+
+void string_removeFront(char *string, uint8_t removeLength, uint8_t maxLength);
+
+/* Possile line endings
+ * windows: \r\n
+ * old mac: \r
+ * unix: \n
+ * for completeness: \n\r
+ */
+uint16_t string_readLine(const char *string, uint16_t maxLength);
 
 #ifdef __cplusplus
 	}

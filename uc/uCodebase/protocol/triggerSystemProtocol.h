@@ -66,12 +66,12 @@ typedef struct{
 }tsp_itemState_t;
 
 typedef struct{
-	const uint16_t channel;
+	uint16_t channel;
 	const char *description;
 }tsp_triggerSignal_t;
 
 typedef struct{
-	const uint16_t channel;
+	uint16_t channel;
 	const char *description;
 	
 	const tsp_triggerAction_t action;
