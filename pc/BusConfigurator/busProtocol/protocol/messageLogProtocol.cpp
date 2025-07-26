@@ -1,6 +1,6 @@
 #include "messageLogProtocol.h"
 
-MessageLogProtocol::MessageLogProtocol(RoomBusDevice *device):BusProtocol(device)
+MessageLogProtocol::MessageLogProtocol(RoomBusDevice *device):ProtocolBase(device)
 {
 }
 

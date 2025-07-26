@@ -1,26 +1,35 @@
 #include "valueProtocol.h"
 
-ValueSystemProtocol::ValueSystemProtocol(RoomBusDevice *device):BusProtocol(device)
+ValueSystemProtocol::ValueSystemProtocol(RoomBusDevice *device)
+    : ProtocolBase(device)
 {
 }
 
 void ValueSystemProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::ValueSystemProtocol) return;
+    if(msg.protocol != RoomBus::Protocol::ValueSystemProtocol){
+        return;
+    }
 
     switch((RoomBus::ValueSystemCommand)msg.command){
         case RoomBus::ValueSystemCommand::ValueReport: _parseValue(msg); break;
         case RoomBus::ValueSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
         case RoomBus::ValueSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
+
+        case RoomBus::ValueSystemCommand::ValueRequest:
+        case RoomBus::ValueSystemCommand::ValueCommand:
+        case RoomBus::ValueSystemCommand::Reserved0:
+        case RoomBus::ValueSystemCommand::SignalInformationRequest:
+        case RoomBus::ValueSystemCommand::SlotInformationRequest:
+            break;
     }
 }
 
 void ValueSystemProtocol::requestSignalInformation()
 {
     RoomBus::Message msg;
-
     msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
-    msg.command = (uint8_t)RoomBus::ValueSystemCommand::SignalInformationRequest;
+    msg.command = (RoomBus::Command)RoomBus::ValueSystemCommand::SignalInformationRequest;
 
     sendMessage(msg);
 }
@@ -28,14 +37,13 @@ void ValueSystemProtocol::requestSignalInformation()
 void ValueSystemProtocol::requestSlotInformation()
 {
     RoomBus::Message msg;
-
     msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
-    msg.command = (uint8_t)RoomBus::ValueSystemCommand::SlotInformationRequest;
+    msg.command = (RoomBus::Command)RoomBus::ValueSystemCommand::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
-void ValueSystemProtocol::reset()
+void ValueSystemProtocol::clearInformation()
 {
     _valueSignal.clear();
     _valueSlot.clear();
@@ -73,23 +81,23 @@ ValueSystemProtocol::ValueData ValueSystemProtocol::stringToValue(UnitType type,
 
 ValueSystemProtocol::UnitType ValueSystemProtocol::uomToType(UnitOfMeasure uom)
 {
-    return UnitofMeasurements[uom].type;
+    return UnitOfMeasurements[uom].type;
 }
 
 QString ValueSystemProtocol::uomName(UnitOfMeasure uom)
 {
-    return UnitofMeasurements[uom].name;
+    return UnitOfMeasurements[uom].name;
 }
 
 QString ValueSystemProtocol::uomUnit(UnitOfMeasure uom)
 {
-    return UnitofMeasurements[uom].unit;
+    return UnitOfMeasurements[uom].unit;
 }
 
 QString ValueSystemProtocol::valueString(uint16_t channel)
 {
     ValueSignal val = _valueSignal[channel];
-    return valueToString(UnitofMeasurements[val.uom].type, val.value);
+    return valueToString(UnitOfMeasurements[val.uom].type, val.value);
 }
 
 QList<ValueSystemProtocol::ValueSignal *> ValueSystemProtocol::valueSignls()
@@ -107,7 +115,7 @@ void ValueSystemProtocol::_parseValue(RoomBus::Message msg)
 
     uint16_t uomIndex = _valueSignal[channel].uom;
 
-    UnitType type = UnitofMeasurements[uomIndex].type;
+    UnitType type = UnitOfMeasurements[uomIndex].type;
 
     _valueSignal[channel].value = _decodeData(type, msg.data.mid(2));
 
@@ -117,7 +125,7 @@ void ValueSystemProtocol::_parseValue(RoomBus::Message msg)
 QList<ValueSystemProtocol::ValueSlot *> ValueSystemProtocol::valueSlots()
 {
     QList<ValueSystemProtocol::ValueSlot *> output;
-    for(auto &item: _valueSlot){
+    for(ValueSystemProtocol::ValueSlot &item: _valueSlot){
         output.append(&item);
     }
     return output;
@@ -130,7 +138,7 @@ void ValueSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
     signal.interval = RoomBus::unpackUint16(msg.data,2);
 
     uint16_t uomIndex = (UnitOfMeasure)RoomBus::unpackUint16(msg.data,4);
-    UnitType type = UnitofMeasurements[uomIndex].type;
+    UnitType type = UnitOfMeasurements[uomIndex].type;
 
     signal.readOnly = (uomIndex & 0x8000);
     signal.uom = (UnitOfMeasure)(uomIndex &0x7FFF);
@@ -202,10 +210,10 @@ void ValueSystemProtocol::sendValueCommand(uint16_t channel, ValueData value)
     RoomBus::Message msg;
 
     msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
-    msg.command = (uint8_t)RoomBus::ValueSystemCommand::ValueCommand;
+    msg.command = (RoomBus::Command)RoomBus::ValueSystemCommand::ValueCommand;
 
     msg.data.append(RoomBus::packUint16(channel));
-    msg.data.append((uint8_t)ValueCommand::vsp_vCmd_setLongValueClamp);
+    msg.data.append((uint8_t)ValueCommand::setLongValueClamp);
     msg.data.append(RoomBus::packUint32(value.Long));
 
     sendMessage(msg);

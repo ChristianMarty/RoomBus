@@ -5,10 +5,10 @@
 #include <QMap>
 #include <QDateTime>
 
-#include "busProtocol.h"
+#include "protocolBase.h"
 
 
-class ValueSystemProtocol : public BusProtocol
+class ValueSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
@@ -29,7 +29,7 @@ public:
         UnitType type;
     };
 
-    static const constexpr UnitOfMeasurement UnitofMeasurements[] = {
+    static const constexpr UnitOfMeasurement UnitOfMeasurements[] = {
         {"Long","", UnitType::Long}, //0x00
         {"Number","", UnitType::Number},
         {},{},{},{},{},
@@ -67,27 +67,26 @@ public:
         uint16_t timeout;
     };
 
-    enum class ValueCommand{
-        vsp_vCmd_setMinimum = 0x00,
-        vsp_vCmd_setMaximum,
-        vsp_vCmd_invert,
+    enum class ValueCommand {
+        setMinimum = 0x00,
+        setMaximum,
+        invert,
 
-        vsp_vCmd_setLongValueReject = 0x10,
-        vsp_vCmd_setLongValueClamp,
+        setLongValueReject = 0x10,
+        setLongValueClamp,
 
-        vsp_vCmd_addLongReject = 0x20,
-        vsp_vCmd_addLongClamp,
+        addLongReject = 0x20,
+        addLongClamp,
 
-        vsp_vCmd_subtractLongReject = 0x30,
-        vsp_vCmd_subtractLongClamp,
+        subtractLongReject = 0x30,
+        subtractLongClamp,
 
 
-        vsp_vCmd_setNumberValueReject = 0x40,
-        vsp_vCmd_setNumberValueClamp,
+        setNumberValueReject = 0x40,
+        setNumberValueClamp,
 
-        vsp_vCmd_addNumberReject = 0x50,
-        vsp_vCmd_addNumberClamp
-
+        addNumberReject = 0x50,
+        addNumberClamp
     };
 
     ValueSystemProtocol(RoomBusDevice *device);
@@ -101,8 +100,7 @@ public:
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
-
-    void reset(void);
+    void clearInformation(void);
 
     static QString valueToString(UnitType type, ValueData data);
     static ValueData stringToValue(UnitType type, QString value);

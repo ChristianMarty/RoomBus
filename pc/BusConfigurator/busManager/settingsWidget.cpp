@@ -55,40 +55,19 @@ void settingsWidget::on_setAddressButton_clicked()
     _busDevice->exitRootMode();
 }
 
-void settingsWidget::on_ledOnBox_stateChanged(int arg1)
-{
-   /* busDevice::sysControl_t temp;
-    temp.reg = 0;
-    temp.bit.ledOnOff = true;
-
-    if(arg1)_busDevice->writeSetControl(temp);
-    else _busDevice->writeClearControl(temp);*/
-}
-
-
 void settingsWidget::on_ledOnBox_clicked(bool checked)
 {
-    RoomBusDevice::sysControl_t temp;
+    RoomBusDevice::SystemControl temp;
     temp.reg = 0;
     temp.bit.ledOnOff = true;
 
     if(checked)_busDevice->writeSetControl(temp);
     else _busDevice->writeClearControl(temp);
-}
-
-void settingsWidget::on_appRunBox_stateChanged(int arg1)
-{
-   /* busDevice::sysControl_t temp;
-    temp.reg = 0;
-    temp.bit.appRun = true;
-
-    if(arg1)_busDevice->writeSetControl(temp);
-    else _busDevice->writeClearControl(temp);*/
 }
 
 void settingsWidget::on_appRunBox_clicked(bool checked)
 {
-    RoomBusDevice::sysControl_t temp;
+    RoomBusDevice::SystemControl temp;
     temp.reg = 0;
     temp.bit.appRun = true;
 
@@ -96,19 +75,9 @@ void settingsWidget::on_appRunBox_clicked(bool checked)
     else _busDevice->writeClearControl(temp);
 }
 
-void settingsWidget::on_autostartAppBox_stateChanged(int arg1)
-{
-    /*busDevice::sysControl_t temp;
-    temp.reg = 0;
-    temp.bit.appRunOnStartup = true;
-
-    if(arg1)_busDevice->writeSetControl(temp);
-    else _busDevice->writeClearControl(temp);*/
-}
-
 void settingsWidget::on_autostartAppBox_clicked(bool checked)
 {
-    RoomBusDevice::sysControl_t temp;
+    RoomBusDevice::SystemControl temp;
     temp.reg = 0;
     temp.bit.appRunOnStartup = true;
 

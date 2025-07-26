@@ -55,7 +55,7 @@ void ValueWidget::on_pushButton_clear_clicked()
     ui->listWidget_signal->clear();
     ui->listWidget_slot->clear();
 
-    _valueProtocol.reset();
+    _valueProtocol.clearInformation();
 }
 
 void ValueWidget::on_pushButton_refresh_clicked()

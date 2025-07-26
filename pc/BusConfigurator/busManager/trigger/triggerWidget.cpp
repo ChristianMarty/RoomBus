@@ -55,7 +55,7 @@ void TriggerWidget::on_pushButton_clear_clicked()
     ui->listWidget_signal->clear();
     ui->listWidget_slot->clear();
 
-    _triggerProtocol.reset();
+    _triggerProtocol.clearInformation();
 }
 
 void TriggerWidget::on_pushButton_refresh_clicked()

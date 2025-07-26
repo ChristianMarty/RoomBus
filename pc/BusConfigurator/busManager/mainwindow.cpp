@@ -115,36 +115,33 @@ RoomBusDevice *MainWindow::addDevice(uint8_t address)
 
 void MainWindow::on_scanButton_clicked()
 {
-    RoomBus::Message msg;
-    msg.destinationAddress = 0x7F;
-    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0x02;
-    msg.data.append(RoomBusDevice::DMP_SC_SystemInformationRequest);
-    msg.priority = RoomBus::Priority::Normal;
-    _busConnection.write(msg);
+    _busConnection.write(RoomBusDevice::busScan());
 }
 
 void MainWindow::on_monitorButton_clicked()
 {
-    if(_monitorWindow == nullptr) _monitorWindow = new busMonitor();
+    if(_monitorWindow == nullptr){
+        _monitorWindow = new busMonitor();
+    }
     _monitorWindow->show();
 }
 
 void MainWindow::on_qosButton_clicked()
 {
-    if(_qosWindow == nullptr) _qosWindow = new qualityOfServiceWindow(&_busDeviceList);
+    if(_qosWindow == nullptr){
+        _qosWindow = new qualityOfServiceWindow(&_busDeviceList);
+    }
     _qosWindow->show();
 
-    this->addDockWidget(Qt::BottomDockWidgetArea,_qosWindow);
+    this->addDockWidget(Qt::BottomDockWidgetArea, _qosWindow);
 }
 
 void MainWindow::on_busDeviceWindowShow(RoomBusDevice *device)
 {
-    if(!_busDeviceWindowMap.contains(device))
-    {
+    if(!_busDeviceWindowMap.contains(device)){
         _busDeviceWindowMap.insert(device, new BusDeviceWindow(device, this));
     }
 
-    this->addDockWidget(Qt::RightDockWidgetArea,_busDeviceWindowMap[device]);
+    this->addDockWidget(Qt::RightDockWidgetArea, _busDeviceWindowMap[device]);
     _busDeviceWindowMap[device]->show();
 }

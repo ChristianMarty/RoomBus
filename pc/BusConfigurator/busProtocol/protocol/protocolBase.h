@@ -1,16 +1,16 @@
-#ifndef BUSPROTOCOL_H
-#define BUSPROTOCOL_H
+#ifndef BUS_PROTOCOL_H
+#define BUS_PROTOCOL_H
 
 #include "roomBusMessage.h"
 
 class RoomBusDevice;
 
-class BusProtocol: public QObject
+class ProtocolBase: public QObject
 {
     Q_OBJECT
 public:
-    BusProtocol(RoomBusDevice *device);
-    ~BusProtocol(void);
+    ProtocolBase(RoomBusDevice *device);
+    ~ProtocolBase(void);
 
     virtual void pushData(RoomBus::Message msg)=0;
 
@@ -26,4 +26,4 @@ protected:
 
 
 };
-#endif // BUSPROTOCOL_H
+#endif // BUS_PROTOCOL_H

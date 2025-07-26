@@ -48,7 +48,7 @@ void BusDeviceWidget::updateData(void)
 
 void BusDeviceWidget::on_identifyButton_clicked()
 {
-    RoomBusDevice::sysControl_t temp;
+    RoomBusDevice::SystemControl temp;
     temp.reg = 0;
     temp.bit.identify = true;
 

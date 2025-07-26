@@ -23,8 +23,6 @@ public:
         SocketCan
     };
 
-    bool write(RoomBus::Message message);
-
     void setSocketCanConnection(QString port);
     void setSerialConnection(QString port);
     void setTcpConnection(QString ip, uint16_t port);
@@ -38,6 +36,8 @@ public:
 
     QString getConnectionName(void);
     QString getConnectionPath(void);
+
+    bool write(RoomBus::Message message);
 
     QList<RoomBus::Message> rxMsgBuffer;
 

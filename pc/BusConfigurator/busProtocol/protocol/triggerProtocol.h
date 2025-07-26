@@ -3,9 +3,9 @@
 
 #include <QObject>
 #include <QMap>
-#include "busProtocol.h"
+#include "protocolBase.h"
 
-class TriggerSystemProtocol : public BusProtocol
+class TriggerSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
@@ -23,18 +23,15 @@ public:
 
     TriggerSystemProtocol(RoomBusDevice *device);
 
-    void pushData(RoomBus::Message msg);
-    QList<RoomBus::Protocol> protocol(void);
+    void pushData(RoomBus::Message msg) override;
+    QList<RoomBus::Protocol> protocol(void) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
+    void clearInformation(void);
 
     void sendTrigger(QList<uint16_t>triggerChannels);
     void sendTrigger(uint16_t triggerChannel);
-
-    void emulateTrigger(uint16_t triggerChannel);
-
-    void reset(void);
 
     QList<TriggerSystemProtocol::TriggerSlot*> triggerSlots();
     QList<TriggerSystemProtocol::TriggerSignal*> triggerSignls();
@@ -43,7 +40,7 @@ public:
     QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> triggerSignalMap() const;
 
 signals:
-    void triggerSignalReceived(QList<uint8_t>triggerSignal);
+    void triggerSignalReceived(QList<uint16_t>triggerSignal);
 
     void triggerSignalListChange(void);
     void triggerSlotListChange(void);

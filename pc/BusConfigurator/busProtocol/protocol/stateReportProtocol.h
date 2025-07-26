@@ -3,9 +3,9 @@
 
 #include <QObject>
 #include <QMap>
-#include "busProtocol.h"
+#include "protocolBase.h"
 
-class StateSystemProtocol : public BusProtocol
+class StateSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
@@ -16,11 +16,6 @@ public:
         undefined = 3,
         unknown = 4
     } SignalState;
-
-    enum SerialBridgeType {
-        SBC_Type_UART = 0x00,
-        SBC_Type_I2C = 0x01
-    };
 
     struct StateReportSignal {
         uint16_t channel;

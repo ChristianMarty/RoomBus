@@ -27,10 +27,10 @@ SOURCES += \
         ../../QuCLib/source/crc.cpp \
         ../../QuCLib/source/hexFileParser.cpp \
         busDevice.cpp \
-        busProtocol.cpp \
-        hexFileParser_old.cpp \
+        protocol/deviceManagementProtocol.cpp \
+        protocol/protocolBase.cpp \
+        protocolDecoder.cpp \
         protocol/messageLogProtocol.cpp \
-        protocol/protocolDecoder.cpp \
         protocol/eventProtocol.cpp \
         protocol/fileTransferProtocol.cpp \
         protocol/serialBridgeProtocol.cpp \
@@ -44,10 +44,10 @@ HEADERS += \
         ../../QuCLib/source/crc.h \
         ../../QuCLib/source/hexFileParser.h \
         busDevice.h \
-        busProtocol.h \
+        protocol/deviceManagementProtocol.h \
+        protocol/protocolBase.h \
+        protocolDecoder.h \
         protocol/messageLogProtocol.h \
-        protocol/protocolDecoder.h \
-        hexFileParser_old.h \
         protocol/eventProtocol.h \
         protocol/fileTransferProtocol.h \
         protocol/serialBridgeProtocol.h \

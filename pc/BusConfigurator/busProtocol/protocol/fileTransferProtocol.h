@@ -6,10 +6,10 @@
 #include <QDateTime>
 #include <QFile>
 
-#include "busProtocol.h"
+#include "protocolBase.h"
 
 
-class FileTransferProtocol : public BusProtocol
+class FileTransferProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:

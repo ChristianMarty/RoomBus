@@ -24,12 +24,6 @@ private slots:
 
     void on_setAddressButton_clicked();
 
-    void on_ledOnBox_stateChanged(int arg1);
-
-    void on_appRunBox_stateChanged(int arg1);
-
-    void on_autostartAppBox_stateChanged(int arg1);
-
     void on_setIntervalButton_clicked();
 
     void on_firmwarePathButton_clicked();

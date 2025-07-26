@@ -1,7 +1,7 @@
 #include "busMonitorLine.h"
 #include "ui_busMonitorLine.h"
 
-#include "protocol/protocolDecoder.h"
+#include "protocolDecoder.h"
 
 BusMonitorLine::BusMonitorLine(QWidget *parent):
     QWidget(parent),

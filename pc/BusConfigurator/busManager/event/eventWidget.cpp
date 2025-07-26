@@ -23,7 +23,7 @@ EventWidget::~EventWidget()
 
 void EventWidget::on_eventActive(uint8_t eventChannel, bool active)
 {
-    _eventProtocol.setActiveState(eventChannel, active);
+   // _eventProtocol.setActiveState(eventChannel, active);
 }
 
 void EventWidget::on_signalListChange()
@@ -55,7 +55,7 @@ void EventWidget::on_pushButton_clear_clicked()
     ui->listWidget_signal->clear();
     ui->listWidget_slot->clear();
 
-    _eventProtocol.reset();
+    _eventProtocol.clearInformation();
 }
 
 void EventWidget::on_pushButton_refresh_clicked()

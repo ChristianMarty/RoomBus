@@ -4,9 +4,9 @@
 
 #include <QObject>
 #include <QMap>
-#include "busProtocol.h"
+#include "protocolBase.h"
 
-class SerialBridgeProtocol: public BusProtocol
+class SerialBridgeProtocol: public ProtocolBase
 {
     Q_OBJECT
 public:

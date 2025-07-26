@@ -1,33 +1,42 @@
 #include "triggerProtocol.h"
 
-TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device):BusProtocol(device)
+TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device)
+    : ProtocolBase(device)
 {
 }
 
 void TriggerSystemProtocol::pushData(RoomBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::TriggerSystemProtocol) return;
+    if(msg.protocol != RoomBus::Protocol::TriggerSystemProtocol){
+        return;
+    }
 
     switch((RoomBus::TriggerSystemCommand)msg.command){
         case RoomBus::TriggerSystemCommand::Trigger: _parseTrigger(msg); break;
         case RoomBus::TriggerSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
         case RoomBus::TriggerSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
+
+        case RoomBus::TriggerSystemCommand::Reserved0:
+        case RoomBus::TriggerSystemCommand::Reserved1:
+        case RoomBus::TriggerSystemCommand::Reserved2:
+        case RoomBus::TriggerSystemCommand::SignalInformationRequest:
+        case RoomBus::TriggerSystemCommand::SlotInformationRequest:
+            break;
     }
 }
 
 QList<RoomBus::Protocol> TriggerSystemProtocol::protocol(void)
 {
-    QList<RoomBus::Protocol> temp;
-    temp.append(RoomBus::Protocol::TriggerSystemProtocol);
-    return temp;
+    QList<RoomBus::Protocol> output;
+    output.append(RoomBus::Protocol::TriggerSystemProtocol);
+    return output;
 }
 
 void TriggerSystemProtocol::requestSignalInformation(void)
 {
     RoomBus::Message msg;
-
     msg.protocol = RoomBus::Protocol::TriggerSystemProtocol;
-    msg.command = (uint8_t)RoomBus::TriggerSystemCommand::SignalInformationRequest;
+    msg.command = (RoomBus::Command)RoomBus::TriggerSystemCommand::SignalInformationRequest;
 
     sendMessage(msg);
 }
@@ -35,9 +44,8 @@ void TriggerSystemProtocol::requestSignalInformation(void)
 void TriggerSystemProtocol::requestSlotInformation(void)
 {
     RoomBus::Message msg;
-
     msg.protocol = RoomBus::Protocol::TriggerSystemProtocol;
-    msg.command = (uint8_t)RoomBus::TriggerSystemCommand::SlotInformationRequest;
+    msg.command = (RoomBus::Command)RoomBus::TriggerSystemCommand::SlotInformationRequest;
 
     sendMessage(msg);
 }
@@ -45,13 +53,10 @@ void TriggerSystemProtocol::requestSlotInformation(void)
 void TriggerSystemProtocol::sendTrigger(QList<uint16_t> triggerChannels)
 {
     RoomBus::Message msg;
-
     msg.protocol = RoomBus::Protocol::TriggerSystemProtocol;
-    msg.command = (uint8_t)RoomBus::TriggerSystemCommand::Trigger;
+    msg.command = (RoomBus::Command)RoomBus::TriggerSystemCommand::Trigger;
 
-    for (uint8_t i = 0; i<triggerChannels.size(); i++)
-    {
-        uint16_t channel = triggerChannels.at(i);
+    for(uint16_t channel: triggerChannels){
         msg.data.append(RoomBus::packUint16(channel));
     }
 
@@ -66,12 +71,7 @@ void TriggerSystemProtocol::sendTrigger(uint16_t triggerChannel)
    sendTrigger(triggerChannels);
 }
 
-void TriggerSystemProtocol::emulateTrigger(uint16_t triggerChannel)
-{
-
-}
-
-void TriggerSystemProtocol::reset()
+void TriggerSystemProtocol::clearInformation()
 {
     _triggerSlot.clear();
     _triggerSignal.clear();
@@ -83,7 +83,7 @@ void TriggerSystemProtocol::reset()
 QList<TriggerSystemProtocol::TriggerSlot *> TriggerSystemProtocol::triggerSlots()
 {
     QList<TriggerSystemProtocol::TriggerSlot *> output;
-    for(auto &item: _triggerSlot){
+    for(TriggerSystemProtocol::TriggerSlot &item: _triggerSlot){
         output.append(&item);
     }
     return output;
@@ -92,7 +92,7 @@ QList<TriggerSystemProtocol::TriggerSlot *> TriggerSystemProtocol::triggerSlots(
 QList<TriggerSystemProtocol::TriggerSignal *> TriggerSystemProtocol::triggerSignls()
 {
     QList<TriggerSystemProtocol::TriggerSignal *> output;
-    for(auto &item: _triggerSignal){
+    for(TriggerSystemProtocol::TriggerSignal &item: _triggerSignal){
         output.append(&item);
     }
     return output;
@@ -110,11 +110,10 @@ QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> TriggerSystemProtocol::trig
 
 void TriggerSystemProtocol::_parseTrigger(RoomBus::Message msg)
 {
-    QList<uint8_t> triggerSignals;
+    QList<uint16_t> triggerSignals;
     
-    for (uint8_t i = 0; i<msg.data.size(); i++)
-    {
-        triggerSignals.append(static_cast<uint8_t>(msg.data.at(i)));
+    for(uint8_t i = 0; i < msg.data.size(); i+=2){
+        triggerSignals.append(RoomBus::unpackUint16(msg.data,i));
     }
 
     emit triggerSignalReceived(triggerSignals);

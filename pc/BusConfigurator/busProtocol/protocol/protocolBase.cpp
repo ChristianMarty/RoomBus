@@ -1,18 +1,18 @@
-#include "busProtocol.h"
+#include "protocolBase.h"
 #include "busDevice.h"
 
-BusProtocol::BusProtocol(RoomBusDevice *device)
+ProtocolBase::ProtocolBase(RoomBusDevice *device)
 {
     _device = device;
     _device->addProtocol(this);
 }
 
-BusProtocol::~BusProtocol(void)
+ProtocolBase::~ProtocolBase(void)
 {
     _device->removeProtocol(this);
 }
 
-void BusProtocol::sendMessage(RoomBus::Message msg)
+void ProtocolBase::sendMessage(RoomBus::Message msg)
 {
     msg.destinationAddress = _device->deviceAddress();
     _device->dataReady(msg);

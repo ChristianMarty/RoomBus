@@ -3,12 +3,11 @@
 
 #include <QObject>
 #include <QMap>
-#include "busProtocol.h"
+#include "protocolBase.h"
 
 #include "roomBusMessage.h"
 
-
-class EventSystemProtocol : public BusProtocol
+class EventSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
@@ -27,27 +26,21 @@ public:
 
     EventSystemProtocol(RoomBusDevice *device);
 
-    void pushData(RoomBus::Message msg);
-    QList<RoomBus::Protocol> protocol(void);
+    void pushData(RoomBus::Message msg) override;
+    QList<RoomBus::Protocol> protocol(void) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
+    void clearInformation(void);
 
-    void resetEventTimeout(QList<uint8_t>eventChannels);
-    void resetEventTimeout(uint8_t eventChannel);
-
-    void setActiveState(uint8_t eventChannel, bool active);
-
-    void sendEvent(QList<uint8_t>eventChannels);
-    void sendEvent(uint8_t eventChannel);
-
-    void reset(void);
+    void sendEvent(QList<uint16_t>eventChannels);
+    void sendEvent(uint16_t eventChannel);
 
     QList<EventSystemProtocol::EventSlot*> eventSlots();
     QList<EventSystemProtocol::EventSignal*> eventSignls();
 
 signals:
-    void eventSignalReceived(QList<uint8_t>triggerSignal);
+    void eventSignalReceived(QList<uint16_t>eventSignal);
 
     void eventSignalListChange(void);
     void eventSlotListChange(void);

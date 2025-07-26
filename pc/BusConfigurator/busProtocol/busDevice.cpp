@@ -1,6 +1,6 @@
 #include "busDevice.h"
 #include <QTimer>
-#include <busProtocol.h>
+#include "protocol/protocolBase.h"
 #include "../../QuCLib/source/crc.h"
 
 RoomBusDevice::RoomBusDevice(QObject *parent) : QObject(parent)
@@ -59,25 +59,15 @@ QString RoomBusDevice::kernelVersionString(void)
 
 QString RoomBusDevice::hardwareVersionString(void)
 {
-    uint8_t high = (uint8_t)((_hwVersion >> 8) & 0xFF);
-    uint8_t low = (uint8_t)(_hwVersion & 0xFF);
+    uint8_t high = (uint8_t)((_hardwareVersion >> 8) & 0xFF);
+    uint8_t low = (uint8_t)(_hardwareVersion & 0xFF);
 
     return QString::number(high,10).rightJustified(2, '0')+"."+QString::number(low,10).rightJustified(2, '0');
 }
 
 QString RoomBusDevice::deviceIdentificationString(void)
 {
-  /*  QString temp;
-
-    uint8_t processor = (uint8_t)(_deviceIdentificationCode >> 28) & 0x0F;
-    uint8_t family = (uint8_t)(_deviceIdentificationCode >> 23) & 0x1F;
-    uint8_t series = (uint8_t)(_deviceIdentificationCode >> 16) & 0x3F;
-    uint8_t die = (uint8_t)(_deviceIdentificationCode >> 12) & 0x0F;
-    uint8_t revision = (uint8_t)(_deviceIdentificationCode >> 8) & 0x0F;
-    uint8_t selection = (uint8_t)(_deviceIdentificationCode & 0xFF);*/
-
-    switch(_deviceIdentificationCode)
-    {
+    switch(_deviceIdentificationCode) {
         case 0x61810502: return "ATSAME51J19A (0x61810502)";
         case 0x61810002: return "ATSAME51J19A (0x61810002)";
         case 0x61810303: return "ATSAME51J18A (0x61810303)";
@@ -109,26 +99,38 @@ void RoomBusDevice::sendEcho(QByteArray txData)
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
     msg.command = 0;
-    msg.data.append(static_cast<char>(DMP_SC_Echo));
+    msg.data.append(static_cast<char>(DeviceManagementSubCommand::Echo));
 
     msg.data.append(txData);
 
     emit dataReady(msg);
 }
 
-QString RoomBusDevice::getCanErrorCode(RoomBusDevice::canDignostics_t::errorCode_t errorCode)
+QString RoomBusDevice::getCanErrorCode(RoomBusDevice::CanDignostics::ErrorCode errorCode)
 {
     switch (errorCode) {
-        case RoomBusDevice::canDignostics_t::errorCode_t::NONE:  return "NONE";
-        case RoomBusDevice::canDignostics_t::errorCode_t::STUFF:  return "STUFF";
-        case RoomBusDevice::canDignostics_t::errorCode_t::FORM:  return "FORM";
-        case RoomBusDevice::canDignostics_t::errorCode_t::ACK:  return "ACK";
-        case RoomBusDevice::canDignostics_t::errorCode_t::BIT1:  return "BIT1";
-        case RoomBusDevice::canDignostics_t::errorCode_t::BIT0:  return "BIT0";
-        case RoomBusDevice::canDignostics_t::errorCode_t::CRC:  return "CRC";
-        case RoomBusDevice::canDignostics_t::errorCode_t::NC:  return "NC";
+        case RoomBusDevice::CanDignostics::ErrorCode::NONE:  return "NONE";
+        case RoomBusDevice::CanDignostics::ErrorCode::STUFF:  return "STUFF";
+        case RoomBusDevice::CanDignostics::ErrorCode::FORM:  return "FORM";
+        case RoomBusDevice::CanDignostics::ErrorCode::ACK:  return "ACK";
+        case RoomBusDevice::CanDignostics::ErrorCode::BIT1:  return "BIT1";
+        case RoomBusDevice::CanDignostics::ErrorCode::BIT0:  return "BIT0";
+        case RoomBusDevice::CanDignostics::ErrorCode::CRC:  return "CRC";
+        case RoomBusDevice::CanDignostics::ErrorCode::NC:  return "NC";
         default: return "Unknown";
     }
+}
+
+RoomBus::Message RoomBusDevice::busScan()
+{
+    RoomBus::Message msg;
+    msg.destinationAddress = RoomBus::BroadcastAddress;
+    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)RoomBusDevice::DeviceManagementSubCommand::SystemInformationRequest);
+    msg.priority = RoomBus::Priority::Normal;
+
+    return msg;
 }
 
 void RoomBusDevice::startFirmwareUpload(QString hexPath)
@@ -218,15 +220,10 @@ void RoomBusDevice::writeBinaryChunk(void)
         msg.destinationAddress = _deviceAddress;
         msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
         msg.command = 0;
-        msg.data.append(static_cast<char>(DMP_SC_Bootload));
+        msg.data.append((uint8_t)DeviceManagementSubCommand::Bootload);
+        msg.data.append(RoomBus::packUint32(_bootloadDataIndex));
 
-        msg.data.append(static_cast<char>((_bootloadDataIndex>>24) & 0xFF));
-        msg.data.append(static_cast<char>((_bootloadDataIndex>>16) & 0xFF));
-        msg.data.append(static_cast<char>((_bootloadDataIndex>>8) & 0xFF));
-        msg.data.append(static_cast<char>((_bootloadDataIndex) & 0xFF));
-
-        for(uint8_t i= 0; i<32;i++)
-        {
+        for(uint8_t i= 0; i<32;i++){
             if(_bootloadDataIndex >= data.length()) break;
 
             msg.data.append(static_cast<char>(data.at(static_cast<int>(_bootloadDataIndex))));
@@ -235,7 +232,7 @@ void RoomBusDevice::writeBinaryChunk(void)
         _btlWritePending = true;
         _btlLastWrite = msg;
         emit dataReady(msg);
-        emit bootloadStatusUpdate((uint8_t)((uint64_t)_bootloadDataIndex*100/ data.count()),false,"Upload in Progress");
+        emit bootloadStatusUpdate((uint8_t)((uint64_t)_bootloadDataIndex*100/ data.length()),false,"Upload in Progress");
     }
     else
     {
@@ -251,8 +248,8 @@ void RoomBusDevice::eraseApp(void)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(static_cast<char>(DMP_SC_EraseApplication));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::EraseApplication);
 
     emit dataReady(msg);
 }
@@ -262,10 +259,9 @@ void RoomBusDevice::enterRootMode(void)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_EnterRootMode);
-    msg.data.append(static_cast<char>(0x12));
-    msg.data.append(static_cast<char>(0x34));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::EnterRootMode);
+    msg.data.append(RoomBus::packUint16(0x1234));
 
     emit dataReady(msg);
 }
@@ -275,9 +271,9 @@ void RoomBusDevice::exitRootMode(void)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_EnterRootMode);
-    msg.data.append(static_cast<char>(0x00));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::EnterRootMode);
+    msg.data.append((uint8_t)0x00);
 
     emit dataReady(msg);
 }
@@ -287,9 +283,9 @@ void RoomBusDevice::writeAddress(uint8_t address)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_SetAddress);
-    msg.data.append(static_cast<char>(address));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::SetAddress);
+    msg.data.append((uint8_t)address);
 
     emit dataReady(msg);
 }
@@ -299,8 +295,8 @@ void RoomBusDevice::writeDeviceName(QString name)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_SetDeviceName);
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::SetDeviceName);
     msg.data.append(name.toLocal8Bit());
 
     emit dataReady(msg);
@@ -311,8 +307,8 @@ void RoomBusDevice::requestHeartbeat(void)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_HeartbeatRequest);
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::HeartbeatRequest);
 
     emit dataReady(msg);
 }
@@ -322,8 +318,8 @@ void RoomBusDevice::requestSystemInfo(void)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_SystemInformationRequest);
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::SystemInformationRequest);
 
     emit dataReady(msg);
 }
@@ -333,8 +329,8 @@ void RoomBusDevice::requestCanDiagnostics(void)
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_CanDiagnosticsRequest);
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::CanDiagnosticsRequest);
 
     emit dataReady(msg);
 }
@@ -346,8 +342,8 @@ void RoomBusDevice::requestSystemRestart()
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-    msg.data.append(DMP_SC_Reboot);
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::Reboot);
 
     emit dataReady(msg);
 }
@@ -357,69 +353,51 @@ void RoomBusDevice::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t 
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-
-    msg.data.append(DMP_SC_HeartbeatSettings);
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(heartbeatInterval>>8)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(heartbeatInterval&0xFF)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(systemInfoInterval>>8)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(systemInfoInterval&0xFF)));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::HeartbeatSettings);
+    msg.data.append(RoomBus::packUint16(heartbeatInterval));
+    msg.data.append(RoomBus::packUint16(systemInfoInterval));
 
     emit dataReady(msg);
 }
 
-void RoomBusDevice::writeControl(sysControl_t sysControl)
+void RoomBusDevice::writeControl(SystemControl sysControl)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-
-    uint32_t temp = sysControl.reg;
-    msg.data.append(DMP_SC_WriteControl);
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>24)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>16)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>8)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp)));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::WriteControl);
+    msg.data.append(RoomBus::packUint32(sysControl.reg));
 
     emit dataReady(msg);
 }
 
-void RoomBusDevice::writeSetControl(sysControl_t sysControl)
+void RoomBusDevice::writeSetControl(SystemControl sysControl)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-
-    uint32_t temp = sysControl.reg;
-    msg.data.append(DMP_SC_SetControl);
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>24)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>16)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>8)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp)));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::SetControl);
+    msg.data.append(RoomBus::packUint32(sysControl.reg));
 
     emit dataReady(msg);
 }
 
-void RoomBusDevice::writeClearControl(sysControl_t sysControl)
+void RoomBusDevice::writeClearControl(SystemControl sysControl)
 {
     RoomBus::Message msg;
     msg.destinationAddress = _deviceAddress;
     msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = 0;
-
-    uint32_t temp = sysControl.reg;
-    msg.data.append(DMP_SC_ClearControl);
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>24)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>16)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp>>8)));
-    msg.data.append(static_cast<char>(static_cast<uint8_t>(temp)));
+    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    msg.data.append((uint8_t)DeviceManagementSubCommand::ClearControl);
+    msg.data.append(RoomBus::packUint32(sysControl.reg));
 
     emit dataReady(msg);
 }
 
-RoomBusDevice::sysStatus_t RoomBusDevice::sysStatus()
+RoomBusDevice::SystemStatus RoomBusDevice::sysStatus()
 {
     return _sysStatus;
 }
@@ -439,12 +417,12 @@ uint16_t RoomBusDevice::systemInfoInterval() const
     return _extendedHeartbeatInterval;
 }
 
-void RoomBusDevice::addProtocol(BusProtocol* protocol)
+void RoomBusDevice::addProtocol(ProtocolBase* protocol)
 {
     _protocols.append(protocol);
 }
 
-void RoomBusDevice::removeProtocol(BusProtocol* protocol)
+void RoomBusDevice::removeProtocol(ProtocolBase* protocol)
 {
     _protocols.removeOne(protocol);
 }
@@ -481,14 +459,15 @@ void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
 
     if(data.size() == 0) return;
 
-    switch(static_cast<uint8_t>(data.at(0)))
-    {
+    DeviceManagementSubCommand subCommand = (DeviceManagementSubCommand)((uint8_t)data.at(0));
 
-    case DMP_SC_SystemInformation:
+    switch(subCommand)
+    {
+    case DeviceManagementSubCommand::SystemInformation:
 
         if(data.size() != 41) return;
 
-        _hwVersion = RoomBus::unpackUint16(data,5);
+        _hardwareVersion = RoomBus::unpackUint16(data,5);
         _kernelVersion = RoomBus::unpackUint16(data,7);
         _heartbeatInterval = RoomBus::unpackUint16(data,9);
         _extendedHeartbeatInterval = RoomBus::unpackUint16(data,11);
@@ -502,18 +481,18 @@ void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
 
         _heartbeatTimer.setInterval(_heartbeatInterval*2500);
 
-    case DMP_SC_Heartbeat:
+    case DeviceManagementSubCommand::Heartbeat:
         {
             if(data.size() != 5) break;
             uint32_t status = RoomBus::unpackUint32(data,1);
-            _sysStatus = *((sysStatus_t*) &status);
+            _sysStatus = *((SystemStatus*) &status);
 
             _timeoutStatus = false;
             _heartbeatTimer.start();
         }
         break;
 
-    case DMP_SC_HardwareName:
+    case DeviceManagementSubCommand::HardwareName:
         _hardwareName = "";
         for(uint8_t i= 1; i<(data.size());i++)
         {
@@ -523,7 +502,7 @@ void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
         }
         break;
 
-    case DMP_SC_ApplicationName:
+    case DeviceManagementSubCommand::ApplicationName:
         _applicationName ="";
         for(uint8_t i= 0; i<(data.size()-1);i++)
         {
@@ -533,7 +512,7 @@ void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
         }
         break;
 
-    case DMP_SC_DeviceName:
+    case DeviceManagementSubCommand::DeviceName:
         _deviceName = "";
         for(uint8_t i= 0; i<(data.size()-1);i++)
         {
@@ -543,7 +522,7 @@ void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
         }
         break;
 
-    case DMP_SC_CanDiagnosticsReport:
+    case DeviceManagementSubCommand::CanDiagnosticsReport:
         {
             canDignostics.errorLogCounter = static_cast<uint8_t>(data.at(1));
             uint8_t temp = static_cast<uint8_t>(data.at(2));
@@ -551,8 +530,8 @@ void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
             canDignostics.rxErrorCounter = (temp & 0x7F);
             canDignostics.txErrorCounter = static_cast<uint8_t>(data.at(3));
             temp = static_cast<uint8_t>(data.at(4));
-            canDignostics.lastErrorCode = static_cast<canDignostics_t::errorCode_t>(temp & 0x07);
-            canDignostics.dataLastErrorCode = static_cast<canDignostics_t::errorCode_t>((temp >> 4)& 0x07);
+            canDignostics.lastErrorCode = static_cast<CanDignostics::ErrorCode>(temp & 0x07);
+            canDignostics.dataLastErrorCode = static_cast<CanDignostics::ErrorCode>((temp >> 4)& 0x07);
 
             if(data.size() > 5)
             {
@@ -565,15 +544,15 @@ void RoomBusDevice::handleDeviceManagementProtocol(RoomBus::Message msg)
         }
         break;
 
-    case DMP_SC_Echo:
+    case DeviceManagementSubCommand::Echo:
         emit echoReceive(data.remove(0,1));
         break;
 
-    case DMP_SC_EraseApplicationResponse:
+    case DeviceManagementSubCommand::EraseApplicationResponse:
         appEraseComplete();
         break;
 
-    case DMP_SC_BootloadResponse:
+    case DeviceManagementSubCommand::BootloadResponse:
         writeBinaryChunk();
         break;
     }

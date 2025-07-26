@@ -27,21 +27,23 @@ namespace RoomBus {
         Low = 3
     };
 
+    using Command = uint8_t;
+
     struct Message{
         uint8_t sourceAddress;
         uint8_t destinationAddress;
         Protocol protocol;
         Priority priority = Priority::Low;
-        uint8_t command;
+        Command command;
         QByteArray data;
     };
 
-    enum class DeviceManagementCommand {
         DeviceToHost,
         HostToDevice
+    enum class DeviceManagementCommand:Command {
     };
 
-    enum class MessageLoggingCommand {
+    enum class MessageLoggingCommand:Command {
         SystemMessage = 0x00,
         SystemWarning = 0x01,
         SystemError = 0x02,
@@ -53,7 +55,7 @@ namespace RoomBus {
         Reserved1
     };
 
-    enum class FileTransferCommand{
+    enum class FileTransferCommand:Command {
         Request  = 0,
         Response = 1,
 
@@ -63,7 +65,7 @@ namespace RoomBus {
         WriteAcknowledgment = 7
     };
 
-    enum class TriggerSystemCommand {
+    enum class TriggerSystemCommand:Command {
         Trigger,
         Reserved0,
         Reserved1,
@@ -76,7 +78,7 @@ namespace RoomBus {
         SlotInformationRequest
     };
 
-    enum class EventSystemCommand {
+    enum class EventSystemCommand:Command {
         Event,
         Reserved0,
         Reserved1,
@@ -89,7 +91,7 @@ namespace RoomBus {
         SlotInformationRequest
     };
 
-    enum class StateSystemCommand{
+    enum class StateSystemCommand:Command {
         State,
         StateRequest,
         Reserved0,
@@ -102,7 +104,7 @@ namespace RoomBus {
         SlotInformationRequest
     };
 
-    enum class ValueSystemCommand {
+    enum class ValueSystemCommand:Command {
         ValueReport,
         ValueRequest,
         ValueCommand,
@@ -115,14 +117,14 @@ namespace RoomBus {
         SlotInformationRequest
     };
 
-    enum class SerialBridgeCommand{
+    enum class SerialBridgeCommand:Command {
         Data  = 0,
         PortInfoReport = 4,
         PortInfoRequest = 5
     };
 
 
-    static inline uint32_t toCanIdentifier(Message message)
+    static inline uint32_t toCanIdentifier(const Message &message)
     {
         uint8_t paddingLength = 0;
 
@@ -146,7 +148,7 @@ namespace RoomBus {
         return canId;
     }
 
-    static inline Message toMessage(uint32_t identifier, QByteArray data)
+    static inline Message toMessage(uint32_t identifier, const QByteArray &data)
     {
         Message message;
 
@@ -163,14 +165,12 @@ namespace RoomBus {
         return message;
     }
 
-
-
-    static inline uint8_t unpackUint8(QByteArray data, uint32_t index)
+    static inline uint8_t unpackUint8(const QByteArray &data, uint32_t index)
     {
         return static_cast<uint8_t>(data.at(index));
     }
 
-    static inline uint16_t unpackUint16(QByteArray data, uint32_t index)
+    static inline uint16_t unpackUint16(const QByteArray &data, uint32_t index)
     {
         uint16_t temp = 0;
         temp |= (static_cast<uint16_t>(data.at(index))<<8)&0xFF00;
@@ -178,7 +178,7 @@ namespace RoomBus {
         return temp;
     }
 
-    static inline uint32_t unpackUint32(QByteArray data, uint32_t index)
+    static inline uint32_t unpackUint32(const QByteArray &data, uint32_t index)
     {
         uint32_t temp = 0;
         temp =  (static_cast<uint32_t>(data.at(index))<<24)&0xFF000000;
@@ -188,7 +188,7 @@ namespace RoomBus {
         return temp;
     }
 
-    static inline float unpackFloat32(QByteArray data, uint32_t index)
+    static inline float unpackFloat32(const QByteArray &data, uint32_t index)
     {
         uint32_t temp = unpackUint32(data,index);
         float *out;

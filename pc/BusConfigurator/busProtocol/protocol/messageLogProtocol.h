@@ -5,7 +5,7 @@
 #include <QMap>
 #include <QDateTime>
 
-#include "busProtocol.h"
+#include "protocolBase.h"
 
 class LogMessage
 {
@@ -28,7 +28,7 @@ public:
     QDateTime receiveTime;
 };
 
-class MessageLogProtocol : public BusProtocol
+class MessageLogProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:

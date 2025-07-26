@@ -33,7 +33,7 @@ QString ProtocolDecoder::commandName(RoomBus::Protocol protocol, int command)
     return "Unknown Protocol";
 }
 
-QString ProtocolDecoder::dataDecoded(RoomBus::Protocol protocol, int command, QByteArray data)
+QString ProtocolDecoder::dataDecoded(RoomBus::Protocol protocol, int command, const QByteArray &data)
 {
     switch(protocol){
         case RoomBus::Protocol::DeviceManagementProtocol: return DeviceManagementDataDecoder((RoomBus::DeviceManagementCommand)command, data); break;
@@ -48,7 +48,7 @@ QString ProtocolDecoder::dataDecoded(RoomBus::Protocol protocol, int command, QB
     return "Unknown Protocol";
 }
 
-QString ProtocolDecoder::DeviceManagementDataDecoder(RoomBus::DeviceManagementCommand command, QByteArray data)
+QString ProtocolDecoder::DeviceManagementDataDecoder(RoomBus::DeviceManagementCommand command, const QByteArray &data)
 {
     if(data.isEmpty()) return ""; // TODO: error handling
 
@@ -56,66 +56,66 @@ QString ProtocolDecoder::DeviceManagementDataDecoder(RoomBus::DeviceManagementCo
     QString output = "Unknown Command";
 
     switch(subcommand){
-        case RoomBusDevice::DMP_SC_Heartbeat: output = "Heartbeat"; break;
-        case RoomBusDevice::DMP_SC_SystemInformation: output = "System Information"; break;
-        case RoomBusDevice::DMP_SC_HardwareName: output = "Hardware Name: "+QString(data.mid(1)) ; break;
-        case RoomBusDevice::DMP_SC_ApplicationName: output = "Application Name: "+QString(data.mid(1)) ; break;
-        case RoomBusDevice::DMP_SC_DeviceName: output = "Device Name: "+QString(data.mid(1)) ; break;
-        case RoomBusDevice::DMP_SC_HeartbeatRequest: output = "Heartbeat Request"; break;
-        case RoomBusDevice::DMP_SC_SystemInformationRequest: output = "System Information Request"; break;
-        case RoomBusDevice::DMP_SC_HeartbeatSettings: output = "Heartbeat Settings"; break;
-        case RoomBusDevice::DMP_SC_WriteControl: output = "Write Control"; break;
-        case RoomBusDevice::DMP_SC_SetControl: output = "Set Control"; break;
-        case RoomBusDevice::DMP_SC_ClearControl: output = "Clear Control"; break;
-        case RoomBusDevice::DMP_SC_EnterRootMode: output = "Enter Root Mode"; break;
-        case RoomBusDevice::DMP_SC_SetDeviceName: output = "Set Device Name"; break;
-        case RoomBusDevice::DMP_SC_SetAddress: output = "Set Address"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::Heartbeat: output = "Heartbeat"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::SystemInformation: output = "System Information"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::HardwareName: output = "Hardware Name: "+QString(data.mid(1)) ; break;
+        case RoomBusDevice::DeviceManagementSubCommand::ApplicationName: output = "Application Name: "+QString(data.mid(1)) ; break;
+        case RoomBusDevice::DeviceManagementSubCommand::DeviceName: output = "Device Name: "+QString(data.mid(1)) ; break;
+        case RoomBusDevice::DeviceManagementSubCommand::HeartbeatRequest: output = "Heartbeat Request"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::SystemInformationRequest: output = "System Information Request"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::HeartbeatSettings: output = "Heartbeat Settings"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::WriteControl: output = "Write Control"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::SetControl: output = "Set Control"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::ClearControl: output = "Clear Control"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::EnterRootMode: output = "Enter Root Mode"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::SetDeviceName: output = "Set Device Name"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::SetAddress: output = "Set Address"; break;
 
-        case RoomBusDevice::DMP_SC_CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
-        case RoomBusDevice::DMP_SC_CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
-        case RoomBusDevice::DMP_SC_Echo: output = "Echo"; break;
-        case RoomBusDevice::DMP_SC_Reboot: output = "Reboot"; break;
-        case RoomBusDevice::DMP_SC_EraseApplication: output = "Erase Application"; break;
-        case RoomBusDevice::DMP_SC_EraseApplicationResponse: output = "Erase Application Response"; break;
-        case RoomBusDevice::DMP_SC_Bootload: output = "Bootload"; break;
-        case RoomBusDevice::DMP_SC_BootloadResponse: output = "Bootload Response"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::Echo: output = "Echo"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::Reboot: output = "Reboot"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::EraseApplication: output = "Erase Application"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::EraseApplicationResponse: output = "Erase Application Response"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::Bootload: output = "Bootload"; break;
+        case RoomBusDevice::DeviceManagementSubCommand::BootloadResponse: output = "Bootload Response"; break;
     }
 
     return output;
 }
 
-QString ProtocolDecoder::MessageLoggingDataDecoder(RoomBus::MessageLoggingCommand command, QByteArray data)
+QString ProtocolDecoder::MessageLoggingDataDecoder(RoomBus::MessageLoggingCommand command, const QByteArray &data)
 {
     Q_UNUSED(command);
     return QString(data);
 }
 
-QString ProtocolDecoder::FileTransferDecoder(RoomBus::FileTransferCommand command, QByteArray data)
+QString ProtocolDecoder::FileTransferDecoder(RoomBus::FileTransferCommand command, const QByteArray &data)
 {
     return "Not implemented";
 }
 
-QString ProtocolDecoder::TriggerDecoder(RoomBus::TriggerSystemCommand command, QByteArray data)
+QString ProtocolDecoder::TriggerDecoder(RoomBus::TriggerSystemCommand command, const QByteArray &data)
 {
     return "Not implemented";
 }
 
-QString ProtocolDecoder::EventDecoder(RoomBus::EventSystemCommand command, QByteArray data)
+QString ProtocolDecoder::EventDecoder(RoomBus::EventSystemCommand command, const QByteArray &data)
 {
     return "Not implemented";
 }
 
-QString ProtocolDecoder::StateReportDecoder(RoomBus::StateSystemCommand command, QByteArray data)
+QString ProtocolDecoder::StateReportDecoder(RoomBus::StateSystemCommand command, const QByteArray &data)
 {
     return "Not implemented";
 }
 
-QString ProtocolDecoder::ValueReportDecoder(RoomBus::ValueSystemCommand command, QByteArray data)
+QString ProtocolDecoder::ValueReportDecoder(RoomBus::ValueSystemCommand command, const QByteArray &data)
 {
     return "Not implemented";
 }
 
-QString ProtocolDecoder::SerialBridgeDecoder(RoomBus::SerialBridgeCommand command, QByteArray data)
+QString ProtocolDecoder::SerialBridgeDecoder(RoomBus::SerialBridgeCommand command, const QByteArray &data)
 {
     QString output = "Unknown Command";
     switch(command){
