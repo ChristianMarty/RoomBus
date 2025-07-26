@@ -14,21 +14,19 @@
 
 #include "serialBridge/serialBridgeWidget.h"
 
-#include <appPluginInterface.h>
-#include <QPluginLoader>
 #include <QMdiSubWindow>
 
 namespace Ui {
-class busDeviceWindow;
+class BusDeviceWindow;
 }
 
-class busDeviceWindow : public QDockWidget
+class BusDeviceWindow : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit busDeviceWindow(RoomBusDevice *device, QWidget *parent = nullptr);
-    ~busDeviceWindow();
+    explicit BusDeviceWindow(RoomBusDevice *device, QWidget *parent = nullptr);
+    ~BusDeviceWindow();
 
     void updateData(void);
 
@@ -49,18 +47,12 @@ private slots:
 
     void on_rebootButton_clicked();
 
-    void on_appConfig_clicked();
-
-    void on_busTransmitMessage(RoomBus::Message msg);
-
-    void on_appConfi_destroyed(QObject *obj = nullptr);
-
     void on_pushButton_serialBridge_clicked();
 
     void on_pushButton_event_clicked();
 
 private:
-    Ui::busDeviceWindow *ui;
+    Ui::BusDeviceWindow *ui;
     RoomBusDevice *_device;
 
     settingsWidget *_settingsWidget = nullptr;
@@ -81,11 +73,6 @@ private:
     QMdiSubWindow *_valueReportWindow = nullptr;
     QMdiSubWindow *_fileTransferWindow = nullptr;
     QMdiSubWindow *_serialBridgeWindow = nullptr;
-
-    appPluginInterface *_appConfigInterface = nullptr;
-    QWidget *_appConfigWidget = nullptr;
-    QPluginLoader* _plugin = nullptr;
-    QMdiSubWindow *_pluginWindow = nullptr;
 
     void _loadPlugin(QString path);
     void _unloadPlugin();

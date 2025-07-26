@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>busDeviceWidget</class>
- <widget class="QWidget" name="busDeviceWidget">
+ <class>BusDeviceWidget</class>
+ <widget class="QWidget" name="BusDeviceWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -9,49 +9,6 @@
     <width>300</width>
     <height>140</height>
    </rect>
-  </property>
-  <property name="palette">
-   <palette>
-    <active>
-     <colorrole role="Window">
-      <brush brushstyle="SolidPattern">
-       <color alpha="255">
-        <red>255</red>
-        <green>255</green>
-        <blue>255</blue>
-       </color>
-      </brush>
-     </colorrole>
-    </active>
-    <inactive>
-     <colorrole role="Window">
-      <brush brushstyle="SolidPattern">
-       <color alpha="255">
-        <red>255</red>
-        <green>255</green>
-        <blue>255</blue>
-       </color>
-      </brush>
-     </colorrole>
-    </inactive>
-    <disabled>
-     <colorrole role="Window">
-      <brush brushstyle="SolidPattern">
-       <color alpha="255">
-        <red>255</red>
-        <green>255</green>
-        <blue>255</blue>
-       </color>
-      </brush>
-     </colorrole>
-    </disabled>
-   </palette>
-  </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
-  <property name="autoFillBackground">
-   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -76,7 +33,7 @@
         </font>
        </property>
        <property name="text">
-        <string/>
+        <string>Status</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -97,55 +54,6 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="3">
-      <widget class="QLabel" name="appCrcStatus">
-       <property name="minimumSize">
-        <size>
-         <width>12</width>
-         <height>10</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>12</width>
-         <height>10</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Panel</enum>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::AutoText</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="applicationNameLabel">
-       <property name="text">
-        <string>Application Name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>App CRC:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="hardwareNameLabel">
-       <property name="text">
-        <string>Hardware Name</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
@@ -160,31 +68,36 @@
       </spacer>
      </item>
      <item row="1" column="2">
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="label_autostart">
        <property name="text">
-        <string>Autostar:t</string>
+        <string>Autostart</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QLabel" name="appRunStartupStatus">
-       <property name="minimumSize">
-        <size>
-         <width>12</width>
-         <height>10</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>12</width>
-         <height>10</height>
-        </size>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Panel</enum>
-       </property>
+     <item row="1" column="0">
+      <widget class="QLabel" name="applicationNameLabel">
        <property name="text">
-        <string/>
+        <string>Application Name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_applicationCRC">
+       <property name="text">
+        <string>Application CRC</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="hardwareNameLabel">
+       <property name="text">
+        <string>Hardware Name</string>
        </property>
       </widget>
      </item>

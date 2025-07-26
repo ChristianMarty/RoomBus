@@ -4,21 +4,21 @@
 #include "settingsWidget.h"
 #include "echoTestWidget.h"
 
-busDeviceWidget::busDeviceWidget(RoomBusDevice *device, QWidget *parent) :
+BusDeviceWidget::BusDeviceWidget(RoomBusDevice *device, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::busDeviceWidget)
+    ui(new Ui::BusDeviceWidget)
 {
     ui->setupUi(this);
 
     _device = device;
 }
 
-busDeviceWidget::~busDeviceWidget()
+BusDeviceWidget::~BusDeviceWidget()
 {
     delete ui;
 }
 
-void busDeviceWidget::updateData(void)
+void BusDeviceWidget::updateData(void)
 {
     ui->deviceNameLabel->setText(QString::number(_device->deviceAddress(),10)+" - "+_device->deviceName());
     ui->applicationNameLabel->setText(_device->applicationName());
@@ -28,30 +28,25 @@ void busDeviceWidget::updateData(void)
     if(_device->sysStatus().identify == false)ui->identifyButton->setText("Identify");
     else ui->identifyButton->setText("Identify Off");
 
-    if(_device->sysStatus().appRunOnStartup) ui->appRunStartupStatus->setStyleSheet("background-color: green;");
-    else ui->appRunStartupStatus->setStyleSheet("background-color: orange;");
+    if(_device->sysStatus().appRunOnStartup) ui->label_autostart->setStyleSheet("color: green;");
+    else ui->label_autostart->setStyleSheet("color: orange;");
 
-    if(_device->sysStatus().appCrcError == false) ui->appCrcStatus->setStyleSheet("background-color: green;");
-    else ui->appCrcStatus->setStyleSheet("background-color: red;");
+    if(_device->sysStatus().appCrcError) ui->label_applicationCRC->setStyleSheet("color: red;");
+    else ui->label_applicationCRC->setStyleSheet("color: green;");
 
-    if(_device->timeoutStatus())
-    {
+    if(_device->timeoutStatus()){
         ui->appStatusLabel->setText("Timeout");
         ui->appStatusLabel->setStyleSheet("color: orange;");
-    }
-    else if(_device->sysStatus().appRuning)
-    {
+    }else if(_device->sysStatus().appRuning){
         ui->appStatusLabel->setText("Runnig");
         ui->appStatusLabel->setStyleSheet("color: green;");
-    }
-    else
-    {
+    }else{
         ui->appStatusLabel->setText("Stopped");
         ui->appStatusLabel->setStyleSheet("color: red;");
     }
 }
 
-void busDeviceWidget::on_identifyButton_clicked()
+void BusDeviceWidget::on_identifyButton_clicked()
 {
     RoomBusDevice::sysControl_t temp;
     temp.reg = 0;
@@ -61,7 +56,7 @@ void busDeviceWidget::on_identifyButton_clicked()
     else _device->writeClearControl(temp);
 }
 
-void busDeviceWidget::on_showButton_clicked()
+void BusDeviceWidget::on_showButton_clicked()
 {
     emit busDeviceShow(_device);
 }

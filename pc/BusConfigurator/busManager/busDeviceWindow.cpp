@@ -2,9 +2,9 @@
 #include "ui_busDeviceWindow.h"
 #include <QMdiSubWindow>
 
-busDeviceWindow::busDeviceWindow(RoomBusDevice *device, QWidget *parent) :
+BusDeviceWindow::BusDeviceWindow(RoomBusDevice *device, QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::busDeviceWindow)
+    ui(new Ui::BusDeviceWindow)
 {
     ui->setupUi(this);
     _device = device;
@@ -12,13 +12,9 @@ busDeviceWindow::busDeviceWindow(RoomBusDevice *device, QWidget *parent) :
     ui->logWidget->assignDevice(device);
 
     updateData();
-
-    _appConfigInterface = nullptr;
-    _appConfigWidget = nullptr;
-    _plugin = nullptr;
 }
 
-busDeviceWindow::~busDeviceWindow()
+BusDeviceWindow::~BusDeviceWindow()
 {
     if(_settingsWidget != nullptr) delete _settingsWidget;
     if(_echoWidget != nullptr) delete _echoWidget;
@@ -37,7 +33,7 @@ busDeviceWindow::~busDeviceWindow()
 }
 
 
-void busDeviceWindow::updateData(void)
+void BusDeviceWindow::updateData(void)
 {
     this->setWindowTitle(QString::number(_device->deviceAddress(),10)+" - "+_device->deviceName()+" - "+_device->applicationName());
 
@@ -49,7 +45,7 @@ void busDeviceWindow::updateData(void)
     updateStatus();
 }
 
-void busDeviceWindow::updateStatus()
+void BusDeviceWindow::updateStatus()
 {
     if(_device->timeoutStatus())
     {
@@ -73,7 +69,7 @@ void busDeviceWindow::updateStatus()
     }
 }
 
-void busDeviceWindow::on_triggerButton_clicked()
+void BusDeviceWindow::on_triggerButton_clicked()
 {
     if(_triggerWidget == nullptr) _triggerWidget = new TriggerWidget(_device, this);
     if(_triggerWindow == nullptr)
@@ -88,7 +84,7 @@ void busDeviceWindow::on_triggerButton_clicked()
     _triggerWindow->setFocus();
 }
 
-void busDeviceWindow::on_pushButton_event_clicked()
+void BusDeviceWindow::on_pushButton_event_clicked()
 {
     if(_eventWidget == nullptr) _eventWidget = new EventWidget(_device, this);
     if(_eventWindow == nullptr)
@@ -103,7 +99,7 @@ void busDeviceWindow::on_pushButton_event_clicked()
     _eventWindow->setFocus();
 }
 
-void busDeviceWindow::on_settingsButton_clicked()
+void BusDeviceWindow::on_settingsButton_clicked()
 {
     if(_settingsWidget == nullptr) _settingsWidget = new settingsWidget(_device, this);
     if(_settingsWindow == nullptr)
@@ -118,10 +114,9 @@ void busDeviceWindow::on_settingsButton_clicked()
     }
 
     _settingsWindow->setFocus();
-
 }
 
-void busDeviceWindow::on_stateButton_clicked()
+void BusDeviceWindow::on_stateButton_clicked()
 {
     if(_stateReportWidget == nullptr) _stateReportWidget = new StateReportWidget(_device, this);
     if(_stateReportWindow == nullptr)
@@ -138,7 +133,7 @@ void busDeviceWindow::on_stateButton_clicked()
     _stateReportWindow->setFocus();
 }
 
-void busDeviceWindow::on_echoButton_clicked()
+void BusDeviceWindow::on_echoButton_clicked()
 {    
     if(_echoWidget == nullptr) _echoWidget = new echoTestWidget(_device, this);
     if(_echoWindow == nullptr)
@@ -153,7 +148,7 @@ void busDeviceWindow::on_echoButton_clicked()
     _echoWindow->setFocus();
 }
 
-void busDeviceWindow::on_valueButton_clicked()
+void BusDeviceWindow::on_valueButton_clicked()
 {
     if(_valueReportWidget == nullptr) _valueReportWidget = new ValueWidget(_device, this);
     if(_valueReportWindow == nullptr)
@@ -169,7 +164,7 @@ void busDeviceWindow::on_valueButton_clicked()
     _valueReportWindow->setFocus();
 }
 
-void busDeviceWindow::on_fileButton_clicked()
+void BusDeviceWindow::on_fileButton_clicked()
 {
     if(_fileTransferWidget == nullptr) _fileTransferWidget = new fileTransferWidget(_device, this);
     if(_fileTransferWindow == nullptr)
@@ -186,73 +181,12 @@ void busDeviceWindow::on_fileButton_clicked()
     _fileTransferWidget->setFocus();
 }
 
-void busDeviceWindow::on_rebootButton_clicked()
+void BusDeviceWindow::on_rebootButton_clicked()
 {
     _device->requestSystemRestart();
 }
 
-void busDeviceWindow::on_appConfig_clicked()
-{
-    QString filePath = "lightController.dll";
-
-    _loadPlugin(filePath);
-
-    if (_appConfigInterface)
-    {
-        _pluginWindow = new QMdiSubWindow;
-        _pluginWindow->setWidget(_appConfigWidget);
-        _pluginWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _pluginWindow->setWindowTitle(_appConfigInterface->getName());
-        ui->mdiArea->addSubWindow(_pluginWindow);
-        _pluginWindow->show();
-
-        connect(_pluginWindow, &QObject::destroyed, this, &busDeviceWindow::on_appConfi_destroyed);
-    }
-}
-
-void busDeviceWindow::on_appConfi_destroyed(QObject *obj)
-{
-    disconnect(_pluginWindow, &QObject::destroyed, this, &busDeviceWindow::on_appConfi_destroyed);
-    _unloadPlugin();
-
-    delete _appConfigWidget;
-    _appConfigWidget = nullptr;
-
-    _pluginWindow = nullptr; // Deletes itselfe
-}
-
-void busDeviceWindow::_loadPlugin(QString path)
-{
-    if(!QLibrary::isLibrary(path)) return;
-
-    _plugin = new QPluginLoader();
-    _plugin->setFileName(path);
-
-    QObject *plugin = _plugin->instance();
-    if (plugin)
-    {
-        _appConfigInterface = qobject_cast<appPluginInterface *>(plugin);
-        _appConfigWidget = _appConfigInterface->init(_device, this);
-    }
-}
-
-void busDeviceWindow::_unloadPlugin()
-{
-    if(_plugin->unload())
-    {
-        _appConfigInterface = nullptr;
-        delete _plugin;
-        _plugin = nullptr;
-    }
-
-}
-
-void busDeviceWindow::on_busTransmitMessage(RoomBus::Message msg)
-{
-
-}
-
-void busDeviceWindow::on_pushButton_serialBridge_clicked()
+void BusDeviceWindow::on_pushButton_serialBridge_clicked()
 {
     if(_tinyLoaderWidget == nullptr) _tinyLoaderWidget = new SerialBridgeWidget(_device,this);
 

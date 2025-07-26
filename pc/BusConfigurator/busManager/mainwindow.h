@@ -12,8 +12,8 @@
 #include "qualityOfServiceWindow.h"
 #include <QList>
 
-#include "tcpConnectionWidget.h"
-#include "busConnectionWidget.h"
+#include "connection/tcpConnectionWidget.h"
+#include "connection/connectionWidget.h"
 
 #include "settings.h"
 
@@ -47,20 +47,19 @@ private:
     Ui::MainWindow *ui;
 
     QList<RoomBusDevice*> _busDeviceList;
-    QList<busDeviceWidget*> _busDeviceWidgetLsit;
-    QMap<RoomBusDevice*,busDeviceWindow*> _busDeviceWindowMap;
+    QList<BusDeviceWidget*> _busDeviceWidgetList;
+    QMap<RoomBusDevice*, BusDeviceWindow*> _busDeviceWindowMap;
 
     void addConnection(void);
 
     RoomBusAccess _busConnection;
-
-    QList<busConnectionWidget*> _busConnectionWidget;
+    ConnectionWidget *_busConnectionWidget = new ConnectionWidget(_busConnection);
 
     busMonitor *_monitorWindow = nullptr;
 
     qualityOfServiceWindow *_qosWindow = nullptr;
 
-    settings settings;
+    Settings _settings;
 
 };
 

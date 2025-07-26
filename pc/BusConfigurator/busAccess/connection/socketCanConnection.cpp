@@ -8,7 +8,6 @@ SocketCanConnection::SocketCanConnection(QString port)
 
 }
 
-
 SocketCanConnection::~SocketCanConnection()
 {
     close();

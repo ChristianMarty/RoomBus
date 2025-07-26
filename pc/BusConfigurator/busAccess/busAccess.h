@@ -15,13 +15,22 @@ public:
     RoomBusAccess(void);
     ~RoomBusAccess(void);
 
+    enum class Type:uint8_t{
+        Undefined,
+        Serial,
+        Tcp,
+        Udp,
+        SocketCan
+    };
+
     bool write(RoomBus::Message message);
 
-    void openSocketCanConnection(QString port);
-    void openSerialConnection(QString port);
-    void openTcpConnection(QString ip, uint16_t port);
-    void openUdpConnection(QString ip, uint16_t port);
+    void setSocketCanConnection(QString port);
+    void setSerialConnection(QString port);
+    void setTcpConnection(QString ip, uint16_t port);
+    void setUdpConnection(QString ip, uint16_t port);
 
+    void openConnection(void);
     void closeConnection(void);
 
     bool isConnected(void);
@@ -41,9 +50,13 @@ private slots:
     void on_connectionChanged(void);
 
 private:
+    Type _type = Type::Undefined;
+    QString _url;
+    uint16_t _port;
+
     void _openConnection(void);
 
-    uint8_t _sourceAddress;
+    uint8_t _sourceAddress = 0x7E; // DEC 126
     RoomBusConnection *_connection = nullptr;
 };
 

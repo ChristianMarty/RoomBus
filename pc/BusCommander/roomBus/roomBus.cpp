@@ -7,14 +7,16 @@ RoomBusInterface::RoomBusInterface(Type type,  QString port, QObject *parent)
     switch(type){
         case Type::Serial:
             qDebug(QString("Open serial port: "+port).toLocal8Bit());
-            _busConnection.openSerialConnection(port);
+            _busConnection.setSerialConnection(port);
             break;
 
         case Type::Can:
             qDebug(QString("Open SocketCan port: "+port).toLocal8Bit());
-            _busConnection.openSocketCanConnection(port);
+            _busConnection.setSocketCanConnection(port);
             break;
     }
+
+    _busConnection.openConnection();
 }
 
 RoomBusInterface::~RoomBusInterface()

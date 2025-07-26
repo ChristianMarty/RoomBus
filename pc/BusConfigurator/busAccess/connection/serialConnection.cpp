@@ -36,6 +36,8 @@ void SerialConnection::open(void)
 
 void SerialConnection::close()
 {
+    _canSerial.setEnabled(false);
+    _serialPort.flush();
     _serialPort.close();
     _isConnected = false;
     emit connectionChanged();

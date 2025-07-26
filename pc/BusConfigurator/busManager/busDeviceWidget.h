@@ -6,16 +6,15 @@
 #include "busDevice.h"
 
 namespace Ui {
-class busDeviceWidget;
+class BusDeviceWidget;
 }
 
-class busDeviceWidget : public QWidget
+class BusDeviceWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit busDeviceWidget(RoomBusDevice *device, QWidget *parent = nullptr);
-    ~busDeviceWidget();
+    explicit BusDeviceWidget(RoomBusDevice *device, QWidget *parent = nullptr);
+    ~BusDeviceWidget();
 
     void updateData(void);
 
@@ -27,10 +26,8 @@ private slots:
     void on_showButton_clicked();
 
 private:
-    Ui::busDeviceWidget *ui;
+    Ui::BusDeviceWidget *ui;
     RoomBusDevice *_device;
-
-
 };
 
 #endif // BUSDEVICEWIDGET_H

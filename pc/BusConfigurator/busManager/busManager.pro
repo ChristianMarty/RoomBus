@@ -29,11 +29,11 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 CONFIG += c++20
 
 SOURCES += \
-        busConnectionWidget.cpp \
         busDeviceWidget.cpp \
         busDeviceWindow.cpp \
         busMonitor/busMonitor.cpp \
         busMonitor/busMonitorLine.cpp \
+        connection/connectionWidget.cpp \
         echoTestWidget.cpp \
         fileTransferWidget.cpp \
         main.cpp \
@@ -43,7 +43,7 @@ SOURCES += \
         serialBridge/serialBridgeWidget.cpp \
         settings.cpp \
         settingsWidget.cpp \
-        tcpConnectionWidget.cpp \
+        connection/tcpConnectionWidget.cpp \
         trigger/triggerSignalLine.cpp \
         trigger/triggerSlotLine.cpp \
         trigger/triggerWidget.cpp \
@@ -58,12 +58,11 @@ SOURCES += \
         value/valueWidget.cpp
 
 HEADERS += \
-        appPluginInterface.h \
-        busConnectionWidget.h \
         busDeviceWidget.h \
         busDeviceWindow.h \
         busMonitor/busMonitor.h \
         busMonitor/busMonitorLine.h \
+        connection/connectionWidget.h \
         echoTestWidget.h \
         fileTransferWidget.h \
         mainwindow.h \
@@ -72,7 +71,7 @@ HEADERS += \
         serialBridge/serialBridgeWidget.h \
         settings.h \
         settingsWidget.h \
-        tcpConnectionWidget.h \
+        connection/tcpConnectionWidget.h \
         trigger/triggerSignalLine.h \
         trigger/triggerSlotLine.h \
         trigger/triggerWidget.h \
@@ -87,11 +86,11 @@ HEADERS += \
         value/valueWidget.h
 
 FORMS += \
-        busConnectionWidget.ui \
         busDeviceWidget.ui \
         busDeviceWindow.ui \
         busMonitor/busMonitor.ui \
         busMonitor/busMonitorLine.ui \
+        connection/connectionWidget.ui \
         echoTestWidget.ui \
         fileTransferWidget.ui \
         mainwindow.ui \
@@ -99,7 +98,7 @@ FORMS += \
         qualityOfServiceWindow.ui \
         serialBridge/serialBridgeWidget.ui \
         settingsWidget.ui \
-        tcpConnectionWidget.ui \
+        connection/tcpConnectionWidget.ui \
         trigger/triggerSignalLine.ui \
         trigger/triggerSlotLine.ui \
         trigger/triggerWidget.ui \

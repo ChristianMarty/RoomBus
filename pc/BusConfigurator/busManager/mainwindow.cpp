@@ -7,11 +7,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    settings.readFile("C:/Users/Christian/Raumsteuerung/RoomBus/pc/BusConfigurator/settings.xml");
+    _settings.readFile("C:/Users/Christian/Raumsteuerung/RoomBus/pc/BusConfigurator/settings.xml");
 
     connect(&_busConnection, &RoomBusAccess::newData,this, &MainWindow::on_newData);
 
     addConnection();
+    ui->connectionDock->setWidget(_busConnectionWidget);
 }
 
 MainWindow::~MainWindow()
@@ -21,26 +22,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::addConnection()
 {
-    if(settings.getSettings().connection.interface == settings_t::connection_t::tcp)
-    {
-        _busConnection.openTcpConnection(settings.getSettings().connection.ip,settings.getSettings().connection.port.toInt());
-    }
-    else if(settings.getSettings().connection.interface == settings_t::connection_t::serial)
-    {
-        _busConnection.openSerialConnection(settings.getSettings().connection.port);
-    }
-    else if(settings.getSettings().connection.interface == settings_t::connection_t::udp)
-    {
-        _busConnection.openTcpConnection(settings.getSettings().connection.ip,settings.getSettings().connection.port.toInt());
-    }
-    else
-    {
+    if(_settings.getSettings().connection.interface == Settings::Data::Connection::Tcp){
+        _busConnection.setTcpConnection(_settings.getSettings().connection.ip,_settings.getSettings().connection.port.toInt());
+    }else if(_settings.getSettings().connection.interface == Settings::Data::Connection::Serial){
+        _busConnection.setSerialConnection(_settings.getSettings().connection.port);
+    }else if(_settings.getSettings().connection.interface == Settings::Data::Connection::Udp){
+        _busConnection.setTcpConnection(_settings.getSettings().connection.ip,_settings.getSettings().connection.port.toInt());
+    }else{
         return;
     }
-
-    busConnectionWidget *widgetTemp = new busConnectionWidget(_busConnection);
-    _busConnectionWidget.append(widgetTemp);
-    ui->connectionGrid->insertWidget(0,widgetTemp);
+    _busConnection.openConnection();
 }
 
 void MainWindow::on_newData(void)
@@ -70,77 +61,56 @@ void MainWindow::on_deviceTx(RoomBus::Message msg)
 
 void MainWindow::updateDevices(void)
 {
-    for(int i = 0; i<_busDeviceWidgetLsit.size(); i++)
-    {
-        _busDeviceWidgetLsit.at(i)->updateData();
+    for(BusDeviceWidget *value: _busDeviceWidgetList){
+        value->updateData();
     }
 
-    foreach(const auto& value, _busDeviceWindowMap.values())
-    {
+    for(BusDeviceWindow *value: _busDeviceWindowMap){
         value->updateData();
     }
 }
 
 RoomBusDevice *MainWindow::getDevice(uint8_t address)
 {
-    for(int i = 0; i<_busDeviceList.size(); i++)
-    {
-        if(_busDeviceList.at(i)->deviceAddress() == address)
-        {
-            return _busDeviceList.at(i);
+    for(RoomBusDevice *device: _busDeviceList){
+        if(device->deviceAddress() == address){
+            return device;
         }
     }
 
-    RoomBusDevice *temp = addDevice(address);
-    connect(temp,&RoomBusDevice::dataReady,this,&MainWindow::on_deviceTx);
+    RoomBusDevice *roomBusDevice = addDevice(address);
+    connect(roomBusDevice, &RoomBusDevice::dataReady, this, &MainWindow::on_deviceTx);
 
-    temp->setDeviceAddress(address);
-    return temp;
+    roomBusDevice->setDeviceAddress(address);
+    return roomBusDevice;
 }
 
 RoomBusDevice *MainWindow::addDevice(uint8_t address)
 {
-    RoomBusDevice *temp2 = new RoomBusDevice(address);
-
-    busDeviceWidget *temp = new busDeviceWidget(temp2);
-
-
-    int nrOfDevice = _busDeviceList.size();
-
-
-    int i = 0;
-    if(nrOfDevice)
-    {
-        foreach( RoomBusDevice *device, _busDeviceList )
-        {
-            if(device->deviceAddress() > address)
-            {
-                _busDeviceList.insert(i,temp2);
-                _busDeviceWidgetLsit.insert(i,temp);
-                break;
-            }
-            i++;
-
-            if(i==nrOfDevice)
-            {
-                _busDeviceList.append(temp2);
-                _busDeviceWidgetLsit.append(temp);
-            }
+    int index = 0;
+    for(RoomBusDevice *device: _busDeviceList){
+        if(device->deviceAddress() > address){
+            break;
         }
-    }
-    else
-    {
-        _busDeviceList.append(temp2);
-        _busDeviceWidgetLsit.append(temp);
+        index++;
     }
 
-    ui->deviceGrid->insertWidget(i,temp);
+    RoomBusDevice *roomBusDevice = new RoomBusDevice(address);
+    BusDeviceWidget *busDeviceWidget = new BusDeviceWidget(roomBusDevice, this);
 
-    temp->updateData();
+    _busDeviceList.insert(index,roomBusDevice);
+    _busDeviceWidgetList.insert(index, busDeviceWidget);
 
-    connect(temp, &busDeviceWidget::busDeviceShow, this, &MainWindow::on_busDeviceWindowShow);
+    QListWidgetItem *itemWidget = new QListWidgetItem();
+    itemWidget->setSizeHint(busDeviceWidget->sizeHint());
 
-    return temp2;
+    ui->listWidget_device->insertItem(index, itemWidget);
+    ui->listWidget_device->setItemWidget(itemWidget, busDeviceWidget);
+
+    busDeviceWidget->updateData();
+    connect(busDeviceWidget, &BusDeviceWidget::busDeviceShow, this, &MainWindow::on_busDeviceWindowShow);
+
+    return roomBusDevice;
 }
 
 void MainWindow::on_scanButton_clicked()
@@ -172,7 +142,7 @@ void MainWindow::on_busDeviceWindowShow(RoomBusDevice *device)
 {
     if(!_busDeviceWindowMap.contains(device))
     {
-        _busDeviceWindowMap.insert(device, new busDeviceWindow(device, this));
+        _busDeviceWindowMap.insert(device, new BusDeviceWindow(device, this));
     }
 
     this->addDockWidget(Qt::RightDockWidgetArea,_busDeviceWindowMap[device]);

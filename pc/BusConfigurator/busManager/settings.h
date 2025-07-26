@@ -5,34 +5,30 @@
 #include <QtXml>
 #include <QFile>
 
-struct settings_t{
-    struct connection_t{
-        enum interface_t{
-            serial,
-            tcp,
-            udp
-        }interface;
-        QString ip;
-        QString port;
-    }connection;
-};
 
-class settings : public QObject
+class Settings
 {
-    Q_OBJECT
 public:
-    explicit settings(QObject *parent = nullptr);
+
+    struct Data{
+        struct Connection{
+            enum Interface{
+                Serial,
+                Tcp,
+                Udp,
+                SocketCan
+            }interface;
+            QString ip;
+            QString port;
+        }connection;
+    };
 
     void readFile(QString filePath);
 
-    settings_t getSettings(void);
-
-signals:
+    Settings::Data getSettings(void);
 
 private:
-
-    settings_t _settings;
-
+    Data _data;
 };
 
 #endif // SETTINGS_H
