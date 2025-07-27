@@ -52,33 +52,33 @@ QString ProtocolDecoder::DeviceManagementDataDecoder(RoomBus::DeviceManagementCo
 {
     if(data.isEmpty()) return ""; // TODO: error handling
 
-    RoomBusDevice::DeviceManagementSubCommand subcommand = (RoomBusDevice::DeviceManagementSubCommand)data.at(0);
+    DeviceManagementProtocol::DeviceManagementSubCommand subCommand = (DeviceManagementProtocol::DeviceManagementSubCommand)((uint8_t)data.at(0));
     QString output = "Unknown Command";
 
-    switch(subcommand){
-        case RoomBusDevice::DeviceManagementSubCommand::Heartbeat: output = "Heartbeat"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::SystemInformation: output = "System Information"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::HardwareName: output = "Hardware Name: "+QString(data.mid(1)) ; break;
-        case RoomBusDevice::DeviceManagementSubCommand::ApplicationName: output = "Application Name: "+QString(data.mid(1)) ; break;
-        case RoomBusDevice::DeviceManagementSubCommand::DeviceName: output = "Device Name: "+QString(data.mid(1)) ; break;
-        case RoomBusDevice::DeviceManagementSubCommand::HeartbeatRequest: output = "Heartbeat Request"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::SystemInformationRequest: output = "System Information Request"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::HeartbeatSettings: output = "Heartbeat Settings"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::WriteControl: output = "Write Control"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::SetControl: output = "Set Control"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::ClearControl: output = "Clear Control"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::EnterRootMode: output = "Enter Root Mode"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::SetDeviceName: output = "Set Device Name"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::SetAddress: output = "Set Address"; break;
+    switch(subCommand){
+        case DeviceManagementProtocol::DeviceManagementSubCommand::Heartbeat: output = "Heartbeat"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::SystemInformation: output = "System Information"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::HardwareName: output = "Hardware Name: "+QString(data.mid(1)) ; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::ApplicationName: output = "Application Name: "+QString(data.mid(1)) ; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::DeviceName: output = "Device Name: "+QString(data.mid(1)) ; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::HeartbeatRequest: output = "Heartbeat Request"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::SystemInformationRequest: output = "System Information Request"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::HeartbeatSettings: output = "Heartbeat Settings"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::WriteControl: output = "Write Control"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::SetControl: output = "Set Control"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::ClearControl: output = "Clear Control"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::EnterRootMode: output = "Enter Root Mode"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::SetDeviceName: output = "Set Device Name"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::SetAddress: output = "Set Address"; break;
 
-        case RoomBusDevice::DeviceManagementSubCommand::CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::Echo: output = "Echo"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::Reboot: output = "Reboot"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::EraseApplication: output = "Erase Application"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::EraseApplicationResponse: output = "Erase Application Response"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::Bootload: output = "Bootload"; break;
-        case RoomBusDevice::DeviceManagementSubCommand::BootloadResponse: output = "Bootload Response"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::Echo: output = "Echo"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::Reboot: output = "Reboot"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::EraseApplication: output = "Erase Application"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::EraseApplicationResponse: output = "Erase Application Response"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::Bootload: output = "Bootload"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::BootloadResponse: output = "Bootload Response"; break;
     }
 
     return output;

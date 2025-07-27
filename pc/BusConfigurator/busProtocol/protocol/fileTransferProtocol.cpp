@@ -1,13 +1,17 @@
 #include "fileTransferProtocol.h"
 #include "../../QuCLib/source/crc.h"
+#include "busDevice.h"
 
 FileTransferProtocol::FileTransferProtocol(RoomBusDevice *device):ProtocolBase(device)
 {
+    _device->addProtocol(this);
 }
 
-void FileTransferProtocol::pushData(RoomBus::Message msg)
+void FileTransferProtocol::handleMessage(RoomBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::FileTransferProtocol) return;
+    if(msg.protocol != RoomBus::Protocol::FileTransferProtocol){
+        return;
+    }
 
     RoomBus::FileTransferCommand command = (RoomBus::FileTransferCommand)msg.command;
 
@@ -63,13 +67,6 @@ void FileTransferProtocol::pushData(RoomBus::Message msg)
         handle_writeAck(msg);
 
     }
-}
-
-QList<RoomBus::Protocol> FileTransferProtocol::protocol(void)
-{
-    QList<RoomBus::Protocol> temp;
-    temp.append(RoomBus::Protocol::FileTransferProtocol);
-    return temp;
 }
 
 void FileTransferProtocol::list(QString path)

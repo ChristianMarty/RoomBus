@@ -25,8 +25,7 @@ public:
 
     void sendData(uint8_t port, QByteArray data);
 
-    void pushData(RoomBus::Message msg);
-    QList<RoomBus::Protocol> protocol(void);
+    void handleMessage(RoomBus::Message msg);
 
 signals:
     void receiveData(uint8_t port, sbp_status_t status, QByteArray data);

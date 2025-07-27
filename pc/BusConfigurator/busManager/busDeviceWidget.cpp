@@ -25,19 +25,19 @@ void BusDeviceWidget::updateData(void)
     ui->hardwareNameLabel->setText(_device->hardwareName());
     ui->lastHeartbeatLabel->setText(_device->lastHeartbeat().toString("hh:mm:ss"));
 
-    if(_device->sysStatus().identify == false)ui->identifyButton->setText("Identify");
+    if(_device->systemStatus().identify == false)ui->identifyButton->setText("Identify");
     else ui->identifyButton->setText("Identify Off");
 
-    if(_device->sysStatus().appRunOnStartup) ui->label_autostart->setStyleSheet("color: green;");
+    if(_device->systemStatus().appRunOnStartup) ui->label_autostart->setStyleSheet("color: green;");
     else ui->label_autostart->setStyleSheet("color: orange;");
 
-    if(_device->sysStatus().appCrcError) ui->label_applicationCRC->setStyleSheet("color: red;");
+    if(_device->systemStatus().appCrcError) ui->label_applicationCRC->setStyleSheet("color: red;");
     else ui->label_applicationCRC->setStyleSheet("color: green;");
 
     if(_device->timeoutStatus()){
         ui->appStatusLabel->setText("Timeout");
         ui->appStatusLabel->setStyleSheet("color: orange;");
-    }else if(_device->sysStatus().appRuning){
+    }else if(_device->systemStatus().appRuning){
         ui->appStatusLabel->setText("Runnig");
         ui->appStatusLabel->setStyleSheet("color: green;");
     }else{
@@ -48,12 +48,12 @@ void BusDeviceWidget::updateData(void)
 
 void BusDeviceWidget::on_identifyButton_clicked()
 {
-    RoomBusDevice::SystemControl temp;
+    DeviceManagementProtocol::SystemControl temp;
     temp.reg = 0;
     temp.bit.identify = true;
 
-    if(_device->sysStatus().identify == false)_device->writeSetControl(temp);
-    else _device->writeClearControl(temp);
+    if(_device->systemStatus().identify == false)_device->management().writeSetControl(temp);
+    else _device->management().writeClearControl(temp);
 }
 
 void BusDeviceWidget::on_showButton_clicked()

@@ -1,12 +1,18 @@
 #include "messageLogProtocol.h"
+#include "busDevice.h"
 
-MessageLogProtocol::MessageLogProtocol(RoomBusDevice *device):ProtocolBase(device)
+MessageLogProtocol::MessageLogProtocol(RoomBusDevice *device)
+    : ProtocolBase(device)
 {
+    _device->addProtocol(this);
 }
 
-void MessageLogProtocol::pushData(RoomBus::Message msg)
+void MessageLogProtocol::handleMessage(RoomBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::MessageLogProtocolId) return;
+    if(msg.protocol != RoomBus::Protocol::MessageLogProtocolId){
+        return;
+    }
+
     if(msg.data.size() < 8) return;
 
     LogMessage temp;
@@ -43,13 +49,6 @@ void MessageLogProtocol::pushData(RoomBus::Message msg)
 void MessageLogProtocol::clearLog(void)
 {
     _messages.clear();
-}
-
-QList<RoomBus::Protocol> MessageLogProtocol::protocol(void)
-{
-    QList<RoomBus::Protocol> temp;
-    temp.append(RoomBus::Protocol::MessageLogProtocolId);
-    return temp;
 }
 
 QList<LogMessage> MessageLogProtocol::messages() const

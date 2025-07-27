@@ -1,11 +1,13 @@
 #include "triggerProtocol.h"
+#include "busDevice.h"
 
 TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device)
     : ProtocolBase(device)
 {
+    _device->addProtocol(this);
 }
 
-void TriggerSystemProtocol::pushData(RoomBus::Message msg)
+void TriggerSystemProtocol::handleMessage(RoomBus::Message msg)
 {
     if(msg.protocol != RoomBus::Protocol::TriggerSystemProtocol){
         return;
@@ -23,13 +25,6 @@ void TriggerSystemProtocol::pushData(RoomBus::Message msg)
         case RoomBus::TriggerSystemCommand::SlotInformationRequest:
             break;
     }
-}
-
-QList<RoomBus::Protocol> TriggerSystemProtocol::protocol(void)
-{
-    QList<RoomBus::Protocol> output;
-    output.append(RoomBus::Protocol::TriggerSystemProtocol);
-    return output;
 }
 
 void TriggerSystemProtocol::requestSignalInformation(void)

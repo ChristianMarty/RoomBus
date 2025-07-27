@@ -91,8 +91,7 @@ public:
 
     ValueSystemProtocol(RoomBusDevice *device);
 
-    void pushData(RoomBus::Message msg);
-    QList<RoomBus::Protocol> protocol(void);
+    void handleMessage(RoomBus::Message msg);
 
     void sendValueCommand(uint16_t channel, ValueData value);
 

@@ -10,8 +10,8 @@ settingsWidget::settingsWidget(RoomBusDevice *busDevice, QWidget *parent) :
     ui->setupUi(this);
 
     _busDevice = busDevice;
-    connect(busDevice,&RoomBusDevice::bootloadStatusUpdate, this, &settingsWidget::on_bootloadStatusUpdate);
-    connect(busDevice,&RoomBusDevice::statusUpdate, this, &settingsWidget::on_statusUpdate);
+    connect(&busDevice->management(), &DeviceManagementProtocol::bootloadStatusUpdate, this, &settingsWidget::on_bootloadStatusUpdate);
+    connect(&busDevice->management(), &DeviceManagementProtocol::statusUpdate, this, &settingsWidget::on_statusUpdate);
 
     connect(&_bootloadFileWatcher,&QFileSystemWatcher::fileChanged,this, &settingsWidget::on_bootloadFileChanged);
 
@@ -28,66 +28,66 @@ void settingsWidget::updateData(void)
     ui->nameEdit->setText(_busDevice->deviceName());
     ui->addressBox->setValue(_busDevice->deviceAddress());
 
-    ui->ledOnBox->setChecked(_busDevice->sysStatus().ledOnOff);
-    ui->appRunBox->setChecked(_busDevice->sysStatus().appRuning);
-    ui->autostartAppBox->setChecked(_busDevice->sysStatus().appRunOnStartup);
+    ui->ledOnBox->setChecked(_busDevice->systemStatus().ledOnOff);
+    ui->appRunBox->setChecked(_busDevice->systemStatus().appRuning);
+    ui->autostartAppBox->setChecked(_busDevice->systemStatus().appRunOnStartup);
 
-    ui->systemInfoIntervalBox->setValue(_busDevice->systemInfoInterval()*10);
-    ui->heartbeatIntervalBox->setValue(_busDevice->heartbeatInterval());
+    ui->systemInfoIntervalBox->setValue(_busDevice->management().systemInfoInterval()*10);
+    ui->heartbeatIntervalBox->setValue(_busDevice->management().heartbeatInterval());
 }
 
 void settingsWidget::on_setNameButton_clicked()
 {
-    _busDevice->enterRootMode();
+    _busDevice->management().enterRootMode();
 
-    _busDevice->writeDeviceName(ui->nameEdit->text());
+    _busDevice->management().writeDeviceName(ui->nameEdit->text());
 
-    _busDevice->exitRootMode();
+    _busDevice->management().exitRootMode();
 
 }
 
 void settingsWidget::on_setAddressButton_clicked()
 {
-    _busDevice->enterRootMode();
+    _busDevice->management().enterRootMode();
 
-    _busDevice->writeAddress(static_cast<uint8_t>(ui->addressBox->value()));
+    _busDevice->management().writeAddress(static_cast<uint8_t>(ui->addressBox->value()));
 
-    _busDevice->exitRootMode();
+    _busDevice->management().exitRootMode();
 }
 
 void settingsWidget::on_ledOnBox_clicked(bool checked)
 {
-    RoomBusDevice::SystemControl temp;
+    DeviceManagementProtocol::SystemControl temp;
     temp.reg = 0;
     temp.bit.ledOnOff = true;
 
-    if(checked)_busDevice->writeSetControl(temp);
-    else _busDevice->writeClearControl(temp);
+    if(checked)_busDevice->management().writeSetControl(temp);
+    else _busDevice->management().writeClearControl(temp);
 }
 
 void settingsWidget::on_appRunBox_clicked(bool checked)
 {
-    RoomBusDevice::SystemControl temp;
+    DeviceManagementProtocol::SystemControl temp;
     temp.reg = 0;
     temp.bit.appRun = true;
 
-    if(checked)_busDevice->writeSetControl(temp);
-    else _busDevice->writeClearControl(temp);
+    if(checked)_busDevice->management().writeSetControl(temp);
+    else _busDevice->management().writeClearControl(temp);
 }
 
 void settingsWidget::on_autostartAppBox_clicked(bool checked)
 {
-    RoomBusDevice::SystemControl temp;
+    DeviceManagementProtocol::SystemControl temp;
     temp.reg = 0;
     temp.bit.appRunOnStartup = true;
 
-    if(checked)_busDevice->writeSetControl(temp);
-    else _busDevice->writeClearControl(temp);
+    if(checked)_busDevice->management().writeSetControl(temp);
+    else _busDevice->management().writeClearControl(temp);
 }
 
 void settingsWidget::on_setIntervalButton_clicked()
 {
-    _busDevice->writeHeartbeatInterval(static_cast<uint16_t>(ui->heartbeatIntervalBox->value()),static_cast<uint16_t>(ui->systemInfoIntervalBox->value()/10));
+    _busDevice->management().writeHeartbeatInterval(static_cast<uint16_t>(ui->heartbeatIntervalBox->value()),static_cast<uint16_t>(ui->systemInfoIntervalBox->value()/10));
 }
 
 void settingsWidget::on_firmwarePathButton_clicked()
@@ -100,7 +100,7 @@ void settingsWidget::on_firmwarePathButton_clicked()
 
 void settingsWidget::on_firmwareUploadButton_clicked()
 {
-    _busDevice->startFirmwareUpload(ui->firmwarePathEdit->text());
+    _busDevice->management().startFirmwareUpload(ui->firmwarePathEdit->text());
 }
 
 void settingsWidget::on_bootloadStatusUpdate(uint8_t progress, bool error, QString message)
@@ -124,7 +124,7 @@ void settingsWidget::on_bootloadFileChanged(const QString &path)
 {
     if(ui->autoUploadBox->isChecked())
     {
-        _busDevice->startFirmwareUpload(ui->firmwarePathEdit->text());
+        _busDevice->management().startFirmwareUpload(ui->firmwarePathEdit->text());
     }
 }
 

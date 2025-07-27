@@ -23,8 +23,7 @@ public:
 
     TriggerSystemProtocol(RoomBusDevice *device);
 
-    void pushData(RoomBus::Message msg) override;
-    QList<RoomBus::Protocol> protocol(void) override;
+    void handleMessage(RoomBus::Message msg) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);

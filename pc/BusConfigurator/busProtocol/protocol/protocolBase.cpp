@@ -4,7 +4,6 @@
 ProtocolBase::ProtocolBase(RoomBusDevice *device)
 {
     _device = device;
-    _device->addProtocol(this);
 }
 
 ProtocolBase::~ProtocolBase(void)
@@ -15,5 +14,5 @@ ProtocolBase::~ProtocolBase(void)
 void ProtocolBase::sendMessage(RoomBus::Message msg)
 {
     msg.destinationAddress = _device->deviceAddress();
-    _device->dataReady(msg);
+    emit _device->dataReady(msg);
 }

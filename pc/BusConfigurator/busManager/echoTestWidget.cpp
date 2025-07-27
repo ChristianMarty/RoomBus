@@ -10,7 +10,7 @@ echoTestWidget::echoTestWidget(RoomBusDevice *busDevice, QWidget *parent) :
     ui->setupUi(this);
     _busDevice = busDevice;
 
-    connect(_busDevice,&RoomBusDevice::echoReceive,this,&echoTestWidget::on_echoReceive);
+    connect(&_busDevice->management(), &DeviceManagementProtocol::echoReceive,this,&echoTestWidget::on_echoReceive);
     connect(&_autoSendTimer,&QTimer::timeout,this,&echoTestWidget::on_sendTimer);
     connect(&_timeoutTimer,&QTimer::timeout,this,&echoTestWidget::on_timeout);
 
@@ -71,7 +71,7 @@ void echoTestWidget::on_sendButton_clicked()
     ui->lastSendLabel->setText(ui->sendDataEdit->text());
 
 
-    _busDevice->sendEcho(_lastSend);
+    _busDevice->management().sendEcho(_lastSend);
 
     _sendIndex++;
     _sendTimestamp = QDateTime::currentMSecsSinceEpoch();

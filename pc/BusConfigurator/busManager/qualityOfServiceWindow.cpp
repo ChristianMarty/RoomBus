@@ -14,7 +14,7 @@ qualityOfServiceWindow::qualityOfServiceWindow(QList<RoomBusDevice*> *deviceList
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(_deviceList->at(i)->deviceAddress())));
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(_deviceList->at(i)->deviceName()));
 
-        connect(_deviceList->at(i),&RoomBusDevice::statusUpdate, this, &qualityOfServiceWindow::on_statusUpdate);
+        connect(&_deviceList->at(i)->management(), &DeviceManagementProtocol::statusUpdate, this, &qualityOfServiceWindow::on_statusUpdate);
     }
 
     connect(&_autoReadTimer, &QTimer::timeout, this, &qualityOfServiceWindow::on_readTimer);
@@ -31,16 +31,19 @@ void qualityOfServiceWindow::on_statusUpdate(void)
 {
     for(int i = 0; i< _deviceList->size(); i++)
     {
-        ui->tableWidget->setItem(i,2,new QTableWidgetItem(QString::number(_deviceList->at(i)->canDignostics.errorLogCounter)));
-        ui->tableWidget->setItem(i,3,new QTableWidgetItem(QString::number(_deviceList->at(i)->canDignostics.txErrorCounter)));
-        ui->tableWidget->setItem(i,4,new QTableWidgetItem(QString::number(_deviceList->at(i)->canDignostics.rxErrorCounter)));
+        DeviceManagementProtocol::CanDignostics canDignostics = _deviceList->at(i)->management().canDignostics;
+        DeviceManagementProtocol::AppBenchmark appBenchmark = _deviceList->at(i)->management().appBenchmark;
 
-        ui->tableWidget->setItem(i,5,new QTableWidgetItem(RoomBusDevice::getCanErrorCode(_deviceList->at(i)->canDignostics.lastErrorCode)));
-        ui->tableWidget->setItem(i,6,new QTableWidgetItem(RoomBusDevice::getCanErrorCode(_deviceList->at(i)->canDignostics.dataLastErrorCode)));
+        ui->tableWidget->setItem(i, 2, new QTableWidgetItem(QString::number(canDignostics.errorLogCounter)));
+        ui->tableWidget->setItem(i, 3, new QTableWidgetItem(QString::number(canDignostics.txErrorCounter)));
+        ui->tableWidget->setItem(i, 4, new QTableWidgetItem(QString::number(canDignostics.rxErrorCounter)));
 
-        ui->tableWidget->setItem(i,7,new QTableWidgetItem(QString::number(_deviceList->at(i)->appBenchmark.avg)));
-        ui->tableWidget->setItem(i,8,new QTableWidgetItem(QString::number(_deviceList->at(i)->appBenchmark.min)));
-        ui->tableWidget->setItem(i,9,new QTableWidgetItem(QString::number(_deviceList->at(i)->appBenchmark.max)));
+        ui->tableWidget->setItem(i, 5, new QTableWidgetItem(DeviceManagementProtocol::getCanErrorCode(canDignostics.lastErrorCode)));
+        ui->tableWidget->setItem(i, 6, new QTableWidgetItem(DeviceManagementProtocol::getCanErrorCode(canDignostics.dataLastErrorCode)));
+
+        ui->tableWidget->setItem(i, 7, new QTableWidgetItem(QString::number(appBenchmark.avg)));
+        ui->tableWidget->setItem(i, 8, new QTableWidgetItem(QString::number(appBenchmark.min)));
+        ui->tableWidget->setItem(i, 9, new QTableWidgetItem(QString::number(appBenchmark.max)));
     }
 }
 
@@ -64,7 +67,7 @@ void qualityOfServiceWindow::read()
 {
     for(int i = 0; i< _deviceList->size(); i++)
     {
-        _deviceList->at(i)->requestCanDiagnostics();
+        _deviceList->at(i)->management().requestCanDiagnostics();
     }
 }
 

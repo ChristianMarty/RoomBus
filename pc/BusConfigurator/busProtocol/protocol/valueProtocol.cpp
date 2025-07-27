@@ -1,11 +1,13 @@
 #include "valueProtocol.h"
+#include "busDevice.h"
 
 ValueSystemProtocol::ValueSystemProtocol(RoomBusDevice *device)
     : ProtocolBase(device)
 {
+    _device->addProtocol(this);
 }
 
-void ValueSystemProtocol::pushData(RoomBus::Message msg)
+void ValueSystemProtocol::handleMessage(RoomBus::Message msg)
 {
     if(msg.protocol != RoomBus::Protocol::ValueSystemProtocol){
         return;
@@ -196,13 +198,6 @@ ValueSystemProtocol::ValueData ValueSystemProtocol::_decodeData(UnitType type, Q
         }
     }
     return value;
-}
-
-QList<RoomBus::Protocol> ValueSystemProtocol::protocol(void)
-{
-    QList<RoomBus::Protocol> temp;
-    temp.append(RoomBus::Protocol::ValueSystemProtocol);
-    return temp;
 }
 
 void ValueSystemProtocol::sendValueCommand(uint16_t channel, ValueData value)

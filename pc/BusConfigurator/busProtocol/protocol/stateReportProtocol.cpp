@@ -1,10 +1,13 @@
 #include "stateReportProtocol.h"
+#include "busDevice.h"
 
-StateSystemProtocol::StateSystemProtocol(RoomBusDevice *device):ProtocolBase(device)
+StateSystemProtocol::StateSystemProtocol(RoomBusDevice *device)
+    : ProtocolBase(device)
 {
+    _device->addProtocol(this);
 }
 
-void StateSystemProtocol::pushData(RoomBus::Message msg)
+void StateSystemProtocol::handleMessage(RoomBus::Message msg)
 {
     if(msg.protocol != RoomBus::Protocol::StateSystemProtocol) return;
 
@@ -14,13 +17,6 @@ void StateSystemProtocol::pushData(RoomBus::Message msg)
         case RoomBus::StateSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
         case RoomBus::StateSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
     }
-}
-
-QList<RoomBus::Protocol> StateSystemProtocol::protocol(void)
-{
-    QList<RoomBus::Protocol> temp;
-    temp.append(RoomBus::Protocol::StateSystemProtocol);
-    return temp;
 }
 
 void StateSystemProtocol::requestSignalInformation()

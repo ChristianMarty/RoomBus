@@ -34,8 +34,7 @@ class MessageLogProtocol : public ProtocolBase
 public:
     MessageLogProtocol(RoomBusDevice *device);
 
-    void pushData(RoomBus::Message msg);
-    QList<RoomBus::Protocol> protocol(void);
+    void handleMessage(RoomBus::Message msg);
 
     QList<LogMessage> messages() const;
     void clearLog(void);

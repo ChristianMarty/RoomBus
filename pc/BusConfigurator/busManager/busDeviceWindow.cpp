@@ -52,7 +52,7 @@ void BusDeviceWindow::updateStatus()
         ui->appStatusLabel->setText("Timeout");
         ui->appStatusLabel->setStyleSheet("color: orange;");
     }
-    else if(_device->sysStatus().appRuning)
+    else if(_device->systemStatus().appRuning)
     {
         ui->appStatusLabel->setText("Runnig");
         ui->appStatusLabel->setStyleSheet("color: green;");
@@ -183,7 +183,7 @@ void BusDeviceWindow::on_fileButton_clicked()
 
 void BusDeviceWindow::on_rebootButton_clicked()
 {
-    _device->requestSystemRestart();
+    _device->management().requestSystemRestart();
 }
 
 void BusDeviceWindow::on_pushButton_serialBridge_clicked()

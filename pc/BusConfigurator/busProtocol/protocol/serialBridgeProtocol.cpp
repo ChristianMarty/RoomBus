@@ -1,8 +1,10 @@
 #include "serialBridgeProtocol.h"
+#include "busDevice.h"
 
-SerialBridgeProtocol::SerialBridgeProtocol(RoomBusDevice *device):ProtocolBase(device)
+SerialBridgeProtocol::SerialBridgeProtocol(RoomBusDevice *device)
+    : ProtocolBase(device)
 {
-
+    _device->addProtocol(this);
 }
 
 void SerialBridgeProtocol::sendData(uint8_t port, QByteArray data)
@@ -18,20 +20,13 @@ void SerialBridgeProtocol::sendData(uint8_t port, QByteArray data)
     sendMessage(msg);
 }
 
-void SerialBridgeProtocol::pushData(RoomBus::Message msg)
+void SerialBridgeProtocol::handleMessage(RoomBus::Message msg)
 {
     if(msg.protocol != RoomBus::Protocol::SerialBridgeProtocol) return;
 
     if(msg.command == (uint8_t)RoomBus::SerialBridgeCommand::Data){
         _parseData(msg.data);
     }
-}
-
-QList<RoomBus::Protocol> SerialBridgeProtocol::protocol()
-{
-    QList<RoomBus::Protocol> temp;
-    temp.append(RoomBus::Protocol::SerialBridgeProtocol);
-    return temp;
 }
 
 void SerialBridgeProtocol::_parseData(QByteArray data)

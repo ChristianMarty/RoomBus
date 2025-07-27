@@ -46,7 +46,7 @@ void MainWindow::on_newData(void)
         }
 
         RoomBusDevice *device = getDevice(temp.sourceAddress);
-        device->pushData(temp);
+        device->handleMessage(temp);
     }
 
     updateDevices();

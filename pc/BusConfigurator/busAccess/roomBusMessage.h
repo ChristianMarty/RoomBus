@@ -38,9 +38,10 @@ namespace RoomBus {
         QByteArray data;
     };
 
+
+    enum class DeviceManagementCommand:Command {
         DeviceToHost,
         HostToDevice
-    enum class DeviceManagementCommand:Command {
     };
 
     enum class MessageLoggingCommand:Command {
@@ -194,6 +195,17 @@ namespace RoomBus {
         float *out;
         out = (float*)&temp;
         return *out;
+    }
+
+    static inline QString unpackString(const QByteArray &data, uint32_t index)
+    {
+        QString output;
+        for(uint8_t i = index; i< data.size() ;i++) {
+            char temp = data.at(i);
+            if(temp == 0) break;
+            output += temp;
+        }
+        return output;
     }
 
     static inline QByteArray packUint16(uint16_t value)

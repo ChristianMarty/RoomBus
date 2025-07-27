@@ -1,11 +1,13 @@
 #include "eventProtocol.h"
+#include "busDevice.h"
 
 EventSystemProtocol::EventSystemProtocol(RoomBusDevice *device)
     : ProtocolBase(device)
 {
+    _device->addProtocol(this);
 }
 
-void EventSystemProtocol::pushData(RoomBus::Message msg)
+void EventSystemProtocol::handleMessage(RoomBus::Message msg)
 {
     if(msg.protocol != RoomBus::Protocol::EventSystemProtocol){
         return;
@@ -23,13 +25,6 @@ void EventSystemProtocol::pushData(RoomBus::Message msg)
         case RoomBus::EventSystemCommand::SlotInformationRequest:
             break;
     }
-}
-
-QList<RoomBus::Protocol> EventSystemProtocol::protocol(void)
-{
-    QList<RoomBus::Protocol> output;
-    output.append(RoomBus::Protocol::EventSystemProtocol);
-    return output;
 }
 
 void EventSystemProtocol::requestSignalInformation(void)
