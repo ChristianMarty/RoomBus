@@ -57,12 +57,12 @@ void tsp_mainHandler(const triggerSystemProtocol_t* tsp)
 	_tsp_sendTriggers(tsp);
 }
 
-bool  tsp_receiveHandler(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
+bool  tsp_receiveHandler(const triggerSystemProtocol_t* tsp, const bus_rxMessage_t *message)
 {
-	switch(command){
-		case tsp_cmd_trigger: return _tsp_parseTrigger(tsp, sourceAddress, data, size);
-		case tsp_cmd_slotInformationRequest: return _tsp_parseTriggerSlotInformationRequest(tsp, sourceAddress, data, size);
-		case tsp_cmd_signalInformationRequest: return _tsp_parseTriggerSignalInformationRequest(tsp, sourceAddress, data, size);
+	switch(message->command){
+		case tsp_cmd_trigger: return _tsp_parseTrigger(tsp, message->sourceAddress, message->data, message->dataLength);
+		case tsp_cmd_slotInformationRequest: return _tsp_parseTriggerSlotInformationRequest(tsp, message->sourceAddress, message->data, message->dataLength);
+		case tsp_cmd_signalInformationRequest: return _tsp_parseTriggerSignalInformationRequest(tsp, message->sourceAddress, message->data, message->dataLength);
 	}
 	return false;
 }

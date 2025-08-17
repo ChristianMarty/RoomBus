@@ -1,27 +1,20 @@
 //**********************************************************************************************************************
-// FileName : dataSystem.h
-// FilePath : kernel/
+// FileName : sitronix_ST7565R.cpp
+// FilePath : peripheral/
 // Author   : Christian Marty
-// Date		: 30.07.2020
+// Date		: 11.12.2024
 // Website  : www.christian-marty.ch/RoomBus
 //**********************************************************************************************************************
-#ifndef DATA_SYSTEM_H_
-#define DATA_SYSTEM_H_
+#include "sitronix_ST7565R.h"
+#include "common/kernel.h"
+#include "common/io_same51jx.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "common/typedef.h"
-
-#include "littleFS/lfs.h"
-
-void dataSystem_initialize(lfs_t *lfs);
-
-const struct lfs_config* dataSystem_getConfig(void);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* DATA_SYSTEM_H_ */

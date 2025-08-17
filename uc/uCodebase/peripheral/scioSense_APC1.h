@@ -3,8 +3,8 @@
 #define SCIOSENSE_APC1_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
-#include "drv/SAMx5x/uart.h"
+#include "common/kernel.h"
+#include "driver/SAMx5x/uart.h"
 
 typedef struct{
 	uint16_t frameHeader;
@@ -48,8 +48,8 @@ typedef struct{
 }scioSense_apc1_t;
 
 
-void scioSense_apc1_init(const kernel_t *kernel, scioSense_apc1_t *apc1);
-void scioSense_apc1_handler(const kernel_t *kernel, scioSense_apc1_t *apc1);
+void scioSense_apc1_init(scioSense_apc1_t *apc1);
+void scioSense_apc1_handler(scioSense_apc1_t *apc1);
 
 bool scioSense_apc1_decode_measurmentData(uint8_t *rxData, scioSense_apc1_measurmentData_t *measurmentData);
 

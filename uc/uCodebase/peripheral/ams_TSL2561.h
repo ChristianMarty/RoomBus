@@ -3,8 +3,8 @@
 #define AMS_TSL2561_H_
 
 #include "sam.h"
-#include "kernel/kernel.h"
-#include "drv/SAMx5x/i2cMaster.h"
+#include "common/kernel.h"
+#include "driver/SAMx5x/i2cMaster.h"
 
 typedef enum {
 	tsl2561_state_pre_init = 0,
@@ -42,8 +42,8 @@ typedef struct{
 }ams_TSL2561_t;
 
 
-void ams_TSL2561_init(const kernel_t *kernel, ams_TSL2561_t *tsl2561);
-void ams_TSL2561_handler(const kernel_t *kernel, ams_TSL2561_t *tsl2561);
+void ams_TSL2561_init(ams_TSL2561_t *tsl2561);
+void ams_TSL2561_handler(ams_TSL2561_t *tsl2561);
 
 uint32_t ams_TSL2561_decode_illuminance(uint16_t ch0, uint16_t ch1);
 uint8_t ams_TSL2561_decode_brightness(uint16_t ch0, uint16_t ch1);

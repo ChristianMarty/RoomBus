@@ -1,19 +1,32 @@
-/*
- * QSPI.c
- *
- * Created: 14.02.2019 23:53:32
- *  Author: Christian
- */ 
-
-#include "qspi.h"
-#include <stdbool.h>
-
+//**********************************************************************************************************************
+// FileName : qspi.c
+// FilePath : uCodebase/driver/SAMx5x/kernel/
+// Author   : Christian Marty
+// Date		: 14.02.2019
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "pin.h"
-#include "genericClockController.h"
+#include "qspi.h"
+
+#include "../pin.h"
+#include "../genericClockController.h"
+
+#define EXTFLASH __attribute__((section(".extFlash")))
+
+typedef struct{
+	uint8_t WIP:1;
+	uint8_t WEL:1;
+	uint8_t BP0:1;
+	uint8_t BP1:1;
+	uint8_t BP2:1;
+	uint8_t BP3:1;
+	uint8_t QE:1;
+	uint8_t SRWD:1;
+}qspi_flash_status_t;
+
 
 #define SINGLE_BIT_SPI 0x00 // Instruction: Single-bit SPI / Address-Option: Single-bit SPI / Data: Single-bit SPI
 #define DUAL_OUTPUT 0x01	// Instruction: Single-bit SPI / Address-Option: Single-bit SPI / Data: Dual SPI

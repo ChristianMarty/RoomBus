@@ -1,10 +1,10 @@
-/*
- * interrupt.cpp
- *
- * Created: 12.01.2019 21:37:40
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : interrupt.c
+// FilePath : uCodebase/driver/SAMx5x/kernel/
+// Author   : Christian Marty
+// Date		: 12.01.2019
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,19 +16,17 @@ extern "C" {
 
 interruptHandler_t vectors[NUMBER_OF_INTERRUPTS+NUMBER_OF_EVENTS]  __attribute__((section(".interruptVectorTable")));
 
-
 void dummyHandler(void)
 {
 	while(1);
 }
 
-void nvic_init(void)
+void nvic_initialize(void)
 {
 	uint32_t *stackTop = (0x00000000);
 	vectors[0] = (interruptHandler_t) *stackTop;
 	
-	for(uint16_t i = 1; i<(NUMBER_OF_INTERRUPTS+NUMBER_OF_EVENTS); i++)
-	{
+	for(uint16_t i = 1; i<(NUMBER_OF_INTERRUPTS+NUMBER_OF_EVENTS); i++){
 		vectors[i] = dummyHandler;
 	}
 	

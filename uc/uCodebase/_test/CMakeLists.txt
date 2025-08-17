@@ -10,9 +10,9 @@ add_executable(TestuCodebase
         main.cpp
         bus.c
         ../utility/string.c
-        ../utility/perlin.c
+        #../utility/perlin.c
         ../utility/iniParser/iniParser.c
-        ../driver/SAMx5x/tickTimer.c
+        ../driver/SAMx5x/kernel/tickTimer.c
         ../protocol/valueSystemProtocol.cpp
         test_ringbufferU8.hpp test_iniParser.h)
 

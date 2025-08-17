@@ -1,9 +1,9 @@
-#include "../driver/SAMx5x/tickTimer.h"
+#include "../driver/SAMx5x/kernel/tickTimer.h"
 
 TEST_CASE( "Test tickTimer", "[tickTimer]" ) {
 
     SECTION("Test basic functionality") {
-        tickTimer_init(0);
+        tickTimer_initialize(0);
 
         tickTimer_t timer;
         tickTimer_reset(&timer);
@@ -13,7 +13,7 @@ TEST_CASE( "Test tickTimer", "[tickTimer]" ) {
     }
 
     SECTION("Test more functionality") {
-        tickTimer_init(0);
+        tickTimer_initialize(0);
 
         tickTimer_t timer;
         tickTimer_reset(&timer);
@@ -29,7 +29,7 @@ TEST_CASE( "Test tickTimer", "[tickTimer]" ) {
     }
 
     SECTION("Test timer reset") {
-        tickTimer_init(0);
+        tickTimer_initialize(0);
 
         tickTimer_t timer;
         tickTimer_reset(&timer);
@@ -42,7 +42,7 @@ TEST_CASE( "Test tickTimer", "[tickTimer]" ) {
     }
 
     SECTION("Test overflow") {
-        tickTimer_init(0);
+        tickTimer_initialize(0);
 
         for(uint32_t i= 0; i<0xFFFE;i++)
         {

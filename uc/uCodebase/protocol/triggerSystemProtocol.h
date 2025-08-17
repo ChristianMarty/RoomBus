@@ -90,7 +90,7 @@ typedef struct{
 
 void tsp_initialize(const triggerSystemProtocol_t* tsp);
 void tsp_mainHandler(const triggerSystemProtocol_t* tsp);
-bool tsp_receiveHandler(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
+bool tsp_receiveHandler(const triggerSystemProtocol_t* tsp, const bus_rxMessage_t *message);
 
 void tsp_sendTriggersByIndex(const triggerSystemProtocol_t* tsp, const uint8_t *indexList, uint8_t indexListLength);
 bool tsp_sendTriggerByIndex(const triggerSystemProtocol_t* tsp, uint8_t index);

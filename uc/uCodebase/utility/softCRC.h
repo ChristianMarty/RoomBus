@@ -5,14 +5,11 @@
 // Date		: 24.09.2018
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
-
-//#include <main.h>
-
 #ifndef SOFT_CRC_H_
 #define SOFT_CRC_H_
 
 #ifdef __cplusplus
-	extern "C" {
+extern "C" {
 #endif
 
 #include "bytearray.h"
@@ -122,7 +119,7 @@ static inline uint8_t crc8_oneWire(uint8_t* data, uint8_t length)
 }
 
 #ifdef __cplusplus
-	}
+}
 #endif
 
 #endif /* SOFT_CRC_H_ */

@@ -2,14 +2,14 @@
 // FileName : string.c
 // FilePath : utility/
 // Author   : Christian Marty
-// Date		: 24.09.2018
+// Date		: 02.08.2025
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
-#include "string.h"
-
 #ifdef __cplusplus
 	extern "C" {
 #endif
+
+#include "string.h"
 
 uint8_t string_getLength(const char *str)
 {
@@ -69,7 +69,7 @@ char *string_fromInt32(int32_t value, uint8_t comma, char *outStr)
 
 char *string_fromFloat(float value, uint8_t decimalPlaces, char *outStr)
 {
-	string_fromInt32((uint32_t)value, 0, &outStr[0]);
+	string_fromInt32((int32_t)value, 0, &outStr[0]);
 	
 	uint32_t multi = 1;
 	for(uint8_t i = 0; i<decimalPlaces; i++)
@@ -77,13 +77,21 @@ char *string_fromFloat(float value, uint8_t decimalPlaces, char *outStr)
 		multi*=10;
 	}
 	
-	uint32_t decimals = (value- (float)((uint32_t)value))*multi;
+	int32_t decimals = (value- (float)((uint32_t)value))*multi;
 	
 	uint8_t pos = string_getLength(outStr);
 	outStr[pos] = '.';
 	
 	string_fromInt32(decimals, 0, &outStr[pos+1]);
 		
+	return &outStr[0];
+}
+
+char *string_uInt16ToHex(uint32_t value, char *outStr)
+{
+	string_uInt8ToHex((value >>8)&0xFF, &outStr[0]);
+	string_uInt8ToHex((value)&0xFF, &outStr[2]);
+	
 	return &outStr[0];
 }
 
@@ -162,12 +170,15 @@ char *string_append(char *str1, const char *str2)
 
 bool string_isEqual(const char *str1, const char *str2, uint8_t maxLength)
 {
-    uint8_t j = 0;
-    while((str1[j] != 0) && (str2[j] != 0) && (str1[j] == str2[j]) && (j<maxLength)){
-        j++;
+    uint8_t i;
+    for(i = 0; i < maxLength; i++){
+        if(str1[i] != str2[i]) return false;
+        if(str1[i] == 0) break;
+        if(str2[i] == 0) break;
     }
 
-    if(str1[j] == str2[j]) return true;
+    if(i == maxLength) i--;
+    if(str1[i] == str2[i]) return true;
     else return false;
 }
 

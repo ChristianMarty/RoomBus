@@ -1,17 +1,20 @@
-/*
- * system.c
- *
- * Created: 12.01.2019 21:38:44
- *  Author: Christian
- */ 
+//**********************************************************************************************************************
+// FileName : system.c
+// FilePath : uCodebase/driver/SAMx5x/kernel/
+// Author   : Christian Marty
+// Date		: 02.08.2025
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include "system.h"
 
+#include "driver/SAMx5x/kernel/fuse.h"
 
-#include "driver/SAMx5x/system.h"
-#include "driver/SAMx5x/fuse.h"
-#include "protocol/messageLogProtocol.h"
+void system_configure(void);
 
-void system_init(void)
+void system_initialize(void)
 {
+	system_configure();
+	
 	// Setup OSC1
 	OSCCTRL->XOSCCTRL[1].reg = 0x00F0A646; // Enable OSC1
 	while(!OSCCTRL->STATUS.bit.XOSCRDY1); // Wait until OSC1 is ready to use
@@ -31,11 +34,9 @@ void system_reboot(void)
 	SCB->AIRCR = 0x5FA0004;
 }
 
-
-
 void system_configure(void)
 {
-	fuse_init();
+	fuse_initialize();
 	//fuse_setDefault();
 	return;
 	

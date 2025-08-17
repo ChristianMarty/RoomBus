@@ -1,20 +1,18 @@
-/*
- * GenericClockController.h
- *
- * Created: 03.02.2019 12:15:28
- *  Author: Christian
- */ 
-
-
-#ifndef GENERICCLOCKCONTROLLER_H_
-#define GENERICCLOCKCONTROLLER_H_
-
-#include "common/typedef.h"
+//**********************************************************************************************************************
+// FileName : genericClockController.c
+// FilePath : uCodebase/driver/SAMx5x/
+// Author   : Christian Marty
+// Date		: 03.02.2019
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#ifndef GENERIC_CLOCK_CONTROLLER_H_
+#define GENERIC_CLOCK_CONTROLLER_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-	
+
+#include "common/typedef.h"
 
 typedef enum {
 	GCLK_SRC_XOSC0,
@@ -118,9 +116,8 @@ gclk_error_t glck_generatorDisable(gclk_generator_t generator);
 gclk_error_t gclk_peripheralEnable(gclk_peripheral_t peripheralChannel,gclk_generator_t clkGenerator);
 gclk_error_t gclk_peripheralDisable(gclk_peripheral_t peripheralChannel);
 
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* GENERICCLOCKCONTROLLER_H_ */
+#endif /* GENERIC_CLOCK_CONTROLLER_H_ */

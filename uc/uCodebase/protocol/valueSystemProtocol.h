@@ -145,7 +145,7 @@ typedef struct{
 
 void vsp_initialize(const valueSystemProtocol_t* vsp);
 void vsp_mainHandler(const valueSystemProtocol_t* vsp);
-bool vsp_receiveHandler(const valueSystemProtocol_t* vsp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
+bool vsp_receiveHandler(const valueSystemProtocol_t* vsp, const bus_rxMessage_t *message);
 
 bool vsp_sendValueReportByChannel(const valueSystemProtocol_t* vsp, uint16_t channel, vsp_valueData_t value);
 

@@ -208,26 +208,6 @@
       <SubType>compile</SubType>
       <Link>common\typedef.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\dma.c">
-      <SubType>compile</SubType>
-      <Link>driver\dma.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\dma.h">
-      <SubType>compile</SubType>
-      <Link>driver\dma.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\eeprom.h">
-      <SubType>compile</SubType>
-      <Link>driver\eeprom.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\flash.h">
-      <SubType>compile</SubType>
-      <Link>driver\flash.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\fuse.h">
-      <SubType>compile</SubType>
-      <Link>driver\fuse.h</Link>
-    </Compile>
     <Compile Include="..\..\uCodebase\driver\SAMx5x\genericClockController.c">
       <SubType>compile</SubType>
       <Link>driver\genericClockController.c</Link>
@@ -236,49 +216,61 @@
       <SubType>compile</SubType>
       <Link>driver\genericClockController.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\interrupt.c">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\eeprom.h">
+      <SubType>compile</SubType>
+      <Link>driver\eeprom.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\flash.h">
+      <SubType>compile</SubType>
+      <Link>driver\flash.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\fuse.h">
+      <SubType>compile</SubType>
+      <Link>driver\fuse.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\interrupt.c">
       <SubType>compile</SubType>
       <Link>driver\interrupt.c</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\interrupt.h">
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\interrupt.h">
       <SubType>compile</SubType>
       <Link>driver\interrupt.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\qspi.c">
+      <SubType>compile</SubType>
+      <Link>driver\qspi.c</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\qspi.h">
+      <SubType>compile</SubType>
+      <Link>driver\qspi.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\random.h">
+      <SubType>compile</SubType>
+      <Link>driver\random.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\system.c">
+      <SubType>compile</SubType>
+      <Link>driver\system.c</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\system.h">
+      <SubType>compile</SubType>
+      <Link>driver\system.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\tickTimer.c">
+      <SubType>compile</SubType>
+      <Link>driver\tickTimer.c</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\tickTimer.h">
+      <SubType>compile</SubType>
+      <Link>driver\tickTimer.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\watchDogTimer.h">
+      <SubType>compile</SubType>
+      <Link>driver\watchDogTimer.h</Link>
     </Compile>
     <Compile Include="..\..\uCodebase\driver\SAMx5x\pin.h">
       <SubType>compile</SubType>
       <Link>driver\pin.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\qspi.c">
-      <SubType>compile</SubType>
-      <Link>driver\qspi.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\qspi.h">
-      <SubType>compile</SubType>
-      <Link>driver\qspi.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\rand.h">
-      <SubType>compile</SubType>
-      <Link>driver\rand.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\system.c">
-      <SubType>compile</SubType>
-      <Link>driver\system.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\system.h">
-      <SubType>compile</SubType>
-      <Link>driver\system.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\tickTimer.c">
-      <SubType>compile</SubType>
-      <Link>driver\tickTimer.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\tickTimer.h">
-      <SubType>compile</SubType>
-      <Link>driver\tickTimer.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\wdt.h">
-      <SubType>compile</SubType>
-      <Link>driver\wdt.h</Link>
     </Compile>
     <Compile Include="..\..\uCodebase\kernel\bus.c">
       <SubType>compile</SubType>
@@ -320,14 +312,6 @@
       <SubType>compile</SubType>
       <Link>kernel\littleFs\lfs_util.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\standardIO.c">
-      <SubType>compile</SubType>
-      <Link>kernel\standardIO.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\kernel\standardIO.h">
-      <SubType>compile</SubType>
-      <Link>kernel\standardIO.h</Link>
-    </Compile>
     <Compile Include="..\..\uCodebase\kernel\systemControl.c">
       <SubType>compile</SubType>
       <Link>kernel\systemControl.c</Link>
@@ -336,33 +320,37 @@
       <SubType>compile</SubType>
       <Link>kernel\systemControl.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\protocol\deviceManagementProtocol.cpp">
+    <Compile Include="..\..\uCodebase\kernel\userIo.c">
+      <SubType>compile</SubType>
+      <Link>kernel\userIo.c</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\kernel\userIo.h">
+      <SubType>compile</SubType>
+      <Link>kernel\userIo.h</Link>
+    </Compile>
+    <Compile Include="..\..\uCodebase\protocol\kernel\deviceManagementProtocol.cpp">
       <SubType>compile</SubType>
       <Link>protocol\deviceManagementProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\protocol\deviceManagementProtocol.h">
+    <Compile Include="..\..\uCodebase\protocol\kernel\deviceManagementProtocol.h">
       <SubType>compile</SubType>
       <Link>protocol\deviceManagementProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\protocol\fileTransferProtocol.cpp">
+    <Compile Include="..\..\uCodebase\protocol\kernel\fileTransferProtocol.cpp">
       <SubType>compile</SubType>
       <Link>protocol\fileTransferProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\protocol\fileTransferProtocol.h">
+    <Compile Include="..\..\uCodebase\protocol\kernel\fileTransferProtocol.h">
       <SubType>compile</SubType>
       <Link>protocol\fileTransferProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\protocol\messageLogProtocol.cpp">
+    <Compile Include="..\..\uCodebase\protocol\kernel\messageLogProtocol.cpp">
       <SubType>compile</SubType>
       <Link>protocol\messageLogProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\protocol\messageLogProtocol.h">
+    <Compile Include="..\..\uCodebase\protocol\kernel\messageLogProtocol.h">
       <SubType>compile</SubType>
       <Link>protocol\messageLogProtocol.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\utility\cobs.hpp">
-      <SubType>compile</SubType>
-      <Link>lib\cobs.hpp</Link>
     </Compile>
     <Compile Include="..\..\uCodebase\utility\pack.h">
       <SubType>compile</SubType>

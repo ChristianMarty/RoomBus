@@ -1,12 +1,12 @@
-/*
- * dma.h
- *
- * Created: 14.02.2019 23:53:43
- *  Author: Christian
- */ 
-
-#ifndef DMA_H_
-#define DMA_H_
+//**********************************************************************************************************************
+// FileName : directMemoryAccess.c
+// FilePath : uCodebase/driver/SAMx5x/
+// Author   : Christian Marty
+// Date		: 14.02.2019
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#ifndef DIRECT_MEMORY_ACCESS_H_
+#define DIRECT_MEMORY_ACCESS_H_
 #include "sam.h"
 #include <stdbool.h>
 
@@ -168,13 +168,13 @@ typedef struct {
 }dma_transfer_t;
 
 
-void dma_init(void);
+void dma_initialize(void);
 
 void dma_trigger(dma_channel_t channel);
 
 bool dma_isBusy(dma_channel_t channel);
 
-void dma_channel_init(dma_channel_t channel, dma_trigger_t trigger, dma_triggerAction_t action);
+void dma_channel_initialize(dma_channel_t channel, dma_trigger_t trigger, dma_triggerAction_t action);
 
 dma_transfer_t *dma_getTransfer(dma_channel_t channel);
 
@@ -186,4 +186,4 @@ void dma_transfer_dataToPeripheral(dma_transfer_t *transfer, uint8_t *data, uint
 }
 #endif
 
-#endif /* DMA_H_ */
+#endif /* DIRECT_MEMORY_ACCESS_H_ */

@@ -85,6 +85,33 @@ TEST_CASE( "Test string_append", "[string_append]" ) {
 
 }
 
+TEST_CASE( "Test string_isEqual", "[string]" ) {
+
+    SECTION("Test 1") {
+        char str1[20] = "Test";
+        char str2[20] = "Test";
+        REQUIRE(string_isEqual( &str1[0], &str2[0], sizeof(str1)));
+    }
+
+    SECTION("Test 2") {
+        char str1[20] = "Test12";
+        char str2[20] = "Test34";
+        REQUIRE(string_isEqual( &str1[0], &str2[0], 4));
+    }
+
+    SECTION("Test 3") {
+        char str1[20] = "Test";
+        char str2[20] = "Test123";
+        REQUIRE(!string_isEqual( &str1[0], &str2[0], sizeof(str1)));
+    }
+
+    SECTION("Test 4") {
+        char str1[20] = "Test";
+        char str2[20] = "";
+        REQUIRE(!string_isEqual( &str1[0], &str2[0], sizeof(str1)));
+    }
+}
+
 TEST_CASE( "Test string_removeFront", "[string_removeFront]" ) {
 
     SECTION("Basic Functionality") {

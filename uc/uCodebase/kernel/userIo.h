@@ -1,12 +1,12 @@
 //**********************************************************************************************************************
-// FileName : dataSystem.h
+// FileName : userIo.h
 // FilePath : kernel/
 // Author   : Christian Marty
-// Date		: 30.07.2020
-// Website  : www.christian-marty.ch/RoomBus
+// Date		: 02.08.2025
+// Website  : www.christian-marty.ch
 //**********************************************************************************************************************
-#ifndef DATA_SYSTEM_H_
-#define DATA_SYSTEM_H_
+#ifndef USER_IO_H_
+#define USER_IO_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,14 +14,16 @@ extern "C" {
 
 #include "common/typedef.h"
 
-#include "littleFS/lfs.h"
+void userIo_initialize(void);
+void userIo_handler(void);
 
-void dataSystem_initialize(lfs_t *lfs);
+void userIo_txLed(void);
+void userIo_rxLed(void);
 
-const struct lfs_config* dataSystem_getConfig(void);
+bool userIo_getButton(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DATA_SYSTEM_H_ */
+#endif /* USER_IO_H_ */

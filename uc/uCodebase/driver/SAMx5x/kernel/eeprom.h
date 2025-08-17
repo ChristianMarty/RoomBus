@@ -1,10 +1,18 @@
-/*
- * eeprom.h
- *
- * Created: 16.10.2018 23:39:33
- *  Author: Christian
- */ 
+//**********************************************************************************************************************
+// FileName : eeprom.h
+// FilePath : uCodebase/driver/SAMx5x/kernel
+// Author   : Christian Marty
+// Date		: 16.10.2018
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
+#ifndef EEPROM_H_
+#define EEPROM_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define EEPROM __attribute__((section(".eemem")))
 
 #ifndef EEPROM_SETTINGS_SEEPSZ
 	// SmartEEPROM Virtual Size: 512 Byte
@@ -12,36 +20,14 @@
 	#define EEPROM_SETTINGS_SEESBLK 4
 #endif
 
-#ifndef EEPROM_H_
-#define EEPROM_H_
+#define EEPROM_SIZE 512
 
-#define EEPROM __attribute__((section(".eemem")))
+#include "common/typedef.h"
 
-#include "sam.h"
 #include "fuse.h"
 
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #define FLASH_KEY 0xA5
-#define FLASH_USEER_CMD 0x37
-
-static inline void eeprom_init(void)
-{
-	// Moved to fuse.h
-	/* 
-	fuseUserPage_t userPage = fuse_getUserPage();
-	
-	// If smartEEPROM is not enabled -> enable smartEEPRM
-	if(userPage.bit.SEEPSZ != EEPROM_SETTINGS_SEEPSZ || userPage.bit.SEESBLK != EEPROM_SETTINGS_SEESBLK)
-	{
-		userPage.bit.SEEPSZ = EEPROM_SETTINGS_SEEPSZ;
-		userPage.bit.SEESBLK = EEPROM_SETTINGS_SEESBLK;
-		
-		fuse_setUserPage(userPage);
-	}//*/
-}
+#define FLASH_USEER_CMD 0x37 // Unlock access to the SmartEEPROM Register Address Space 
 
 static inline void eeprom_writeByte(uint8_t data, volatile uint8_t *address)
 {
@@ -72,8 +58,7 @@ static inline void eeprom_readArray(uint8_t *destAddress, volatile uint8_t *eepo
 {
 	if(size > FLASH_PAGE_SIZE) size = FLASH_PAGE_SIZE;
 	
-	for (uint8_t i = 0; i<size;i++)
-	{
+	for (uint8_t i = 0; i<size;i++){
 		destAddress[i] = eeporm_readByte(eepormAddress+i);
 	}
 }
@@ -85,15 +70,13 @@ static inline void eeprom_writeArray(uint8_t *sourceAddress, volatile uint8_t *e
 	
 	if(size > FLASH_PAGE_SIZE) size = FLASH_PAGE_SIZE;
 	
-	for (uint8_t i = 0; i<size;i++)
-	{
+	for (uint8_t i = 0; i<size;i++){
 		eeprom_writeByte(sourceAddress[i], &eepormAddress[i]);
 	}
 }
 
-
 #ifdef __cplusplus
-	}
+}
 #endif
 
 #endif /* EEPROM_H_ */

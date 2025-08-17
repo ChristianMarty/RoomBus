@@ -6,17 +6,17 @@
 
 #include "utility/pack.h"
 
-void scioSense_apc1_init(const kernel_t *kernel, scioSense_apc1_t *apc1)
+void scioSense_apc1_init(scioSense_apc1_t *apc1)
 {
-	apc1->uartCom.initUart(kernel->clk_16MHz, apc1->sercom_p, 9600, uart_c::none);
-	kernel->tickTimer.reset(&apc1->readTimer);
+	apc1->uartCom.initUart(kernel.clk_16MHz, apc1->sercom_p, 9600, uart_c::none);
+	kernel.tickTimer.reset(&apc1->readTimer);
 }
 
 uint8_t  measurementDataRequests[] = {HEADER_0,HEADER_1,0xE2,0x00,0x00,0x01,0x71};
 	
-void scioSense_apc1_handler(const kernel_t *kernel, scioSense_apc1_t *apc1)
+void scioSense_apc1_handler(scioSense_apc1_t *apc1)
 {
-	if(!apc1->uartCom.txBusy() && kernel->tickTimer.delay1ms(&apc1->readTimer, 5000))
+	if(!apc1->uartCom.txBusy() && kernel.tickTimer.delay1ms(&apc1->readTimer, 5000))
 	{
 		apc1->rxIndex = 0;
 		apc1->uartCom.sendData(measurementDataRequests, sizeof(measurementDataRequests));

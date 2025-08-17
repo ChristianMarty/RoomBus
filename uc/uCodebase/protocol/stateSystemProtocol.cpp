@@ -75,13 +75,13 @@ void ssp_mainHandler(const stateSystemProtocol_t *ssp)
 	_ssp_sendStateRequests(ssp);
 }
 
-bool ssp_receiveHandler(const stateSystemProtocol_t *srp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
+bool ssp_receiveHandler(const stateSystemProtocol_t *srp, const bus_rxMessage_t *message)
 {
-	switch(command){
-		case srp_cmd_state: return _ssp_parseStateReport(srp, sourceAddress, data, size);
-		case srp_cmd_stateRequest: return _ssp_parseStateRequest(srp, sourceAddress, data, size);
-		case srp_cmd_signalInformationRequest: return _ssp_parseStateReportSignalInformationRequest(srp, sourceAddress, data, size);
-		case srp_cmd_slotInformationRequest: return _ssp_parseStateReportSlotInformationRequest(srp, sourceAddress, data, size);
+	switch(message->command){
+		case srp_cmd_state: return _ssp_parseStateReport(srp, message->sourceAddress, message->data, message->dataLength);
+		case srp_cmd_stateRequest: return _ssp_parseStateRequest(srp, message->sourceAddress, message->data, message->dataLength);
+		case srp_cmd_signalInformationRequest: return _ssp_parseStateReportSignalInformationRequest(srp, message->sourceAddress, message->data, message->dataLength);
+		case srp_cmd_slotInformationRequest: return _ssp_parseStateReportSlotInformationRequest(srp, message->sourceAddress, message->data, message->dataLength);
 	}
 	return false;
 }

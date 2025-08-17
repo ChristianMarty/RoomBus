@@ -14,7 +14,6 @@ extern "C" {
 
 #include "typedef.h"
 
-
 #include "kernel/littleFS/lfs.h"
 #include "driver/SAMx5x/genericClockController.h"
 
@@ -32,7 +31,7 @@ typedef struct{
 	uint32_t initApp : 1;
 	uint32_t shutdownApp : 1;
 	uint32_t ledDisabled : 1;
-	uint32_t rootMode : 1;
+	uint32_t administrationMode : 1;
 	uint32_t identify : 1;
 	uint32_t kernelError :1;
 } kernelSignals_t;
@@ -82,8 +81,8 @@ typedef struct {
 	
 	uint8_t kernelRevMaj;
 	uint8_t kernelRevMin;
-	uint8_t *deviceName;
-	uint8_t *hardwareName;
+	const uint8_t *deviceName;
+	const uint8_t *hardwareName;
 	
 	kernelSignals_t *kernelSignals;
 	appSignals_t *appSignals;
@@ -146,8 +145,8 @@ typedef struct {
 		
 }kernel_t;
 
-typedef int (*appMain_t)(void);
-typedef bool (*onReceive_t)(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
+typedef int (*applicationMain_t)(void);
+typedef bool (*onReceive_t)(const bus_rxMessage_t *message);
 
 typedef struct {
 	uint32_t appCRC;
@@ -155,16 +154,14 @@ typedef struct {
 	uint8_t appRevMaj;
 	uint8_t appRevMin;
  	uint8_t appName[60];
- 	appMain_t appRun;
+ 	applicationMain_t appRun;
  	onReceive_t onRx;
-}appHead_t;
-
+}applicationHeader_t;
 
 #ifdef __cplusplus
 }
 #endif
 #endif /* KERNEL_INTERFACE_H_ */
-
 
 #ifndef KERNEL_H_
 #define KERNEL_H_

@@ -78,7 +78,7 @@ typedef struct{
 
 void ssp_initialize(const stateSystemProtocol_t *ssp);
 void ssp_mainHandler(const stateSystemProtocol_t *ssp);
-bool ssp_receiveHandler(const stateSystemProtocol_t *ssp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
+bool ssp_receiveHandler(const stateSystemProtocol_t *ssp, const bus_rxMessage_t *message);
 
 void ssp_setStateByIndex(const stateSystemProtocol_t *ssp, uint8_t stateChannelIndex, ssp_state_t state);
 ssp_state_t ssp_getStateByIndex(const stateSystemProtocol_t *ssp, uint8_t stateChannelIndex);

@@ -1,25 +1,28 @@
-/*
- * dataSystem.h
- *
- * Created: 30.07.2020
- *  Author: Christian
- */ 
-
-#include "dataSystem.h"
-#include "protocol/messageLOgProtocol.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-
-
+//**********************************************************************************************************************
+// FileName : dataSystem.c
+// FilePath : kernel/
+// Author   : Christian Marty
+// Date		: 30.07.2020
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifdef __cplusplus
 extern "C" {
 #endif
+	
+#include "dataSystem.h"
+
+#include "protocol/kernel/messageLogProtocol.h"
+#include "utility/string.h"
+
+#include "littleFS/lfs_util.h"
+#include "driver/SAMx5x/kernel/qspi.h"
 
 int ds_mem_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
 int ds_mem_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
 int ds_mem_erase(const struct lfs_config *c, lfs_block_t block);
 int ds_mem_sync(const struct lfs_config *c);
+
+#define FLASH_DEVICE_ID 0x1840
 
 const struct lfs_config cfg = {
 	// block device operations
@@ -38,29 +41,41 @@ const struct lfs_config cfg = {
 	.block_cycles = 500,
 };
 
-
 const struct lfs_config* dataSystem_getConfig(void)
 {
 	return &cfg;
 }
 
-uint32_t dataSystem_init(lfs_t *lfs)
+void reportBootCounter(uint32_t bootCount)
+{
+	char bootCountStr[] = "Boot Counter: _____";
+	string_fromInt32(bootCount, 0, &bootCountStr[14]);
+	mlp_sysMessage(bootCountStr);
+}
+
+void dataSystem_initialize(lfs_t *lfs)
 {
 	qspi_init();
 	
 	qspi_resetDevice();
 	
-	qspi_readJedecId();
+	uint16_t deviceId = qspi_readJedecId();
 	
+	if(deviceId != FLASH_DEVICE_ID){
+		char deviceIdString[] = "QSPI device-id not supported: 0x____";
+		string_uInt16ToHex(deviceId, &deviceIdString[32]);
+		mlp_sysMessage(deviceIdString);
+		
+		return;
+	}
+
 	qspi_writeStatus2(0x02); // Enable QSPI Mode in Flash
 	
 	uint16_t i = 0;
-	while(qspi_busy())
-	{
-		if(i>0x0FFF)
-		{
+	while(qspi_busy()){
+		if(i>0x0FFF){
 			mlp_sysError("QSPI flash timeout. File System not available!");
-			return 0; 	
+			return; 	
 		}
 		i++;
 	}
@@ -92,7 +107,7 @@ uint32_t dataSystem_init(lfs_t *lfs)
 	if(err != LFS_ERR_OK)
 	{
 		mlp_sysError("Mounting error. File System not available!");
-		 return 0;
+		 return;
 	}
 	
     lfs_file_read(lfs, &file, &boot_count, sizeof(boot_count));
@@ -107,7 +122,7 @@ uint32_t dataSystem_init(lfs_t *lfs)
 	
 	//lfs_unmount(lfs);
 	
-	return boot_count;
+	reportBootCounter(boot_count);
 }
 
 // Read a region in a block. Negative error codes are propagated

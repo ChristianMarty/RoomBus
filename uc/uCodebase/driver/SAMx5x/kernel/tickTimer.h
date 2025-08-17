@@ -1,6 +1,6 @@
 //**********************************************************************************************************************
 // FileName : tickTimer.h
-// FilePath : uCodebase/driver/SAMx5x/
+// FilePath : uCodebase/driver/SAMx5x/kernel/
 // Author   : Christian Marty
 // Date		: 12.01.2019
 // Website  : www.christian-marty.ch
@@ -11,11 +11,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #include "common/typedef.h"
 
 typedef uint32_t tickTimer_t;
 
-void tickTimer_init(uint32_t CPUclockFreq);
+void tickTimer_initialize(uint32_t CPUclockFreq);
 
 void tickTimer_interruptHandler(void);
 

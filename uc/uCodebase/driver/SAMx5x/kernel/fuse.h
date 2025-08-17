@@ -1,18 +1,17 @@
-/*
- * Fuse.h
- *
- * Created: 11.11.2018 18:31:02
- *  Author: Christian
- */ 
-
-
+//**********************************************************************************************************************
+// FileName : fuse.h
+// FilePath : uCodebase/driver/SAMx5x/kernel
+// Author   : Christian Marty
+// Date		: 11.11.2018
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifndef FUSE_H_
 #define FUSE_H_
 
-#include "sam.h"
 #include "flash.h"
 #include "eeprom.h"
-#include <stdbool.h>
+
+#include "common/typedef.h"
 
 #define NVM_USER_PAGE_ADDR  0x00804000
 #define NVM_SOFTWARE_CALIBRATION_AREA_ADDR 0x00800080
@@ -87,7 +86,7 @@ static inline void fuse_setUserPage(fuseUserPage_t data)
 	flash_writeUserPage(NVM_USER_PAGE_ADDR, (uint8_t*)&data, sizeof(fuseUserPage_t));
 }
 
-static inline void fuse_init(void)
+static inline void fuse_initialize(void)
 {
 	fuseUserPage_t data = fuse_getUserPage();
 	bool write = false;
@@ -133,7 +132,6 @@ static inline void fuse_init(void)
 //USER_WORD_2 = 0xFFFFFFFF (valid)
 
 
-
 static inline void fuse_restoreDefault(void)
 {
 	fuseUserPage_t data = fuse_getUserPage();
@@ -143,7 +141,7 @@ static inline void fuse_restoreDefault(void)
 	data.bit.BOD33Level			= 0x1C;
 	data.bit.BOD33Action		= 0x01;
 	data.bit.BOD33Hysteresis	= 0x02;
-	data.bit.BOD12Calibration   = 0x535; // Factory settings - do not change
+	//data.bit.BOD12Calibration   = 0x535; // Factory settings - do not change
 	data.bit.NVMBOOT			= 0x0F;
 	//data.Reserved0		// Factory settings - do not change
 	data.bit.SEESBLK			= 0x04; //0x00;

@@ -1,23 +1,42 @@
-/*
- * systemControl.h
- *
- * Created: 14.07.2019 12:11:06
- *  Author: Christian
- */ 
-
-#ifndef SYSTEMCONTROL_H_
-#define SYSTEMCONTROL_H_
-
-#include "sam.h"
-#include <stdbool.h>
+//**********************************************************************************************************************
+// FileName : systemControl.h
+// FilePath : kernel/
+// Author   : Christian Marty
+// Date		: 02.08.2025
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#ifndef SYSTEM_CONTROL_H_
+#define SYSTEM_CONTROL_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "common/typedef.h"
+
+#define MAX_STRING_SIZE 60
 typedef struct {
-	uint8_t appRunOnStartup : 1;
-	uint8_t ledOnOff : 1;
+	uint8_t  deviceAddress;
+	uint8_t  systemSavedSettings;
+	uint16_t heartbeatInterval;
+	uint16_t extendedHeartbeatInterval;
+	
+	uint8_t deviceName[MAX_STRING_SIZE];
+	uint8_t deviceNameLength;
+
+	uint8_t administrationModeKey[MAX_STRING_SIZE];
+	uint8_t administrationModeKeyLength;
+	
+	uint8_t reserved0[128];
+	
+	uint8_t appData[256];
+} eememData_t;
+
+
+typedef struct {
+	uint8_t applicationRunOnStartup : 1;
+	uint8_t userLedEnabled : 1;
+	uint8_t messageLogEnabled : 1;
 } sysSavedSettingsBit_t;
 
 typedef union {
@@ -26,42 +45,25 @@ typedef union {
 }sysSavedSettings_t;
 
 typedef struct {
-	uint32_t appRun : 1;
-	uint32_t appCheckCrc : 1;
-	uint32_t appRunOnStartup : 1;
-	uint32_t ledOnOff : 1;
-	uint32_t identify : 1;
-	uint32_t reserved0 : 1;
-	uint32_t remoteDebuggerEnable : 1;
-	uint32_t clearError : 1;
-	
-	uint32_t rebootApp : 1;
-	uint32_t rebootSystem : 1;
-	uint32_t reserved1 : 6;
-	
-	uint32_t appSpecific : 16;
-} sysControlDataBit_t;
+    uint32_t applicationRuning : 1;
+    uint32_t applicationCrcError : 1;
+    uint32_t applicationRunOnStartup : 1;
+    uint32_t userLedEnabled : 1;
+    uint32_t identify : 1;
+    uint32_t administrationMode : 1;
+    uint32_t messageLogEnabled : 1;
+    uint32_t reserved0 : 1;
 
-typedef union {
-	sysControlDataBit_t bit;
-	uint32_t reg;
-}sysControlData_t;
+    uint32_t systemError : 1;
+    uint32_t watchdogWarning : 1;
+    uint32_t watchdogError : 1;
+    uint32_t txBufferOverrun: 1;
+	uint32_t txMessageOverrun: 1;
+    uint32_t rxBufferOverrun: 1;
+    uint32_t reserved1 : 1;
+    uint32_t applicationError : 1;
 
-typedef struct {
-	uint32_t appRuning : 1;
-	uint32_t appCrcError : 1;
-	uint32_t appRunOnStartup : 1;
-	uint32_t ledOnOff : 1;
-	uint32_t identify : 1;
-	uint32_t setupModeEn : 1;
-	uint32_t remoteDebugger : 1;
-	uint32_t systemError : 1;
-	
-	uint32_t watchdogWarning : 1;
-	uint32_t watchdogError : 1;
-	uint32_t reserved1 : 7;
-	
-	uint32_t appSpecific : 16;
+	uint32_t applicationSpecific : 16;
 } sysStatusDataBit_t;
 
 typedef union {
@@ -70,12 +72,31 @@ typedef union {
 }sysStatusData_t;
 
 typedef struct {
-	sysControlData_t *sysControl;
-	sysStatusData_t *sysStatus;
-	
-	sysControlData_t sysControlOld;
-	sysStatusData_t sysStatusOld;
-}systemControl_t;
+    uint32_t applicationRun : 1;
+    uint32_t applicationCheckCrc : 1;
+    uint32_t applicationRunOnStartup : 1;
+    uint32_t userLedEnabled : 1;
+    uint32_t identify : 1;
+    uint32_t reserved0 : 1;
+    uint32_t messageLogEnabled : 1;
+    uint32_t reserved1 : 1;
+
+    uint32_t clearSystemError : 1;
+    uint32_t clearWatchdogWarning : 1;
+    uint32_t clearWatchdogError : 1;
+    uint32_t clearTxBufferOverrun : 1;
+	uint32_t clearTxMessageOverrun: 1;
+    uint32_t clearRxBufferOverrun : 1;
+    uint32_t reserved2 : 1;
+    uint32_t clearApplicationError : 1;
+
+    uint32_t applicationSpecific : 16;
+} sysControlDataBit_t;
+
+typedef union {
+	sysControlDataBit_t bit;
+	uint32_t reg;
+}sysControlData_t;
 
 typedef enum {
 	APP_STOP, 
@@ -94,19 +115,35 @@ typedef struct{
 	uint16_t tick_last;
 }app_benchmark_t;
 
+typedef struct {
+	sysControlData_t sysControl;
+	sysStatusData_t sysStatus;
+	
+	sysControlData_t sysControlOld;
+	sysStatusData_t sysStatusOld;
+	
+	appState_t appState;
+	
+	app_benchmark_t appBenchmark;
+	
+	uint32_t appCrc;
+	
+}systemControl_t;
 
-void systemControl_init(systemControl_t *self, sysSavedSettings_t *settings);
-void systemControl_run(systemControl_t *self);
 
-bool systemControl_hasChanged(systemControl_t *self);
-sysSavedSettings_t systemControl_getSaveStting(systemControl_t *self);
+void systemControl_initialize(void);
+void systemControl_handler(void);
+void systemControl_run(void);
 
-void systemControl_interveneStartup(systemControl_t *self);
+bool systemControl_hasChanged(void);
+sysSavedSettings_t systemControl_getSaveSetting(void);
 
-void systemControl_setWatchdogWarning(systemControl_t *self);
-void systemControl_setWatchdogError(systemControl_t *self);
-void systemControl_setAppCrcError(systemControl_t *self, bool error);
-bool systemControl_getAppRun(systemControl_t *self);
+void systemControl_setWatchdogWarning(void);
+void systemControl_setWatchdogError(void);
+void systemControl_setAppCrcError(bool error);
+bool systemControl_getAppRun(void);
+
+bool systemControl_appIsActive(void);
 
 void benchmark_reset(app_benchmark_t *benchmark);
 void benchmark_run(app_benchmark_t *benchmark);
@@ -115,5 +152,4 @@ void benchmark_run(app_benchmark_t *benchmark);
 }
 #endif
 
-
-#endif /* SYSTEMCONTROL_H_ */
+#endif /* SYSTEM_CONTROL_H_ */

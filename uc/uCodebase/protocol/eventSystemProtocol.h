@@ -97,7 +97,7 @@ typedef struct{
 
 void esp_initialize(const eventSystemProtocol_t* esp);
 void esp_mainHandler(const eventSystemProtocol_t* esp);
-bool esp_receiveHandler(const eventSystemProtocol_t* esp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
+bool esp_receiveHandler(const eventSystemProtocol_t* esp, const bus_rxMessage_t *message);
 
 void esp_setStateByIndex(const eventSystemProtocol_t* esp, uint8_t index, bool state);
 void esp_setStateByChannel(const eventSystemProtocol_t* esp, uint16_t channel, bool state);

@@ -34,23 +34,36 @@ typedef enum {
 }busProtocol_t;
 
 typedef enum {
-	busPriority_reserved = 0,
+	busPriority_immediate = 0,
 	busPriority_high = 1,
 	busPriority_normal = 2,
 	busPriority_low = 3
-} busPriority_t;
+}busPriority_t;
 
+
+typedef uint8_t busCommand_t;
+
+typedef struct {
+	uint8_t sourceAddress;
+	busProtocol_t protocol;
+	busCommand_t command;
+	uint8_t *data;
+	uint8_t dataLength;
+	bool broadcast;
+}bus_rxMessage_t;
+
+ 
 #ifndef TEST_RUN
 
 typedef struct {
-	uint8_t length; // the length of the data in the buffer
+	uint8_t length;	// the length of the data in the buffer
 	uint8_t bufferIndex; // the index of the selected buffer
 }bus_message_t;
 
 #else
 
 typedef struct {
-    uint8_t destinationAddress;
+    uint8_t destinationAddress; 
     busProtocol_t protocol;
     uint8_t command;
     busPriority_t priority;

@@ -1,22 +1,20 @@
-/*
- * rand.h
- *
- * Created: 11.11.2018 18:31:02
- *  Author: Christian
- */ 
-
-
-#ifndef RAND_H_
-#define RAND_H_
+//**********************************************************************************************************************
+// FileName : random.h
+// FilePath : uCodebase/driver/SAMx5x/kernel/
+// Author   : Christian Marty
+// Date		: 11.11.2018
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#ifndef RANDON_H_
+#define RANDON_H_
 
 #ifdef __cplusplus
 extern "C" {
-	#endif
+#endif
+
+#include "common/typedef.h"
 	
-	
-#include "sam.h"
-	
-static inline void rand_init(void)
+static inline void rand_initialize(void)
 {
 	MCLK->APBCMASK.bit.TRNG_ = true; // Enable Clock
 	TRNG->CTRLA.bit.ENABLE = true; // Enable TRNG
@@ -47,5 +45,4 @@ static inline uint32_t rand_getRandRange(uint32_t min, uint32_t max)
 }
 #endif
 
-
-#endif /* RAND_H_ */
+#endif /* RANDON_H_ */

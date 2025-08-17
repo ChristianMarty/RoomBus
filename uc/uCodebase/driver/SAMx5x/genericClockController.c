@@ -1,13 +1,11 @@
-/*
- * GenericClockController.c
- *
- * Created: 03.02.2019 12:15:41
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : genericClockController.c
+// FilePath : uCodebase/driver/SAMx5x/
+// Author   : Christian Marty
+// Date		: 03.02.2019
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #include "genericClockController.h"
-#include "sam.h"
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,10 +18,10 @@ void gclk_reset(void)
 
 gclk_generator_t gclk_getFreeGenerator(void)
 {
-	for(uint8_t i = 1; i < GCLK_GENERATOR_SIZE; i++)
-	{
+	for(uint8_t i = 1; i < GCLK_GENERATOR_SIZE; i++){
 		if(!(GCLK->GENCTRL[i].reg & 0x100)) return i;
 	}
+	
 	return 0;
 }
 
@@ -35,7 +33,7 @@ gclk_error_t gclk_generatorEnable(gclk_generator_t generator, gclk_source_t clkS
 	
 	uint32_t temp = 0;
 	temp |= clkSource;
-	temp |=  ((uint32_t)divisonFactor<<16);
+	temp |= ((uint32_t)divisonFactor<<16);
 	temp |= 0x100;
 	
 	GCLK->GENCTRL[generator].reg = temp;
@@ -59,6 +57,7 @@ gclk_error_t gclk_peripheralEnable(gclk_peripheral_t peripheralChannel,gclk_gene
 	
 	GCLK->PCHCTRL[peripheralChannel].bit.GEN = clkGenerator;
 	GCLK->PCHCTRL[peripheralChannel].bit.CHEN = true;
+	
 	return GCLK_ERROR_noError;
 }
 

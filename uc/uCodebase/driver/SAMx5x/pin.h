@@ -1,20 +1,18 @@
-/*
- * PinMux.h
- *
- * Created: 15.02.2019 00:01:24
- *  Author: Christian
- */ 
-
-
-#ifndef PINMUX_H_
-#define PINMUX_H_
-
-#include "sam.h"
-#include <stdbool.h>
+//**********************************************************************************************************************
+// FileName : pin.h
+// FilePath : uCodebase/driver/SAMx5x/kernel/
+// Author   : Christian Marty
+// Date		: 15.02.2019
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#ifndef PIN_H_
+#define PIN_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "common/typedef.h"
 	
 typedef enum{
 	PIN_FUNCTION_A,
@@ -120,4 +118,4 @@ static inline void pin_disablePeripheralMux(pin_port_t portNr, uint8_t pinNr)
 }
 #endif
 
-#endif /* PINMUX_H_ */
+#endif /* PIN_H_ */

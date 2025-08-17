@@ -54,7 +54,6 @@ extern "C" {
 		while(!flash_isReady());
 		
 		NVMCTRL->CTRLA.bit.SUSPEN = 1;
-		
 	}
 	
 	static inline uint32_t flash_getBlockSize(void)
@@ -77,8 +76,6 @@ extern "C" {
 		
 		return !(NVMCTRL->RUNLOCK.reg & (1 << region_id));
 	}
-	
-	
 	
 	static inline flash_error_t flash_eraseBlock(uint32_t address)
 	{
@@ -178,8 +175,6 @@ extern "C" {
 		
 		while(!NVMCTRL->STATUS.bit.READY);
 	}
-	
-	
 	
 	static inline void flash_writeWord(uint32_t address, uint32_t data)
 	{

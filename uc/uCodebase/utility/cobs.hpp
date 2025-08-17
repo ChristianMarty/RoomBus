@@ -8,15 +8,8 @@
 #ifndef COBS_H_
 #define COBS_H_
 
-#include <main.h>
-/*
-#ifndef COBS_DELIMITER
-#define COBS_DELIMITER 0
-#endif
-*/
-//#ifdef __cplusplus
-//	extern "C" {
-//#endif
+#include "common/typedef.h"
+
 //**********************************************************************************************************************
 // Adds COBS Encoding to destination data
 //
@@ -123,9 +116,5 @@ static inline uint16_t cobs_decodeStream(cobs_decodeStream_t *decodeStream, uint
     decodeStream->dataIndex++;
     return 0;
 }
-/*
-#ifdef __cplusplus
-	}
-#endif*/
 
 #endif /* COBS_H_ */

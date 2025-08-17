@@ -77,15 +77,15 @@ void vsp_mainHandler(const valueSystemProtocol_t* vsp)
 	_vsp_sendValues(vsp);
 }
 
-bool vsp_receiveHandler(const valueSystemProtocol_t* vsp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
+bool vsp_receiveHandler(const valueSystemProtocol_t* vsp, const bus_rxMessage_t *message)
 {
-	switch(command){
-		case vsp_cmd_valueReport: return _vsp_parseValueReport(vsp, sourceAddress, data, size);
-		case vsp_cmd_valueRequest: return _vsp_parseValueRequest(vsp, sourceAddress, data, size);
-		case vsp_cmd_valueCommand: return _vsp_parseValueCommands(vsp, sourceAddress, data, size);
+	switch(message->command){
+		case vsp_cmd_valueReport: return _vsp_parseValueReport(vsp, message->sourceAddress, message->data, message->dataLength);
+		case vsp_cmd_valueRequest: return _vsp_parseValueRequest(vsp, message->sourceAddress, message->data, message->dataLength);
+		case vsp_cmd_valueCommand: return _vsp_parseValueCommands(vsp, message->sourceAddress, message->data, message->dataLength);
 		
-		case vsp_cmd_signalInformationRequest: return _vsp_parseValueReportSignalInformationRequest(vsp, sourceAddress, data, size);
-		case vsp_cmd_slotInformationRequest: return _vsp_parseValueReportSlotInformationRequest(vsp, sourceAddress, data, size);
+		case vsp_cmd_signalInformationRequest: return _vsp_parseValueReportSignalInformationRequest(vsp, message->sourceAddress, message->data, message->dataLength);
+		case vsp_cmd_slotInformationRequest: return _vsp_parseValueReportSlotInformationRequest(vsp, message->sourceAddress, message->data, message->dataLength);
         default: return false;
 	}
 }

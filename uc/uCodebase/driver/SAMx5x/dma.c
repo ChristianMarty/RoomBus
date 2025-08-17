@@ -1,10 +1,10 @@
-/*
- * dma.c
- *
- * Created: 14.02.2019 23:53:32
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : directMemoryAccess.c
+// FilePath : uCodebase/driver/SAMx5x/
+// Author   : Christian Marty
+// Date		: 14.02.2019
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #include "dma.h"
 #include <stdbool.h>
 
@@ -15,7 +15,7 @@ extern "C" {
 dma_transfer_t  dma_active_transfer[32] __attribute__((aligned (16)));
 dma_transfer_t  dma_transfer[32] __attribute__((aligned (16)));
 
-void dma_init(void)
+void dma_initialize(void)
 {
 	DMAC->BASEADDR.reg = (uint32_t)&dma_transfer;
 	DMAC->WRBADDR.reg = (uint32_t)&dma_active_transfer;
@@ -33,7 +33,7 @@ bool dma_isBusy(dma_channel_t channel)
 	return DMAC->Channel[channel].CHSTATUS.bit.BUSY;
 }
 
-void dma_channel_init(dma_channel_t channel, dma_trigger_t trigger, dma_triggerAction_t action)
+void dma_channel_initialize(dma_channel_t channel, dma_trigger_t trigger, dma_triggerAction_t action)
 {
 	// reset channel
 	DMAC->Channel[channel].CHCTRLA.bit.ENABLE = false;

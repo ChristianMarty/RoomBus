@@ -1,6 +1,6 @@
 //**********************************************************************************************************************
 // FileName : tickTimer.c
-// FilePath : uCodebase/driver/SAMx5x/
+// FilePath : uCodebase/driver/SAMx5x/kernel/
 // Author   : Christian Marty
 // Date		: 12.01.2019
 // Website  : www.christian-marty.ch
@@ -10,13 +10,17 @@ extern "C" {
 #endif
 
 #include "tickTimer.h"
+#include "interrupt.h"
+
 volatile uint32_t tickCounter;
 
-void tickTimer_init(uint32_t CPUclockFreq)
+void tickTimer_initialize(uint32_t CPUclockFreq)
 {
 #ifndef TEST_RUN
 	SysTick->LOAD = (CPUclockFreq/1000); // Set Time to 1 ms
 	SysTick->CTRL = 0x00000003; // enable
+	
+	nvic_assignInterruptHandler(SysTick_IRQn, tickTimer_interruptHandler);
 #endif
 	tickCounter = 0;
 }
@@ -33,12 +37,9 @@ void tickTimer_reset(tickTimer_t *counter)
 
 bool tickTimer_delay1ms(tickTimer_t *counter, uint32_t delay)
 {
-	if((tickCounter-*counter) < delay)
-	{
+	if((tickCounter-*counter) < delay){
 		return false;
-	}
-	else
-	{
+	}else{
 		*counter = tickCounter;
 		return true;
 	}

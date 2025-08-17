@@ -2,18 +2,18 @@
 // FileName : string.h
 // FilePath : utility/
 // Author   : Christian Marty
-// Date		: 24.09.2018
+// Date		: 02.08.2025
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
 #ifndef STRING2_H_
 #define STRING2_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 #include <stdint.h>
 #include <stdbool.h>
-
-#ifdef __cplusplus
-	extern "C" {
-#endif
 
 #include "bytearray.h"
 
@@ -23,9 +23,11 @@ char *string_fromInt32(int32_t value, uint8_t comma, char *outStr);
 
 char *string_fromFloat(float value, uint8_t decimalPlaces, char *outStr);
 
+char *string_bytearrayToHex(bytearray_t *value, char *outStr);
+
 char *string_uInt8ToHex(uint8_t value, char *outStr);
 
-char *string_bytearrayToHex(bytearray_t *value, char *outStr);
+char *string_uInt16ToHex(uint32_t value, char *outStr);
 
 char *string_uInt32ToHex(uint32_t value, char *outStr);
 
@@ -43,7 +45,7 @@ float string_parseNumber(const char *string, uint8_t maxLength);
 
 void string_removeFront(char *string, uint8_t removeLength, uint8_t maxLength);
 
-/* Possile line endings
+/* Possible line endings
  * windows: \r\n
  * old mac: \r
  * unix: \n

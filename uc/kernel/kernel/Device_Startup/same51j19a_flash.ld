@@ -39,7 +39,7 @@ MEMORY
   ivt      (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00000268
   ram      (rwx) : ORIGIN = 0x20000268, LENGTH = 0x0000FB98
   kc       (rwx) : ORIGIN = 0x2000FE00, LENGTH = 0x00000200
-  eeprom   (rwx) : ORIGIN = 0x44000000, LENGTH = 0x000001E0
+  eeprom   (rwx) : ORIGIN = 0x44000000, LENGTH = 0x00000200
   bkupram  (rwx) : ORIGIN = 0x47000000, LENGTH = 0x00002000
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
 }

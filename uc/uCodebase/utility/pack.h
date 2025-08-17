@@ -1,18 +1,16 @@
-/*
- * pack.h
- *
- * Created: 24.09.2018 21:42:17
- *  Author: Christian
- */ 
-
-
+//**********************************************************************************************************************
+// FileName : pack.h
+// FilePath : utility/
+// Author   : Christian Marty
+// Date		: 02.08.2025
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #ifndef PACK_H_
 #define PACK_H_
 
 #ifdef __cplusplus
-	extern "C" {
+extern "C" {
 #endif
-
 
 static inline uint32_t unpack_uint32(const uint8_t *data)
 {
@@ -30,8 +28,7 @@ static inline uint16_t unpack_uint16_le(const uint8_t *data)
 }
 
 #ifdef __cplusplus
-	}
+}
 #endif
-
 
 #endif /* PACK_H_ */

@@ -5,16 +5,16 @@
 
 #define TSL2561_ADDRESS 0x39
 
-void ams_TSL2561_init(const kernel_t *kernel, ams_TSL2561_t *tsl2561)
+void ams_TSL2561_init(ams_TSL2561_t *tsl2561)
 {
-	tsl2561->i2c.init(kernel, SERCOM1, kernel->clk_1MHz,16,false); //tsl2561->sercom_p
+	tsl2561->i2c.init(SERCOM1, kernel.clk_1MHz,16,false); //tsl2561->sercom_p
 	
-	kernel->tickTimer.reset(&tsl2561->readTimer);
+	kernel.tickTimer.reset(&tsl2561->readTimer);
 	
 	tsl2561->state = tsl2561_state_t::tsl2561_state_pre_init;
 }
 
-void ams_TSL2561_handler(const kernel_t *kernel, ams_TSL2561_t *tsl2561)
+void ams_TSL2561_handler(ams_TSL2561_t *tsl2561)
 {
 	
 	tsl2561->i2c.handler();
@@ -23,7 +23,7 @@ void ams_TSL2561_handler(const kernel_t *kernel, ams_TSL2561_t *tsl2561)
 	{
 		tsl2561->state = tsl2561_state_t::tsl2561_state_error;
 		
-		kernel->log.error("I2C bus error");
+		kernel.log.error("I2C bus error");
 		tsl2561->i2c.closeTransaction(tsl2561->i2cTransaction);
 		tsl2561->i2c.reset();
 	}
@@ -35,7 +35,7 @@ void ams_TSL2561_handler(const kernel_t *kernel, ams_TSL2561_t *tsl2561)
 			case tsl2561_state_t::tsl2561_state_pre_init:
 			{
 				// Read state
-				kernel->log.message("I2C Initialization - Read");
+				kernel.log.message("I2C Initialization - Read");
 				//tsl2561->i2cTransaction = tsl2561->i2c.transaction(TSL2561_ADDRESS,0xD0,nullptr,0,&tsl2561->rx[0],16,0);
 				tsl2561->state = tsl2561_state_t::tsl2561_state_pre_init_pending;
 				break;
@@ -50,7 +50,7 @@ void ams_TSL2561_handler(const kernel_t *kernel, ams_TSL2561_t *tsl2561)
 			case tsl2561_state_t::tsl2561_state_init: 
 			{
 				// Enable
-				kernel->log.message("I2C Initialization - Write");
+				kernel.log.message("I2C Initialization - Write");
 				tsl2561->tx[0]  = 0x03;
 				tsl2561->i2cTransaction = tsl2561->i2c.transaction(TSL2561_ADDRESS,0xE0,&tsl2561->tx[0],1,0,0,0);
 				tsl2561->state = tsl2561_state_t::tsl2561_state_init_pending;
@@ -72,7 +72,7 @@ void ams_TSL2561_handler(const kernel_t *kernel, ams_TSL2561_t *tsl2561)
 			}	
 		}
 		
-		if(kernel->tickTimer.delay1ms(&tsl2561->readTimer, 5000))
+		if(kernel.tickTimer.delay1ms(&tsl2561->readTimer, 5000))
 		{
 			if (tsl2561->state == tsl2561_state_t::tsl2561_state_error)
 			{
@@ -93,7 +93,7 @@ void ams_TSL2561_handler(const kernel_t *kernel, ams_TSL2561_t *tsl2561)
 			tsl2561->state = tsl2561_state_t::tsl2561_state_pre_init;
 			tsl2561->i2c.closeTransaction(tsl2561->i2cTransaction);
 			
-			kernel->log.error("I2C device is unreachable");
+			kernel.log.error("I2C device is unreachable");
 		}
 		else if(!tsl2561->i2c.busy())
 		{

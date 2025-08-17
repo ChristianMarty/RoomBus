@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<hex-merger version="1.0">
+	<input>
+		<name>Updater</name>
+		<path>C:\Users\Christian\Raumsteuerung\RoomBus\uc\kernelUpdater\kernelUpdater\Debug\kernelUpdater.hex</path>
+		<range>
+			<minimum>0x10000</minimum>
+			<maximum>0x10BFF</maximum>
+		</range>
+	</input>
+	<input>
+		<name>New Kernel</name>
+		<path>C:\Users\Christian\Raumsteuerung\RoomBus\uc\kernel\kernel\Debug\kernel.hex</path>
+		<range>
+			<minimum>0x0000</minimum>
+			<maximum>0xFFFF</maximum>
+		</range>
+		<offset>0x10C00</offset>
+	</input>
+	
+	<output>
+		<path>C:\Users\Christian\Raumsteuerung\RoomBus\uc\kernelUpdater\kernelUpdater\Debug\kernelUpdate.hex</path>
+		
+		<transform type="set">
+			<input>0x00008E9C</input>
+			<output>0x0001006C</output>
+		</transform>
+		
+	</output>
+</hex-merger>

@@ -80,12 +80,12 @@ void esp_mainHandler(const eventSystemProtocol_t* esp)
 	_esp_sendEvents(esp);
 }
 
-bool esp_receiveHandler(const eventSystemProtocol_t* esp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
+bool esp_receiveHandler(const eventSystemProtocol_t* esp, const bus_rxMessage_t *message)
 {
-	switch(command){
-		case esp_cmd_event: return _esp_parseEvent(esp, sourceAddress, data, size);
-		case esp_cmd_slotInformationRequest: return _esp_parseEventSlotInformationRequest(esp, sourceAddress, data, size);
-		case esp_cmd_signalInformationRequest: return _esp_parseEventSignalInformationRequest(esp, sourceAddress, data, size);
+	switch(message->command){
+		case esp_cmd_event: return _esp_parseEvent(esp, message->sourceAddress, message->data, message->dataLength);
+		case esp_cmd_slotInformationRequest: return _esp_parseEventSlotInformationRequest(esp, message->sourceAddress, message->data, message->dataLength);
+		case esp_cmd_signalInformationRequest: return _esp_parseEventSignalInformationRequest(esp, message->sourceAddress, message->data, message->dataLength);
 	}
 	return false;
 }

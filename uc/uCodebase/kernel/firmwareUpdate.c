@@ -1,19 +1,19 @@
-/*
- * firmwareUpdate.cpp
- *
- * Created: 07.10.2018 14:59:42
- *  Author: Christian
- */ 
-
-#include "protocol/deviceManagementProtocol.h"
-#include "kernel/firmwareUpdate.h"
-#include "kernel/systemControl.h"
-
-#include "driver/SAMx5x/flash.h"
-
+//**********************************************************************************************************************
+// FileName : firmwareUpdate.c
+// FilePath : kernel/
+// Author   : Christian Marty
+// Date		: 07.10.2018
+// Website  : www.christian-marty.ch/RoomBus
+//**********************************************************************************************************************
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "kernel/firmwareUpdate.h"
+
+#include "protocol/kernel/deviceManagementProtocol.h"
+#include "kernel/systemControl.h"
+#include "driver/SAMx5x/kernel/flash.h"
 
 #define RESPONSE_PRIORITY busPriority_low
 
@@ -23,15 +23,15 @@ extern "C" {
 bool erase = false;
 uint8_t adr;
 
-void fu_handler(sysControlData_t *systemControl, sysStatusData_t *systemStatus, appState_t *appStatePtr)
+void firmwareUpdate_handler(systemControl_t *sysControl)
 {
 	if(erase)
 	{
-		if(*appStatePtr == APP_RUN)
+		if(sysControl->appState == APP_RUN)
 		{
-			*appStatePtr = APP_SHUTDOWN;
+			sysControl->appState = APP_SHUTDOWN;
 		}
-		else if(*appStatePtr == APP_STOP)
+		else if(sysControl->appState == APP_STOP)
 		{
 			uint8_t blocksToErase = (APP_END_ADDRESS - APP_START_ADDRESS) / flash_getBlockSize();
 			
@@ -43,8 +43,8 @@ void fu_handler(sysControlData_t *systemControl, sysStatusData_t *systemStatus, 
 			bus_message_t msg;
 
 			bus_getMessageSlot(&msg);
-			bus_writeHeader(&msg,adr, busProtocol_deviceManagementProtocol, 1, RESPONSE_PRIORITY);
-			bus_pushByte(&msg,dmp_cmdEraseAppRsp);
+			bus_writeHeader(&msg, adr, busProtocol_deviceManagementProtocol, 1, RESPONSE_PRIORITY);
+			bus_pushByte(&msg, dmp_cmdEraseAppRsp);
 			bus_send(&msg);
 			
 			erase = false;
@@ -52,13 +52,13 @@ void fu_handler(sysControlData_t *systemControl, sysStatusData_t *systemStatus, 
 	}	
 }
 
-void fu_eraseApp(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void firmwareUpdate_eraseApp(uint8_t sourceAddress, uint8_t *data, uint8_t size)
 {
 	adr = sourceAddress;
 	erase = true;
 }
 
-void fu_writeAppData(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void firmwareUpdate_writeAppData(uint8_t sourceAddress, uint8_t *data, uint8_t size)
 {
 	bus_message_t msg;
 
