@@ -14,7 +14,7 @@ qualityOfServiceWindow::qualityOfServiceWindow(QList<RoomBusDevice*> *deviceList
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,0,new QTableWidgetItem(QString::number(_deviceList->at(i)->deviceAddress())));
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,new QTableWidgetItem(_deviceList->at(i)->deviceName()));
 
-        connect(&_deviceList->at(i)->management(), &DeviceManagementProtocol::statusUpdate, this, &qualityOfServiceWindow::on_statusUpdate);
+        connect(&_deviceList->at(i)->management(), &DeviceManagementProtocol::diagnosticsStatusUpdate, this, &qualityOfServiceWindow::on_statusUpdate);
     }
 
     connect(&_autoReadTimer, &QTimer::timeout, this, &qualityOfServiceWindow::on_readTimer);

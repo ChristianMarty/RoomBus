@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1208</width>
-    <height>910</height>
+    <height>984</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,6 +23,13 @@
          <widget class="QPushButton" name="settingsButton">
           <property name="text">
            <string>Settings</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_eeprom">
+          <property name="text">
+           <string>EEPROM</string>
           </property>
          </widget>
         </item>
@@ -89,21 +96,16 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="rebootButton">
+         <widget class="QPushButton" name="pushButton_identify">
           <property name="text">
-           <string>Reboot System</string>
+           <string>Identify</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="appStatusLabel">
-          <property name="font">
-           <font>
-            <bold>true</bold>
-           </font>
-          </property>
+         <widget class="QPushButton" name="rebootButton">
           <property name="text">
-           <string>TextLabel</string>
+           <string>Reboot System</string>
           </property>
          </widget>
         </item>
@@ -286,6 +288,117 @@
                 </spacer>
                </item>
               </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_4">
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="title">
+             <string>Device Status</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_watchdogError">
+               <property name="text">
+                <string>Watchdog Error</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_watchdogWarning">
+               <property name="text">
+                <string>Watchdog Warning</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_rxBufferOverrun">
+               <property name="text">
+                <string>RX Buffer Overrun</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_txBufferOverrun">
+               <property name="text">
+                <string>TX Buffer Overrun</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="label_txMessageOverrun">
+               <property name="text">
+                <string>TX Message Overrun</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_runStatus">
+               <property name="text">
+                <string>Running</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_administrationMode">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>255</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>0</red>
+                     <green>0</green>
+                     <blue>255</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled/>
+                </palette>
+               </property>
+               <property name="text">
+                <string>Administration Mode</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>

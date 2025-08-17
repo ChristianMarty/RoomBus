@@ -248,7 +248,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="sendDataEdit"/>
+      <widget class="QLineEdit" name="sendDataEdit">
+       <property name="maxLength">
+        <number>60</number>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="sendButton">

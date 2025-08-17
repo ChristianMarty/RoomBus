@@ -1,19 +1,18 @@
 #include "protocolDecoder.h"
 #include "protocol/serialBridgeProtocol.h"
-#include "busDevice.h"
-
+#include "protocol/deviceManagementProtocol/deviceManagementProtocol.h"
 
 QString ProtocolDecoder::protocolName(RoomBus::Protocol protocol)
 {
     switch(protocol){
-    case RoomBus::Protocol::DeviceManagementProtocol: return "Device Management"; break;
-        case RoomBus::Protocol::MessageLogProtocolId: return "Message Logging"; break;
-        case RoomBus::Protocol::FileTransferProtocol: return "File Transfer"; break;
+    case RoomBus::Protocol::DeviceManagementProtocol:  return "Device Management"; break;
+        case RoomBus::Protocol::MessageLogProtocolId:  return "Message Logging"; break;
+        case RoomBus::Protocol::FileTransferProtocol:  return "File Transfer"; break;
         case RoomBus::Protocol::TriggerSystemProtocol: return "Trigger"; break;
-        case RoomBus::Protocol::EventSystemProtocol: return "Event"; break;
-        case RoomBus::Protocol::StateSystemProtocol: return "State Report"; break;
-        case RoomBus::Protocol::ValueSystemProtocol: return "Value Report"; break;
-        case RoomBus::Protocol::SerialBridgeProtocol: return "Serial Bridge"; break;
+        case RoomBus::Protocol::EventSystemProtocol:   return "Event"; break;
+        case RoomBus::Protocol::StateSystemProtocol:   return "State Report"; break;
+        case RoomBus::Protocol::ValueSystemProtocol:   return "Value Report"; break;
+        case RoomBus::Protocol::SerialBridgeProtocol:  return "Serial Bridge"; break;
     }
     return "Unknown Protocol";
 }
@@ -21,14 +20,14 @@ QString ProtocolDecoder::protocolName(RoomBus::Protocol protocol)
 QString ProtocolDecoder::commandName(RoomBus::Protocol protocol, int command)
 {
     switch(protocol){
-        case RoomBus::Protocol::DeviceManagementProtocol: return DeviceManagementCommandlName((RoomBus::DeviceManagementCommand)command); break;
-        case RoomBus::Protocol::MessageLogProtocolId: return MessageLoggingCommandlName((RoomBus::MessageLoggingCommand)command); break;
-        case RoomBus::Protocol::FileTransferProtocol: return FileTransferCommandlName((RoomBus::FileTransferCommand)command); break;
-        case RoomBus::Protocol::TriggerSystemProtocol: return TriggerCommandlName((RoomBus::TriggerSystemCommand)command); break;
-        case RoomBus::Protocol::EventSystemProtocol: return EventCommandlName((RoomBus::EventSystemCommand)command); break;
-        case RoomBus::Protocol::StateSystemProtocol: return StateReportCommandlName((RoomBus::StateSystemCommand)command); break;
-        case RoomBus::Protocol::ValueSystemProtocol: return ValueReportCommandlName((RoomBus::ValueSystemCommand)command); break;
-        case RoomBus::Protocol::SerialBridgeProtocol: return SerialBridgeCommandlName((RoomBus::SerialBridgeCommand)command); break;
+        case RoomBus::Protocol::DeviceManagementProtocol:   return DeviceManagementCommandlName((RoomBus::DeviceManagementCommand)command); break;
+        case RoomBus::Protocol::MessageLogProtocolId:       return MessageLoggingCommandlName((RoomBus::MessageLoggingCommand)command); break;
+        case RoomBus::Protocol::FileTransferProtocol:       return FileTransferCommandlName((RoomBus::FileTransferCommand)command); break;
+        case RoomBus::Protocol::TriggerSystemProtocol:      return TriggerCommandlName((RoomBus::TriggerSystemCommand)command); break;
+        case RoomBus::Protocol::EventSystemProtocol:        return EventCommandlName((RoomBus::EventSystemCommand)command); break;
+        case RoomBus::Protocol::StateSystemProtocol:        return StateReportCommandlName((RoomBus::StateSystemCommand)command); break;
+        case RoomBus::Protocol::ValueSystemProtocol:        return ValueReportCommandlName((RoomBus::ValueSystemCommand)command); break;
+        case RoomBus::Protocol::SerialBridgeProtocol:       return SerialBridgeCommandlName((RoomBus::SerialBridgeCommand)command); break;
     }
     return "Unknown Protocol";
 }
@@ -36,14 +35,14 @@ QString ProtocolDecoder::commandName(RoomBus::Protocol protocol, int command)
 QString ProtocolDecoder::dataDecoded(RoomBus::Protocol protocol, int command, const QByteArray &data)
 {
     switch(protocol){
-        case RoomBus::Protocol::DeviceManagementProtocol: return DeviceManagementDataDecoder((RoomBus::DeviceManagementCommand)command, data); break;
-        case RoomBus::Protocol::MessageLogProtocolId: return MessageLoggingDataDecoder((RoomBus::MessageLoggingCommand)command, data); break;
-        case RoomBus::Protocol::FileTransferProtocol: return FileTransferDecoder((RoomBus::FileTransferCommand)command, data); break;
-        case RoomBus::Protocol::TriggerSystemProtocol: return TriggerDecoder((RoomBus::TriggerSystemCommand)command, data); break;
-        case RoomBus::Protocol::EventSystemProtocol: return EventDecoder((RoomBus::EventSystemCommand)command, data); break;
-        case RoomBus::Protocol::StateSystemProtocol: return StateReportDecoder((RoomBus::StateSystemCommand)command, data); break;
-        case RoomBus::Protocol::ValueSystemProtocol: return ValueReportDecoder((RoomBus::ValueSystemCommand)command, data); break;
-        case RoomBus::Protocol::SerialBridgeProtocol: return SerialBridgeDecoder((RoomBus::SerialBridgeCommand)command, data); break;
+        case RoomBus::Protocol::DeviceManagementProtocol:   return DeviceManagementDataDecoder((RoomBus::DeviceManagementCommand)command, data); break;
+        case RoomBus::Protocol::MessageLogProtocolId:       return MessageLoggingDataDecoder((RoomBus::MessageLoggingCommand)command, data); break;
+        case RoomBus::Protocol::FileTransferProtocol:       return FileTransferDecoder((RoomBus::FileTransferCommand)command, data); break;
+        case RoomBus::Protocol::TriggerSystemProtocol:      return TriggerDecoder((RoomBus::TriggerSystemCommand)command, data); break;
+        case RoomBus::Protocol::EventSystemProtocol:        return EventDecoder((RoomBus::EventSystemCommand)command, data); break;
+        case RoomBus::Protocol::StateSystemProtocol:        return StateReportDecoder((RoomBus::StateSystemCommand)command, data); break;
+        case RoomBus::Protocol::ValueSystemProtocol:        return ValueReportDecoder((RoomBus::ValueSystemCommand)command, data); break;
+        case RoomBus::Protocol::SerialBridgeProtocol:       return SerialBridgeDecoder((RoomBus::SerialBridgeCommand)command, data); break;
     }
     return "Unknown Protocol";
 }
@@ -67,7 +66,7 @@ QString ProtocolDecoder::DeviceManagementDataDecoder(RoomBus::DeviceManagementCo
         case DeviceManagementProtocol::DeviceManagementSubCommand::WriteControl: output = "Write Control"; break;
         case DeviceManagementProtocol::DeviceManagementSubCommand::SetControl: output = "Set Control"; break;
         case DeviceManagementProtocol::DeviceManagementSubCommand::ClearControl: output = "Clear Control"; break;
-        case DeviceManagementProtocol::DeviceManagementSubCommand::EnterRootMode: output = "Enter Root Mode"; break;
+        case DeviceManagementProtocol::DeviceManagementSubCommand::EnterAdministrationMode: output = "Enter Root Mode"; break;
         case DeviceManagementProtocol::DeviceManagementSubCommand::SetDeviceName: output = "Set Device Name"; break;
         case DeviceManagementProtocol::DeviceManagementSubCommand::SetAddress: output = "Set Address"; break;
 
@@ -187,6 +186,7 @@ QString ProtocolDecoder::TriggerCommandlName(RoomBus::TriggerSystemCommand comma
         case RoomBus::TriggerSystemCommand::SignalInformationRequest : return "Signal Information Request";
         case RoomBus::TriggerSystemCommand::SlotInformationRequest : return "Slot Information Request";
     }
+
     return "Unknown Command";
 }
 
@@ -203,6 +203,7 @@ QString ProtocolDecoder::EventCommandlName(RoomBus::EventSystemCommand command)
         case RoomBus::EventSystemCommand::SignalInformationRequest : return "Signal Information Request";
         case RoomBus::EventSystemCommand::SlotInformationRequest : return "Slot Information Request";
     }
+
     return "Unknown Command";
 }
 
@@ -219,6 +220,7 @@ QString ProtocolDecoder::StateReportCommandlName(RoomBus::StateSystemCommand com
         case RoomBus::StateSystemCommand::SignalInformationRequest : return "Signal Information Request";
         case RoomBus::StateSystemCommand::SlotInformationRequest : return "Slot Information Request";
     }
+
     return "Unknown Command";
 }
 

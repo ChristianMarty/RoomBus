@@ -3,33 +3,33 @@
 
 #include <QDateTime>
 
-echoTestWidget::echoTestWidget(RoomBusDevice *busDevice, QWidget *parent) :
+EchoTestWidget::EchoTestWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::echoWindow)
 {
     ui->setupUi(this);
     _busDevice = busDevice;
 
-    connect(&_busDevice->management(), &DeviceManagementProtocol::echoReceive,this,&echoTestWidget::on_echoReceive);
-    connect(&_autoSendTimer,&QTimer::timeout,this,&echoTestWidget::on_sendTimer);
-    connect(&_timeoutTimer,&QTimer::timeout,this,&echoTestWidget::on_timeout);
+    connect(&_busDevice->management(), &DeviceManagementProtocol::echoReceive,this,&EchoTestWidget::on_echoReceive);
+    connect(&_autoSendTimer,&QTimer::timeout,this,&EchoTestWidget::on_sendTimer);
+    connect(&_timeoutTimer,&QTimer::timeout,this,&EchoTestWidget::on_timeout);
 
     _autoSendTimer.setInterval(100);
 }
 
-echoTestWidget::~echoTestWidget()
+EchoTestWidget::~EchoTestWidget()
 {
     delete ui;
 }
 
-void echoTestWidget::closeEvent(QCloseEvent *event)
+void EchoTestWidget::closeEvent(QCloseEvent *event)
 {
     _autoSendTimer.stop();
     ui->autoEchoBox->setChecked(false);
     event->accept();
 }
 
-void echoTestWidget::on_echoReceive(QByteArray rxData)
+void EchoTestWidget::on_echoReceive(QByteArray rxData)
 {
     _timeoutTimer.stop();
     _waitForRx = false;
@@ -59,7 +59,7 @@ void echoTestWidget::on_echoReceive(QByteArray rxData)
 
 }
 
-void echoTestWidget::on_sendButton_clicked()
+void EchoTestWidget::on_sendButton_clicked()
 {
     _timeoutTimer.stop();
     _sendCounter++;
@@ -84,18 +84,18 @@ void echoTestWidget::on_sendButton_clicked()
 
 }
 
-void echoTestWidget::on_autoEchoBox_stateChanged(int arg1)
+void EchoTestWidget::on_autoEchoBox_stateChanged(int arg1)
 {
     if(arg1 != false) _autoSendTimer.start();
     else _autoSendTimer.stop();
 }
 
-void echoTestWidget::on_sendTimer()
+void EchoTestWidget::on_sendTimer()
 {
     if(!_waitForRx) on_sendButton_clicked();
 }
 
-void echoTestWidget::on_timeout(void)
+void EchoTestWidget::on_timeout(void)
 {
     _lostCounter++;
     ui->lostCounterLabel->setNum(int(_lostCounter));
@@ -104,12 +104,12 @@ void echoTestWidget::on_timeout(void)
     if(ui->autoEchoBox->isChecked()) on_sendButton_clicked();
 }
 
-void echoTestWidget::on_spinBox_valueChanged(int arg1)
+void EchoTestWidget::on_spinBox_valueChanged(int arg1)
 {
     _autoSendTimer.setInterval(arg1*10);
 }
 
-void echoTestWidget::on_clearButton_clicked()
+void EchoTestWidget::on_clearButton_clicked()
 {
     _lostCounter = 0;
     _sendCounter = 0;
@@ -123,7 +123,7 @@ void echoTestWidget::on_clearButton_clicked()
     ui->lostCounterLabel->setNum(int(_lostCounter));
 }
 
-void echoTestWidget::on_timeoutBox_valueChanged(int arg1)
+void EchoTestWidget::on_timeoutBox_valueChanged(int arg1)
 {
 
 }

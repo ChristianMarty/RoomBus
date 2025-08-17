@@ -7,7 +7,7 @@
 #include <QMap>
 
 #include "protocol/protocolBase.h"
-#include "protocol/deviceManagementProtocol.h"
+#include "protocol/deviceManagementProtocol/deviceManagementProtocol.h"
 
 class RoomBusDevice : public QObject
 {

@@ -4,18 +4,24 @@
 #include "settingsWidget.h"
 #include "echoTestWidget.h"
 
-BusDeviceWidget::BusDeviceWidget(RoomBusDevice *device, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::BusDeviceWidget)
+BusDeviceWidget::BusDeviceWidget(RoomBusDevice *device, QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::BusDeviceWidget)
+    ,_device{device}
 {
     ui->setupUi(this);
 
-    _device = device;
+    connect(&_device->management(), &DeviceManagementProtocol::statusUpdate, this, &BusDeviceWidget::on_statusUpdate);
 }
 
 BusDeviceWidget::~BusDeviceWidget()
 {
     delete ui;
+}
+
+void BusDeviceWidget::on_statusUpdate(void)
+{
+    updateData();
 }
 
 void BusDeviceWidget::updateData(void)
@@ -28,16 +34,20 @@ void BusDeviceWidget::updateData(void)
     if(_device->systemStatus().identify == false)ui->identifyButton->setText("Identify");
     else ui->identifyButton->setText("Identify Off");
 
-    if(_device->systemStatus().appRunOnStartup) ui->label_autostart->setStyleSheet("color: green;");
+    if(_device->systemStatus().applicationRunOnStartup) ui->label_autostart->setStyleSheet("color: green;");
     else ui->label_autostart->setStyleSheet("color: orange;");
 
-    if(_device->systemStatus().appCrcError) ui->label_applicationCRC->setStyleSheet("color: red;");
+    if(_device->systemStatus().applicationCrcError) ui->label_applicationCRC->setStyleSheet("color: red;");
     else ui->label_applicationCRC->setStyleSheet("color: green;");
 
+    DeviceManagementProtocol::SystemStatus systemStatus = _device->systemStatus();
     if(_device->timeoutStatus()){
         ui->appStatusLabel->setText("Timeout");
         ui->appStatusLabel->setStyleSheet("color: orange;");
-    }else if(_device->systemStatus().appRuning){
+    }else if(systemStatus.administrationMode){
+        ui->appStatusLabel->setText("Administration Mode");
+        ui->appStatusLabel->setStyleSheet("color: blue;");
+    }else if(systemStatus.applicationRuning){
         ui->appStatusLabel->setText("Runnig");
         ui->appStatusLabel->setStyleSheet("color: green;");
     }else{

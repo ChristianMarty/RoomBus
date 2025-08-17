@@ -2,36 +2,39 @@
 #include "ui_busDeviceWindow.h"
 #include <QMdiSubWindow>
 
-BusDeviceWindow::BusDeviceWindow(RoomBusDevice *device, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::BusDeviceWindow)
+#include "settingsWidget.h"
+#include "trigger/triggerWidget.h"
+#include "event/eventWidget.h"
+#include "state/stateReportWidget.h"
+#include "value/valueWidget.h"
+#include "fileTransferWidget.h"
+#include "echoTestWidget.h"
+#include "eepromWidget.h"
+#include "serialBridge/serialBridgeWidget.h"
+
+BusDeviceWindow::BusDeviceWindow(RoomBusDevice *device, QWidget *parent)
+    : QDockWidget(parent)
+    , ui(new Ui::BusDeviceWindow)
+    ,_device{device}
 {
     ui->setupUi(this);
-    _device = device;
 
     ui->logWidget->assignDevice(device);
 
     updateData();
+    connect(&_device->management(), &DeviceManagementProtocol::statusUpdate, this, &BusDeviceWindow::on_statusUpdate);
 }
 
 BusDeviceWindow::~BusDeviceWindow()
 {
-    if(_settingsWidget != nullptr) delete _settingsWidget;
-    if(_echoWidget != nullptr) delete _echoWidget;
-    if(_triggerWidget != nullptr) delete _triggerWidget;
-    if(_stateReportWidget != nullptr) delete _stateReportWidget;
-    if(_valueReportWidget != nullptr) delete _valueReportWidget;
-    if(_fileTransferWidget != nullptr) delete  _fileTransferWidget;
-
-    if(_settingsWindow != nullptr) delete _settingsWindow;
-    if(_echoWindow != nullptr) delete _echoWindow;
-    if(_triggerWindow != nullptr) delete _triggerWindow;
-    if(_stateReportWindow != nullptr) delete _stateReportWindow;
-    if(_valueReportWindow!= nullptr) delete _valueReportWindow;
-    if(_fileTransferWindow != nullptr) delete  _fileTransferWindow;
     delete ui;
 }
 
+void BusDeviceWindow::on_statusUpdate(void)
+{
+    updateStatus();
+    updateData();
+}
 
 void BusDeviceWindow::updateData(void)
 {
@@ -47,138 +50,125 @@ void BusDeviceWindow::updateData(void)
 
 void BusDeviceWindow::updateStatus()
 {
-    if(_device->timeoutStatus())
-    {
-        ui->appStatusLabel->setText("Timeout");
-        ui->appStatusLabel->setStyleSheet("color: orange;");
-    }
-    else if(_device->systemStatus().appRuning)
-    {
-        ui->appStatusLabel->setText("Runnig");
-        ui->appStatusLabel->setStyleSheet("color: green;");
-    }
-    else
-    {
-        ui->appStatusLabel->setText("Stopped");
-        ui->appStatusLabel->setStyleSheet("color: red;");
+    DeviceManagementProtocol::SystemStatus systemStatus = _device->systemStatus();
+    if(_device->timeoutStatus()){
+        ui->label_runStatus->setText("Timeout");
+        ui->label_runStatus->setStyleSheet("font-weight: bold; color: orange;");
+    }else if(systemStatus.applicationRuning){
+        ui->label_runStatus->setText("Runnig");
+        ui->label_runStatus->setStyleSheet("font-weight: bold; color: green;");
+    }else{
+        ui->label_runStatus->setText("Stopped");
+        ui->label_runStatus->setStyleSheet("font-weight: bold; color: red;");
     }
 
-    if(_settingsWidget != nullptr)
-    {
-        _settingsWidget->updateData();
-    }
+    ui->label_administrationMode->setEnabled(systemStatus.administrationMode);
+    ui->label_watchdogError->setEnabled(systemStatus.watchdogError);
+    ui->label_watchdogWarning->setEnabled(systemStatus.watchdogWarning);
+    ui->label_txBufferOverrun->setEnabled(systemStatus.txBufferOverrun);
+    ui->label_txMessageOverrun->setEnabled(systemStatus.txMessageOverrun);
+    ui->label_rxBufferOverrun->setEnabled(systemStatus.rxBufferOverrun);
+
+    if(_device->systemStatus().identify == false)ui->pushButton_identify->setText("Identify");
+    else ui->pushButton_identify->setText("Identify Off");
 }
 
 void BusDeviceWindow::on_triggerButton_clicked()
 {
-    if(_triggerWidget == nullptr) _triggerWidget = new TriggerWidget(_device, this);
-    if(_triggerWindow == nullptr)
-    {
-        _triggerWindow= new QMdiSubWindow;
-        _triggerWindow->setWidget(_triggerWidget);
-        _triggerWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _triggerWindow->setWindowTitle("Trigger");
-        ui->mdiArea->addSubWindow(_triggerWindow);
-        _triggerWindow->show();
-    }
-    _triggerWindow->setFocus();
+    QMdiSubWindow *triggerWindow = new QMdiSubWindow;
+    triggerWindow->setWidget(new TriggerWidget(_device));
+    triggerWindow->setAttribute(Qt::WA_DeleteOnClose);
+    triggerWindow->setWindowTitle("Trigger");
+    ui->mdiArea->addSubWindow(triggerWindow);
+    triggerWindow->show();
+    triggerWindow->setFocus();
 }
 
 void BusDeviceWindow::on_pushButton_event_clicked()
 {
-    if(_eventWidget == nullptr) _eventWidget = new EventWidget(_device, this);
-    if(_eventWindow == nullptr)
-    {
-        _eventWindow= new QMdiSubWindow;
-        _eventWindow->setWidget(_eventWidget);
-        _eventWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _eventWindow->setWindowTitle("Event");
-        ui->mdiArea->addSubWindow(_eventWindow);
-        _eventWindow->show();
-    }
-    _eventWindow->setFocus();
+    QMdiSubWindow *eventWindow= new QMdiSubWindow;
+    eventWindow->setWidget(new EventWidget(_device));
+    eventWindow->setAttribute(Qt::WA_DeleteOnClose);
+    eventWindow->setWindowTitle("Event");
+    ui->mdiArea->addSubWindow(eventWindow);
+    eventWindow->show();
+    eventWindow->setFocus();
 }
 
 void BusDeviceWindow::on_settingsButton_clicked()
 {
-    if(_settingsWidget == nullptr) _settingsWidget = new settingsWidget(_device, this);
-    if(_settingsWindow == nullptr)
-    {
-        _settingsWindow = new QMdiSubWindow;
-        _settingsWindow->setWidget(_settingsWidget);
-        _settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _settingsWindow->setWindowTitle("Settings");
-        ui->mdiArea->addSubWindow(_settingsWindow);
-        _settingsWindow->updateGeometry();
-        _settingsWindow->show();
-    }
-
-    _settingsWindow->setFocus();
+    QMdiSubWindow *settingsWindow = new QMdiSubWindow;
+    settingsWindow->setWidget(new SettingsWidget(_device));
+    settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
+    settingsWindow->setWindowTitle("Settings");
+    ui->mdiArea->addSubWindow(settingsWindow);
+    settingsWindow->show();
+    settingsWindow->setFocus();
 }
 
 void BusDeviceWindow::on_stateButton_clicked()
 {
-    if(_stateReportWidget == nullptr) _stateReportWidget = new StateReportWidget(_device, this);
-    if(_stateReportWindow == nullptr)
-    {
-        _stateReportWindow = new QMdiSubWindow;
-        _stateReportWindow->setWidget(_stateReportWidget);
-        _stateReportWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _stateReportWindow->setWindowTitle("State Report");
-        ui->mdiArea->addSubWindow(_stateReportWindow);
-        _stateReportWindow->updateGeometry();
-        _stateReportWindow->show();
-    }
-
-    _stateReportWindow->setFocus();
+    QMdiSubWindow *stateReportWindow = new QMdiSubWindow;
+    stateReportWindow->setWidget(new StateReportWidget(_device));
+    stateReportWindow->setAttribute(Qt::WA_DeleteOnClose);
+    stateReportWindow->setWindowTitle("State Report");
+    ui->mdiArea->addSubWindow(stateReportWindow);
+    stateReportWindow->show();
+    stateReportWindow->setFocus();
 }
 
 void BusDeviceWindow::on_echoButton_clicked()
-{    
-    if(_echoWidget == nullptr) _echoWidget = new echoTestWidget(_device, this);
-    if(_echoWindow == nullptr)
-    {
-        _echoWindow = new QMdiSubWindow;
-        _echoWindow->setWidget(_echoWidget);
-        _echoWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _echoWindow->setWindowTitle("Echo Test");
-        ui->mdiArea->addSubWindow(_echoWindow);
-        _echoWindow->show();
-    }
-    _echoWindow->setFocus();
+{
+    QMdiSubWindow *echoWindow = new QMdiSubWindow;
+    echoWindow->setWidget(new EchoTestWidget(_device));
+    echoWindow->setAttribute(Qt::WA_DeleteOnClose);
+    echoWindow->setWindowTitle("Echo Test");
+    ui->mdiArea->addSubWindow(echoWindow);
+    echoWindow->show();
+    echoWindow->setFocus();
 }
 
 void BusDeviceWindow::on_valueButton_clicked()
 {
-    if(_valueReportWidget == nullptr) _valueReportWidget = new ValueWidget(_device, this);
-    if(_valueReportWindow == nullptr)
-    {
-        _valueReportWindow = new QMdiSubWindow;
-        _valueReportWindow->setWidget(_valueReportWidget);
-        _valueReportWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _valueReportWindow->setWindowTitle("Value Report");
-        ui->mdiArea->addSubWindow(_valueReportWindow);
-        _valueReportWindow->show();
-    }
-
-    _valueReportWindow->setFocus();
+    QMdiSubWindow *valueReportWindow = new QMdiSubWindow;
+    valueReportWindow->setWidget(new ValueWidget(_device));
+    valueReportWindow->setAttribute(Qt::WA_DeleteOnClose);
+    valueReportWindow->setWindowTitle("Value Report");
+    ui->mdiArea->addSubWindow(valueReportWindow);
+    valueReportWindow->show();
+    valueReportWindow->setFocus();
 }
 
 void BusDeviceWindow::on_fileButton_clicked()
 {
-    if(_fileTransferWidget == nullptr) _fileTransferWidget = new fileTransferWidget(_device, this);
-    if(_fileTransferWindow == nullptr)
-    {
-        _fileTransferWindow = new QMdiSubWindow;
-        _fileTransferWindow->setWidget(_fileTransferWidget);
-        _fileTransferWindow->setAttribute(Qt::WA_DeleteOnClose);
-        _fileTransferWindow->setWindowTitle("File Transfer");
-        ui->mdiArea->addSubWindow(_fileTransferWindow);
-        _fileTransferWindow->updateGeometry();
-        _fileTransferWindow->show();
-    }
+    QMdiSubWindow *fileTransferWindow = new QMdiSubWindow;
+    fileTransferWindow->setWidget(new FileTransferWidget(_device));
+    fileTransferWindow->setAttribute(Qt::WA_DeleteOnClose);
+    fileTransferWindow->setWindowTitle("File Transfer");
+    ui->mdiArea->addSubWindow(fileTransferWindow);
+    fileTransferWindow->show();
+    fileTransferWindow->setFocus();
+}
 
-    _fileTransferWidget->setFocus();
+void BusDeviceWindow::on_pushButton_eeprom_clicked()
+{
+    QMdiSubWindow *eepromWindow = new QMdiSubWindow;
+    eepromWindow->setWidget(new EepromWidget(_device));
+    eepromWindow->setAttribute(Qt::WA_DeleteOnClose);
+    eepromWindow->setWindowTitle("EEPROM");
+    ui->mdiArea->addSubWindow(eepromWindow);
+    eepromWindow->show();
+    eepromWindow->setFocus();
+}
+
+void BusDeviceWindow::on_pushButton_serialBridge_clicked()
+{
+    QMdiSubWindow *serialBridgeWindow = new QMdiSubWindow;
+    serialBridgeWindow->setWidget(new SerialBridgeWidget(_device));
+    serialBridgeWindow->setAttribute(Qt::WA_DeleteOnClose);
+    ui->mdiArea->addSubWindow(serialBridgeWindow);
+    serialBridgeWindow->show();
+    serialBridgeWindow->setFocus();
 }
 
 void BusDeviceWindow::on_rebootButton_clicked()
@@ -186,18 +176,14 @@ void BusDeviceWindow::on_rebootButton_clicked()
     _device->management().requestSystemRestart();
 }
 
-void BusDeviceWindow::on_pushButton_serialBridge_clicked()
+void BusDeviceWindow::on_pushButton_identify_clicked()
 {
-    if(_tinyLoaderWidget == nullptr) _tinyLoaderWidget = new SerialBridgeWidget(_device,this);
+    DeviceManagementProtocol::SystemControl temp;
+    temp.reg = 0;
+    temp.bit.identify = true;
 
-    if(_serialBridgeWindow == nullptr)
-    {
-        _serialBridgeWindow = new QMdiSubWindow;
-        _serialBridgeWindow->setWidget(_tinyLoaderWidget);
-      //  _tinyLoaderWindow->setAttribute(Qt::WA_DeleteOnClose);
-        ui->mdiArea->addSubWindow(_serialBridgeWindow);
-        _serialBridgeWindow->show();
-    }
-
-    _serialBridgeWindow->setFocus();
+    if(_device->systemStatus().identify == false)_device->management().writeSetControl(temp);
+    else _device->management().writeClearControl(temp);
 }
+
+

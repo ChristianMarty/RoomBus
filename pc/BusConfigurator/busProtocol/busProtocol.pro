@@ -27,7 +27,8 @@ SOURCES += \
         ../../QuCLib/source/crc.cpp \
         ../../QuCLib/source/hexFileParser.cpp \
         busDevice.cpp \
-        protocol/deviceManagementProtocol.cpp \
+        protocol/deviceManagementProtocol/deviceManagementProtocol.cpp \
+        protocol/deviceManagementProtocol/eeprom.cpp \
         protocol/protocolBase.cpp \
         protocolDecoder.cpp \
         protocol/messageLogProtocol.cpp \
@@ -44,7 +45,8 @@ HEADERS += \
         ../../QuCLib/source/crc.h \
         ../../QuCLib/source/hexFileParser.h \
         busDevice.h \
-        protocol/deviceManagementProtocol.h \
+        protocol/deviceManagementProtocol/deviceManagementProtocol.h \
+        protocol/deviceManagementProtocol/eeprom.h \
         protocol/protocolBase.h \
         protocolDecoder.h \
         protocol/messageLogProtocol.h \

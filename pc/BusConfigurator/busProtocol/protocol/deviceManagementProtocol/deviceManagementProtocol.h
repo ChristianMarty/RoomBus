@@ -1,8 +1,10 @@
 #ifndef DEVICEMANAGEMENTPROTOCOL_H
 #define DEVICEMANAGEMENTPROTOCOL_H
 
-#include "protocolBase.h"
+#include "protocol/protocolBase.h"
 #include "../../QuCLib/source/hexFileParser.h"
+
+#include "eeprom.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -11,40 +13,49 @@ class DeviceManagementProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
-    DeviceManagementProtocol(RoomBusDevice *device);
-
-    void handleMessage(RoomBus::Message msg) override;
-
     struct SystemStatus {
-        uint32_t appRuning : 1;
-        uint32_t appCrcError : 1;
-        uint32_t appRunOnStartup : 1;
-        uint32_t ledOnOff : 1;
+        uint32_t applicationRuning : 1;
+        uint32_t applicationCrcError : 1;
+        uint32_t applicationRunOnStartup : 1;
+        uint32_t userLedEnabled : 1;
         uint32_t identify : 1;
-        uint32_t setupModeEn : 1;
-        uint32_t remoteDebugger : 1;
-        uint32_t systemError : 1;
-        uint32_t watchdogError : 1;
-        uint32_t reserved1 : 7;
+        uint32_t administrationMode : 1;
+        uint32_t messageLogEnabled : 1;
+        uint32_t reserved0 : 1;
 
-        uint32_t appSpecific : 16;
+        uint32_t systemError : 1;
+        uint32_t watchdogWarning : 1;
+        uint32_t watchdogError : 1;
+        uint32_t txBufferOverrun: 1;
+        uint32_t txMessageOverrun: 1;
+        uint32_t rxBufferOverrun: 1;
+        uint32_t reserved1 : 1;
+        uint32_t applicationError : 1;
+
+        uint32_t applicationSpecific : 16;
     };
 
     union SystemControl {
         struct {
-            uint32_t appRun : 1;
-            uint32_t appCheckCrc : 1;
-            uint32_t appRunOnStartup : 1;
-            uint32_t ledOnOff : 1;
+            uint32_t applicationRun : 1;
+            uint32_t applicationCheckCrc : 1;
+            uint32_t applicationRunOnStartup : 1;
+            uint32_t userLedEnabled : 1;
             uint32_t identify : 1;
             uint32_t reserved0 : 1;
-            uint32_t remoteDebuggerEnable : 1;
-            uint32_t clearError : 1;
-            uint32_t rebootApp : 1;
-            uint32_t rebootSystem : 1;
-            uint32_t reserved1 : 6;
+            uint32_t messageLogEnabled : 1;
+            uint32_t reserved1 : 1;
 
-            uint32_t appSpecific : 16;
+            uint32_t clearSystemError : 1;
+            uint32_t clearWatchdogWarning : 1;
+            uint32_t clearWatchdogError : 1;
+            uint32_t clearTxBufferOverrun : 1;
+            uint32_t clearTxMessageOverrun : 1;
+            uint32_t clearRxBufferOverrun : 1;
+            uint32_t reserved2 : 1;
+            uint32_t clearApplicationError : 1;
+
+            uint32_t applicationSpecific : 16;
         } bit;
         uint32_t reg;
     };
@@ -58,15 +69,22 @@ public:
         HeartbeatRequest,
         SystemInformationRequest,
         HeartbeatSettings,
+
         WriteControl,
         SetControl,
         ClearControl,
-        EnterRootMode,
+        EnterAdministrationMode,
+        ExitAdministrationMode,
         SetDeviceName,
         SetAddress,
+        SetAdministrationModeKey,
 
         CanDiagnosticsRequest = 0xF0,
         CanDiagnosticsReport = 0xF1,
+
+        EepromReadRequest = 0xF8,
+        EepromReadReport = 0xF9,
+
         Echo = 0xFA,
         Reboot = 0xFB,
         EraseApplication = 0xFC,
@@ -75,6 +93,10 @@ public:
         BootloadResponse = 0xFF
     };
 
+    DeviceManagementProtocol(RoomBusDevice *device);
+
+    void handleMessage(RoomBus::Message message) override;
+
     uint16_t heartbeatInterval() const;
     uint16_t systemInfoInterval() const;
 
@@ -82,18 +104,20 @@ public:
 
     void writeBinaryChunk(void);
     void eraseApp(void);
-    void appEraseComplete(void);
+    void handleAppEraseComplete(void);
 
     void requestHeartbeat(void);
     void requestSystemInfo(void);
     void requestCanDiagnostics(void);
     void requestSystemRestart(void);
 
-    void enterRootMode(void);
-    void exitRootMode(void);
+    void enterAdministrationMode(QString key);
+    void exitAdministrationMode(void);
 
     void writeAddress(uint8_t address);
     void writeDeviceName(QString name);
+
+    void writeAdministrationModeKey(QString key);
 
     void writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t systemInfoInterval);
 
@@ -125,35 +149,35 @@ public:
 
     void sendMessage(RoomBus::Message message);
 
+    Eeprom &eeprom();
+
 signals:
     void bootloadStatusUpdate(uint8_t progress, bool error, QString message);
+    void diagnosticsStatusUpdate(void);
     void statusUpdate(void);
 
     void echoReceive(QByteArray rxData);
 
+    void eepromDataChanged(void);
+
 public slots:
-    void btlRetry(void);
+    void on_bootloadRetry(void);
     void on_heartbeatTimeout(void);
 
 private:
+    QString _deviceName = "Unknown Device";
+    QString _hardwareName = "Unknown Hardware";
+    QString _applicationName = "Unknown Application";
 
-    QuCLib::HexFileParser _appBinary;
-    uint32_t _bootloadDataIndex;
+    SystemStatus _systemStatus;
 
-    QString _deviceName;
-    QString _applicationName;
-    QString _hardwareName;
-
-
-    SystemStatus _sysStatus;
-
-    uint16_t _hardwareVersion;
-    uint16_t _kernelVersion;
+    uint16_t _hardwareVersion = 0;
+    uint16_t _kernelVersion = 0;
     uint16_t _heartbeatInterval = 0;
-    uint16_t _extendedHeartbeatInterval;
-    uint32_t _appCRC;
-    uint32_t _appStartAddress;
-    uint32_t _deviceIdentificationCode;
+    uint16_t _extendedHeartbeatInterval = 0;
+    uint32_t _appCRC = 0;
+    uint32_t _appStartAddress = 0;
+    uint32_t _deviceIdentificationCode = 0;
 
     struct MicrocontrollerSerialNumber{
         uint32_t word0;
@@ -162,16 +186,24 @@ private:
         uint32_t word3;
     } _serialNumber;
 
-    bool _btlWritePending;
-    RoomBus::Message _btlLastWrite;
+    QDateTime _lastMessage;
 
-    QTimer _btlRetryTimer;
-
-    QDateTime _lastHeartbeat;
     QTimer _heartbeatTimer;
     bool _timeoutStatus;
 
+    void _decodeSystemInformation(const QByteArray &data);
+    void _decodeHeartbeat(const QByteArray &data);
+    void _decodeCanDiagnosticsReport(const QByteArray &data);
 
+
+    // bootloader
+    QuCLib::HexFileParser _appBinary;
+    uint32_t _bootloadDataIndex;
+    bool _bootloadWritePending = false;
+    RoomBus::Message _bootloadLastWrite;
+    QTimer _bootloadRetryTimer;
+
+    Eeprom _eeprom{this};
 };
 
 #endif // DEVICEMANAGEMENTPROTOCOL_H

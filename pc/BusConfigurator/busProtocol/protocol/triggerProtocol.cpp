@@ -7,16 +7,16 @@ TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void TriggerSystemProtocol::handleMessage(RoomBus::Message msg)
+void TriggerSystemProtocol::handleMessage(RoomBus::Message message)
 {
-    if(msg.protocol != RoomBus::Protocol::TriggerSystemProtocol){
+    if(message.protocol != RoomBus::Protocol::TriggerSystemProtocol){
         return;
     }
 
-    switch((RoomBus::TriggerSystemCommand)msg.command){
-        case RoomBus::TriggerSystemCommand::Trigger: _parseTrigger(msg); break;
-        case RoomBus::TriggerSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
-        case RoomBus::TriggerSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
+    switch((RoomBus::TriggerSystemCommand)message.command){
+        case RoomBus::TriggerSystemCommand::Trigger: _parseTrigger(message); break;
+        case RoomBus::TriggerSystemCommand::SignalInformationReport: _parseSignalInformationReport(message); break;
+        case RoomBus::TriggerSystemCommand::SlotInformationReport: _parseSlotInformationReport(message); break;
 
         case RoomBus::TriggerSystemCommand::Reserved0:
         case RoomBus::TriggerSystemCommand::Reserved1:
@@ -103,33 +103,33 @@ QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> TriggerSystemProtocol::trig
     return _triggerSignal;
 }
 
-void TriggerSystemProtocol::_parseTrigger(RoomBus::Message msg)
+void TriggerSystemProtocol::_parseTrigger(RoomBus::Message message)
 {
     QList<uint16_t> triggerSignals;
     
-    for(uint8_t i = 0; i < msg.data.size(); i+=2){
-        triggerSignals.append(RoomBus::unpackUint16(msg.data,i));
+    for(uint8_t i = 0; i < message.data.size(); i+=2){
+        triggerSignals.append(RoomBus::unpackUint16(message.data,i));
     }
 
     emit triggerSignalReceived(triggerSignals);
 }
 
-void TriggerSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
+void TriggerSystemProtocol::_parseSignalInformationReport(RoomBus::Message message)
 {
     TriggerSignal signal;
-    signal.channel = RoomBus::unpackUint16(msg.data,0);
-    signal.description = msg.data.remove(0,2);
+    signal.channel = RoomBus::unpackUint16(message.data,0);
+    signal.description = message.data.remove(0,2);
 
     _triggerSignal[signal.channel] = signal;
 
     emit triggerSignalListChange();
 }
 
-void TriggerSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
+void TriggerSystemProtocol::_parseSlotInformationReport(RoomBus::Message message)
 {
     TriggerSlot slot;
-    slot.channel = RoomBus::unpackUint16(msg.data,0);
-    slot.description = msg.data.remove(0,2);
+    slot.channel = RoomBus::unpackUint16(message.data,0);
+    slot.description = message.data.remove(0,2);
     slot.trigger = this;
 
     _triggerSlot[slot.channel] = slot;

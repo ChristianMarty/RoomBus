@@ -23,13 +23,13 @@ public:
 
     TriggerSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message msg) override;
+    void handleMessage(RoomBus::Message message) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
     void clearInformation(void);
 
-    void sendTrigger(QList<uint16_t>triggerChannels);
+    void sendTrigger(QList<uint16_t> triggerChannels);
     void sendTrigger(uint16_t triggerChannel);
 
     QList<TriggerSystemProtocol::TriggerSlot*> triggerSlots();
@@ -39,7 +39,7 @@ public:
     QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> triggerSignalMap() const;
 
 signals:
-    void triggerSignalReceived(QList<uint16_t>triggerSignal);
+    void triggerSignalReceived(QList<uint16_t> triggerSignal);
 
     void triggerSignalListChange(void);
     void triggerSlotListChange(void);
@@ -48,9 +48,9 @@ private:
     QMap<uint16_t, TriggerSystemProtocol::TriggerSlot> _triggerSlot;
     QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> _triggerSignal;
 
-    void _parseTrigger(RoomBus::Message msg);
-    void _parseSignalInformationReport(RoomBus::Message msg);
-    void _parseSlotInformationReport(RoomBus::Message msg);
+    void _parseTrigger(RoomBus::Message message);
+    void _parseSignalInformationReport(RoomBus::Message message);
+    void _parseSlotInformationReport(RoomBus::Message message);
 };
 
 #endif // TRIGGER_PROTOCOL_H

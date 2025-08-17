@@ -1,5 +1,5 @@
-#ifndef PROTOCOLDECODER_H
-#define PROTOCOLDECODER_H
+#ifndef PROTOCOL_DECODER_H
+#define PROTOCOL_DECODER_H
 
 #include <QString>
 #include "roomBusMessage.h"
@@ -7,7 +7,6 @@
 class ProtocolDecoder
 {
 public:
-
     static QString protocolName(RoomBus::Protocol protocol);
     static QString commandName(RoomBus::Protocol protocol, int command);
 
@@ -34,5 +33,5 @@ public:
     static QString SerialBridgeDecoder(RoomBus::SerialBridgeCommand command, const QByteArray &data);
 };
 
-#endif // PROTOCOLDECODER_H
+#endif // PROTOCOL_DECODER_H
 

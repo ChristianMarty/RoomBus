@@ -35,6 +35,7 @@ SOURCES += \
         busMonitor/busMonitorLine.cpp \
         connection/connectionWidget.cpp \
         echoTestWidget.cpp \
+        eepromWidget.cpp \
         fileTransferWidget.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -64,6 +65,7 @@ HEADERS += \
         busMonitor/busMonitorLine.h \
         connection/connectionWidget.h \
         echoTestWidget.h \
+        eepromWidget.h \
         fileTransferWidget.h \
         mainwindow.h \
         messageLogWidget.h \
@@ -92,6 +94,7 @@ FORMS += \
         busMonitor/busMonitorLine.ui \
         connection/connectionWidget.ui \
         echoTestWidget.ui \
+        eepromWidget.ui \
         fileTransferWidget.ui \
         mainwindow.ui \
         messageLogWidget.ui \

@@ -4,6 +4,12 @@
     src: url("jost.light.otf") format("opentype");
 }
 
+@font-face {
+    font-family: jost;
+    font-weight: bold;
+    src: url("jost.bold.otf") format("opentype");
+}
+
 body {
     font-family: 'jost';
 }
@@ -26,11 +32,11 @@ h4  {
 }
 h5  {
     font-size: 10pt;
+    font-weight: bold;
     margin-bottom: 0px;
 }
 p  {
     font-size: 10pt;
-    
 }
 
 li  {

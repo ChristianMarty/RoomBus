@@ -11,13 +11,13 @@ namespace Ui {
 class fileTransferWidget;
 }
 
-class fileTransferWidget : public QWidget
+class FileTransferWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit fileTransferWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
-    ~fileTransferWidget();
+    explicit FileTransferWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
+    ~FileTransferWidget();
 
 private slots:
 

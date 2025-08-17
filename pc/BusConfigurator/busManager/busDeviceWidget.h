@@ -22,8 +22,9 @@ signals:
     void busDeviceShow(RoomBusDevice *device);
 
 private slots:
-    void on_identifyButton_clicked();
-    void on_showButton_clicked();
+    void on_identifyButton_clicked(void);
+    void on_showButton_clicked(void);
+    void on_statusUpdate(void);
 
 private:
     Ui::BusDeviceWidget *ui;

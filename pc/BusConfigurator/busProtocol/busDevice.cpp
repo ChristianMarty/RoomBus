@@ -63,16 +63,16 @@ QString RoomBusDevice::deviceIdentificationString(void) const
 QString RoomBusDevice::deviceSerialNumberString(void) const
 {
     QString temp;
-    temp  = QString::number(_deviceManagementProtocol._serialNumber.word0, 16).rightJustified(8, '0').toUpper()+"-";
-    temp += QString::number(_deviceManagementProtocol._serialNumber.word1, 16).rightJustified(8, '0').toUpper()+"-";
+    temp  = QString::number(_deviceManagementProtocol._serialNumber.word3, 16).rightJustified(8, '0').toUpper()+"-";
     temp += QString::number(_deviceManagementProtocol._serialNumber.word2, 16).rightJustified(8, '0').toUpper()+"-";
-    temp += QString::number(_deviceManagementProtocol._serialNumber.word3, 16).rightJustified(8, '0').toUpper();
+    temp += QString::number(_deviceManagementProtocol._serialNumber.word1, 16).rightJustified(8, '0').toUpper()+"-";
+    temp += QString::number(_deviceManagementProtocol._serialNumber.word0, 16).rightJustified(8, '0').toUpper();
     return temp;
 }
 
 DeviceManagementProtocol::SystemStatus RoomBusDevice::systemStatus() const
 {
-    return _deviceManagementProtocol._sysStatus;
+    return _deviceManagementProtocol._systemStatus;
 }
 
 bool RoomBusDevice::timeoutStatus() const
@@ -87,7 +87,7 @@ DeviceManagementProtocol &RoomBusDevice::management()
 
 QDateTime RoomBusDevice::lastHeartbeat() const
 {
-    return _deviceManagementProtocol._lastHeartbeat;
+    return _deviceManagementProtocol._lastMessage;
 }
 
 void RoomBusDevice::addProtocol(ProtocolBase* protocol)

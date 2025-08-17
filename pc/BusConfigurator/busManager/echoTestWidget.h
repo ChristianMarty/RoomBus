@@ -10,13 +10,13 @@ namespace Ui {
 class echoWindow;
 }
 
-class echoTestWidget: public QWidget
+class EchoTestWidget: public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit echoTestWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
-    ~echoTestWidget();
+    explicit EchoTestWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
+    ~EchoTestWidget();
 
     void closeEvent(QCloseEvent *event);
 
@@ -54,7 +54,6 @@ private:
     uint32_t _failCounter = 0;
     uint32_t _passCounter = 0;
     uint32_t _lostCounter = 0;
-
 };
 
 #endif // ECHOWINDOW_H

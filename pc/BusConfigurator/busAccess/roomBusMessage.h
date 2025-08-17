@@ -166,12 +166,12 @@ namespace RoomBus {
         return message;
     }
 
-    static inline uint8_t unpackUint8(const QByteArray &data, uint32_t index)
+    static inline uint8_t unpackUint8(const QByteArray &data, uint32_t index = 0)
     {
         return static_cast<uint8_t>(data.at(index));
     }
 
-    static inline uint16_t unpackUint16(const QByteArray &data, uint32_t index)
+    static inline uint16_t unpackUint16(const QByteArray &data, uint32_t index = 0)
     {
         uint16_t temp = 0;
         temp |= (static_cast<uint16_t>(data.at(index))<<8)&0xFF00;
@@ -179,7 +179,7 @@ namespace RoomBus {
         return temp;
     }
 
-    static inline uint32_t unpackUint32(const QByteArray &data, uint32_t index)
+    static inline uint32_t unpackUint32(const QByteArray &data, uint32_t index = 0)
     {
         uint32_t temp = 0;
         temp =  (static_cast<uint32_t>(data.at(index))<<24)&0xFF000000;
@@ -189,7 +189,7 @@ namespace RoomBus {
         return temp;
     }
 
-    static inline float unpackFloat32(const QByteArray &data, uint32_t index)
+    static inline float unpackFloat32(const QByteArray &data, uint32_t index = 0)
     {
         uint32_t temp = unpackUint32(data,index);
         float *out;
@@ -197,7 +197,7 @@ namespace RoomBus {
         return *out;
     }
 
-    static inline QString unpackString(const QByteArray &data, uint32_t index)
+    static inline QString unpackString(const QByteArray &data, uint32_t index = 0)
     {
         QString output;
         for(uint8_t i = index; i< data.size() ;i++) {
@@ -206,6 +206,13 @@ namespace RoomBus {
             output += temp;
         }
         return output;
+    }
+
+    static inline QByteArray packUint8(uint8_t value)
+    {
+        QByteArray temp;
+        temp.append(static_cast<char>(static_cast<uint8_t>(value)));
+        return temp;
     }
 
     static inline QByteArray packUint16(uint16_t value)
@@ -230,6 +237,12 @@ namespace RoomBus {
     {
         uint32_t *temp = (uint32_t*)&value;
         return  packUint32(*temp);
+    }
+
+    static inline QByteArray packString(QString value)
+    {
+        QByteArray temp;
+        return temp.append(value.toLocal8Bit());
     }
 }
 

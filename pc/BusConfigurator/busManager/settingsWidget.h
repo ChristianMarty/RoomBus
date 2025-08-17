@@ -9,13 +9,13 @@ namespace Ui {
 class settingsWidget;
 }
 
-class settingsWidget : public QWidget
+class SettingsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit settingsWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
-    ~settingsWidget();
+    explicit SettingsWidget(RoomBusDevice *busDevice, QWidget *parent = nullptr);
+    ~SettingsWidget();
 
     void updateData(void);
 
@@ -43,6 +43,12 @@ private slots:
     void on_ledOnBox_clicked(bool checked);
 
     void on_clearLog_button_clicked();
+
+    void on_checkBox_administrationMode_clicked(bool checked);
+
+    void on_pushButton_setAdministrationKey_clicked();
+
+    void on_checkBox_messageLogEnabled_clicked(bool checked);
 
 private:
     Ui::settingsWidget *ui;

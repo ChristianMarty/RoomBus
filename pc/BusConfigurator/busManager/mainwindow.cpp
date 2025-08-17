@@ -36,37 +36,28 @@ void MainWindow::addConnection()
 
 void MainWindow::on_newData(void)
 {
-    while(_busConnection.rxMsgBuffer.size())
-    {
+    while(_busConnection.rxMsgBuffer.size()) {
         RoomBus::Message temp = _busConnection.rxMsgBuffer.first();
         _busConnection.rxMsgBuffer.removeFirst();
 
-        if(_monitorWindow != nullptr){
+        if(_monitorWindow != nullptr) {
             _monitorWindow->on_newMessage(temp);
         }
 
         RoomBusDevice *device = getDevice(temp.sourceAddress);
         device->handleMessage(temp);
     }
-
-    updateDevices();
 }
 
 void MainWindow::on_deviceTx(RoomBus::Message msg)
 {
     msg.sourceAddress = 0;
-    msg.priority = RoomBus::Priority::Normal;
+    //msg.priority = RoomBus::Priority::Normal;
+
     _busConnection.write(msg);
-}
 
-void MainWindow::updateDevices(void)
-{
-    for(BusDeviceWidget *value: _busDeviceWidgetList){
-        value->updateData();
-    }
-
-    for(BusDeviceWindow *value: _busDeviceWindowMap){
-        value->updateData();
+    if(_monitorWindow != nullptr) {
+        _monitorWindow->on_newMessage(msg);
     }
 }
 

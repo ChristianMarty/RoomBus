@@ -3,94 +3,104 @@
 
 #include <QFileDialog>
 
-settingsWidget::settingsWidget(RoomBusDevice *busDevice, QWidget *parent) :
+SettingsWidget::SettingsWidget(RoomBusDevice *busDevice, QWidget *parent) :
   QWidget(parent),
   ui(new Ui::settingsWidget)
 {
     ui->setupUi(this);
 
     _busDevice = busDevice;
-    connect(&busDevice->management(), &DeviceManagementProtocol::bootloadStatusUpdate, this, &settingsWidget::on_bootloadStatusUpdate);
-    connect(&busDevice->management(), &DeviceManagementProtocol::statusUpdate, this, &settingsWidget::on_statusUpdate);
+    connect(&busDevice->management(), &DeviceManagementProtocol::bootloadStatusUpdate, this, &SettingsWidget::on_bootloadStatusUpdate);
+    connect(&busDevice->management(), &DeviceManagementProtocol::statusUpdate, this, &SettingsWidget::on_statusUpdate);
 
-    connect(&_bootloadFileWatcher,&QFileSystemWatcher::fileChanged,this, &settingsWidget::on_bootloadFileChanged);
+    connect(&_bootloadFileWatcher, &QFileSystemWatcher::fileChanged, this, &SettingsWidget::on_bootloadFileChanged);
 
     updateData();
 }
 
-settingsWidget::~settingsWidget()
+SettingsWidget::~SettingsWidget()
 {
     delete ui;
 }
 
-void settingsWidget::updateData(void)
+void SettingsWidget::updateData(void)
 {
-    ui->nameEdit->setText(_busDevice->deviceName());
-    ui->addressBox->setValue(_busDevice->deviceAddress());
+    if(!ui->nameEdit->hasFocus()){
+        ui->nameEdit->setText(_busDevice->deviceName());
+    }
 
-    ui->ledOnBox->setChecked(_busDevice->systemStatus().ledOnOff);
-    ui->appRunBox->setChecked(_busDevice->systemStatus().appRuning);
-    ui->autostartAppBox->setChecked(_busDevice->systemStatus().appRunOnStartup);
+    if(!ui->addressBox->hasFocus()){
+        ui->addressBox->setValue(_busDevice->deviceAddress());
+    }
 
-    ui->systemInfoIntervalBox->setValue(_busDevice->management().systemInfoInterval()*10);
-    ui->heartbeatIntervalBox->setValue(_busDevice->management().heartbeatInterval());
+    if(!ui->systemInfoIntervalBox->hasFocus() && !ui->heartbeatIntervalBox->hasFocus()){
+        ui->systemInfoIntervalBox->setValue(_busDevice->management().systemInfoInterval()*10);
+        ui->heartbeatIntervalBox->setValue(_busDevice->management().heartbeatInterval());
+    }
+
+    ui->ledOnBox->setChecked(_busDevice->systemStatus().userLedEnabled);
+    ui->appRunBox->setChecked(_busDevice->systemStatus().applicationRuning);
+    ui->autostartAppBox->setChecked(_busDevice->systemStatus().applicationRunOnStartup);
+    ui->checkBox_messageLogEnabled->setChecked(_busDevice->systemStatus().messageLogEnabled);
+    ui->checkBox_administrationMode->setChecked(_busDevice->systemStatus().administrationMode);
 }
 
-void settingsWidget::on_setNameButton_clicked()
+void SettingsWidget::on_setNameButton_clicked()
 {
-    _busDevice->management().enterRootMode();
-
     _busDevice->management().writeDeviceName(ui->nameEdit->text());
-
-    _busDevice->management().exitRootMode();
-
 }
 
-void settingsWidget::on_setAddressButton_clicked()
+void SettingsWidget::on_setAddressButton_clicked()
 {
-    _busDevice->management().enterRootMode();
-
     _busDevice->management().writeAddress(static_cast<uint8_t>(ui->addressBox->value()));
-
-    _busDevice->management().exitRootMode();
 }
 
-void settingsWidget::on_ledOnBox_clicked(bool checked)
+void SettingsWidget::on_ledOnBox_clicked(bool checked)
 {
     DeviceManagementProtocol::SystemControl temp;
     temp.reg = 0;
-    temp.bit.ledOnOff = true;
+    temp.bit.userLedEnabled = true;
 
     if(checked)_busDevice->management().writeSetControl(temp);
     else _busDevice->management().writeClearControl(temp);
 }
 
-void settingsWidget::on_appRunBox_clicked(bool checked)
+void SettingsWidget::on_checkBox_messageLogEnabled_clicked(bool checked)
 {
     DeviceManagementProtocol::SystemControl temp;
     temp.reg = 0;
-    temp.bit.appRun = true;
+    temp.bit.messageLogEnabled = true;
 
     if(checked)_busDevice->management().writeSetControl(temp);
     else _busDevice->management().writeClearControl(temp);
 }
 
-void settingsWidget::on_autostartAppBox_clicked(bool checked)
+void SettingsWidget::on_appRunBox_clicked(bool checked)
 {
     DeviceManagementProtocol::SystemControl temp;
     temp.reg = 0;
-    temp.bit.appRunOnStartup = true;
+    temp.bit.applicationRun = true;
 
     if(checked)_busDevice->management().writeSetControl(temp);
     else _busDevice->management().writeClearControl(temp);
 }
 
-void settingsWidget::on_setIntervalButton_clicked()
+void SettingsWidget::on_autostartAppBox_clicked(bool checked)
+{
+    DeviceManagementProtocol::SystemControl temp;
+    temp.reg = 0;
+    temp.bit.applicationRunOnStartup = true;
+
+    if(checked)_busDevice->management().writeSetControl(temp);
+    else _busDevice->management().writeClearControl(temp);
+}
+
+void SettingsWidget::on_setIntervalButton_clicked()
 {
     _busDevice->management().writeHeartbeatInterval(static_cast<uint16_t>(ui->heartbeatIntervalBox->value()),static_cast<uint16_t>(ui->systemInfoIntervalBox->value()/10));
 }
 
-void settingsWidget::on_firmwarePathButton_clicked()
+void SettingsWidget::on_firmwarePathButton_clicked()
 {
     ui->firmwarePathEdit->setText(QFileDialog::getOpenFileName(this,tr("Open HEX File"), "", tr("Hex Files (*.hex)|All files (*.*)")));
 
@@ -98,12 +108,12 @@ void settingsWidget::on_firmwarePathButton_clicked()
     _bootloadFileWatcher.addPath(ui->firmwarePathEdit->text());
 }
 
-void settingsWidget::on_firmwareUploadButton_clicked()
+void SettingsWidget::on_firmwareUploadButton_clicked()
 {
     _busDevice->management().startFirmwareUpload(ui->firmwarePathEdit->text());
 }
 
-void settingsWidget::on_bootloadStatusUpdate(uint8_t progress, bool error, QString message)
+void SettingsWidget::on_bootloadStatusUpdate(uint8_t progress, bool error, QString message)
 {
    ui->progressBar->setValue(progress);
 
@@ -115,21 +125,30 @@ void settingsWidget::on_bootloadStatusUpdate(uint8_t progress, bool error, QStri
    ui->logBox->append(temp);
 }
 
-void settingsWidget::on_statusUpdate(void)
+void SettingsWidget::on_statusUpdate(void)
 {
-
+    updateData();
 }
 
-void settingsWidget::on_bootloadFileChanged(const QString &path)
+void SettingsWidget::on_bootloadFileChanged(const QString &path)
 {
-    if(ui->autoUploadBox->isChecked())
-    {
+    if(ui->autoUploadBox->isChecked()){
         _busDevice->management().startFirmwareUpload(ui->firmwarePathEdit->text());
     }
 }
 
-void settingsWidget::on_clearLog_button_clicked()
+void SettingsWidget::on_clearLog_button_clicked()
 {
      ui->logBox->clear();
 }
 
+void SettingsWidget::on_checkBox_administrationMode_clicked(bool checked)
+{
+    if(checked) _busDevice->management().enterAdministrationMode(ui->lineEdit_administrationKey->text());
+    else _busDevice->management().exitAdministrationMode();
+}
+
+void SettingsWidget::on_pushButton_setAdministrationKey_clicked()
+{
+    _busDevice->management().writeAdministrationModeKey(ui->lineEdit_administrationKey->text());
+}

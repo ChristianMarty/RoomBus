@@ -7,16 +7,16 @@ ValueSystemProtocol::ValueSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void ValueSystemProtocol::handleMessage(RoomBus::Message msg)
+void ValueSystemProtocol::handleMessage(RoomBus::Message message)
 {
-    if(msg.protocol != RoomBus::Protocol::ValueSystemProtocol){
+    if(message.protocol != RoomBus::Protocol::ValueSystemProtocol){
         return;
     }
 
-    switch((RoomBus::ValueSystemCommand)msg.command){
-        case RoomBus::ValueSystemCommand::ValueReport: _parseValue(msg); break;
-        case RoomBus::ValueSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
-        case RoomBus::ValueSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
+    switch((RoomBus::ValueSystemCommand)message.command){
+        case RoomBus::ValueSystemCommand::ValueReport: _parseValue(message); break;
+        case RoomBus::ValueSystemCommand::SignalInformationReport: _parseSignalInformationReport(message); break;
+        case RoomBus::ValueSystemCommand::SlotInformationReport: _parseSlotInformationReport(message); break;
 
         case RoomBus::ValueSystemCommand::ValueRequest:
         case RoomBus::ValueSystemCommand::ValueCommand:

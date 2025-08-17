@@ -42,7 +42,6 @@ private slots:
 private:
     RoomBusDevice *addDevice(uint8_t address);
     RoomBusDevice *getDevice(uint8_t address);
-    void updateDevices(void);
 
     Ui::MainWindow *ui;
 

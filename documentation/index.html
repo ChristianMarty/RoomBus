@@ -21,13 +21,13 @@
 
 <div class="main">
 <document-page 
-    title="RoomBus" 
+    title="MiniBus" 
     subtitle="System documentation" 
-    footer="christian-marty.ch/RoomBus/documentation/index.html"
-    link="https://www.christian-marty.ch/RoomBus/documentation/index.html"
+    footer="christian-marty.ch/MiniBus/documentation/index.html"
+    link="https://www.christian-marty.ch/MiniBus/documentation/index.html"
 >
-    <h1>RoomBus</h1>
-    <p>RoomBus is a CAN-FD based bus for room monitoring and control.</p>
+    <h1>MiniBus</h1>
+    <p>MiniBus is a CAN-FD based bus for room monitoring and control.</p>
             
     <h2>Key Features</h2>
     <ul>
@@ -37,10 +37,10 @@
     </ul>
 
     <h2>Motivation</h2>
-    <p>RoomBus was developed as a platform for room control and monitoring applications.</p>
+    <p>MiniBus was originally developed as a platform for room control and monitoring applications.</p>
 
     <h2>Inspiration</h2>
-    <p>RoomBus was partially inspired by KNX. However, RoomBus is not intended as a replacement for KNX.</p>
+    <p>MiniBus was partially inspired by KNX. However, MiniBus is not intended as a replacement for KNX.</p>
 
 </document-page>
 
@@ -48,7 +48,7 @@
     <h2>Terminology</h2>
     <table>
         <tr>
-            <th>RoomBus</th>
+            <th>MiniBus</th>
             <td>This whole project including the hardware and software layer.</td>
         </tr>
         <tr>
@@ -82,7 +82,7 @@
     <p>Requirement levels are denoted in accordance with <a href="https://www.rfc-editor.org/rfc/rfc2119.html">RFC2119</a>.</p>
     
     <h3>Numbers Representation</h3>
-    <p>Numbers are represented in decimal format. A complementary representation in an hexadecimal or binary form can be added next to the decimal representation. e.g. 85 (55h / 01010101b).</p>
+    <p>Numbers are represented in decimal format. A complementary representation in a hexadecimal or binary form can be added next to the decimal representation. e.g. 85 (55h / 01010101b).</p>
 
     <h3>Datatypes</h3>
     <p>The following data types are used in this document.</p>
@@ -155,7 +155,7 @@
     <h2>Hardware and Physical Layer</h2>
 
     <h3>Connectors and Pinout</h3>
-    <p>RoomBus devices should use a 6P6C modular connector (commonly, but incorrectly, often referred to as RJ-12 connector).</p>
+    <p>MiniBus devices should use a 6P6C modular connector (commonly, but incorrectly, often referred to as RJ-12 connector).</p>
     <p>If using a 6P6C modular connector is not feasible in a particular application, a different connector may be used.</p>
 
     <h4>Pinout</h4>
@@ -203,8 +203,8 @@
     <p><b>Voltage:</b> 24V DC +/- 20%</p>
     <p><b>Maximum Current:</b> 1A per bus line, 100mA per node</p>
     
-    <h3>LEDs</h3>
-    <p>Every bus node should be equipped with 3 LEDs, colored red, green and blue. These can either be three individual LEDs or one RGB-LED.</p>
+    <h3>Status LEDs</h3>
+    <p>Every bus node should be equipped with 3 LEDs, colored red, green and blue. These can either be individual LEDs or one RGB-LED.</p>
     <ul>
         <li>Red: Data Received and processed</li>
         <li>Green: Data Transmit</li>
@@ -212,13 +212,13 @@
     </ul>
 
     <h2>Data Link Layer</h2>
-    <p>RoomBus uses CAN-FD with a 29-bit identifier at a fixed baud rate of 500k-baud.</p>
+    <p>MiniBus uses CAN-FD with a 29-bit identifier at a fixed baud rate of 500k-baud.</p>
 </document-page>
 
 <document-page>
     <h2>Network Layer</h2>
 
-    <p>RoomBus implements a network protocol on top of the CAN-FD identifier.</p>
+    <p>MiniBus implements a network protocol on top of the CAN-FD identifier.</p>
     <p>While the identifier is reserved for the network layer, the data part of the CAN-FD frame can be freely used by the application layer.</p>
 
     <h3>CAN-Identifier</h3>
@@ -300,11 +300,12 @@
 
 
     <h4>Addressing</h4>
-    <p>RoomBus supports an address range of 1 - 126.</p>
+    <p>MiniBus supports an address range of 1 - 126.</p>
     <ul>
         <li>Address 0 (0h) is reserved as production default.</li>
         <li>Address 127 (7Fh) is reserved as broadcast address.</li>
         <li>A broadcast frame will be received and processed by all devices on the bus.</li>
+        <li>A unicast frame must only be processed by the addressed node.</li>
     </ul>
 
     <h4>Protocol Id</h4>
@@ -314,8 +315,8 @@
     <p>The use of this 3 bits is protocol specific.</p>
 
     <h4>Length</h4>
-    <p>CAN-FD supports data lengths of 0 - 8, 12, 16, 20, 24, 32, 48 or 64 bytes while RoomBus supports 0 - 64 bytes.</p>
-    <p>The length field specifies the number of padding bytes to stuff the RoomBus packet length to a CAN-FD frame length.</p>
+    <p>CAN-FD supports data lengths of 0 - 8, 12, 16, 20, 24, 32, 48 or 64 bytes while MiniBus supports 0 - 64 bytes.</p>
+    <p>The length field specifies the number of padding bytes to stuff the MiniBus packet length to a CAN-FD frame length.</p>
 
     <h5>Padding</h5>
     
@@ -341,17 +342,17 @@
         </tr>
         <tr>
             <td>4 - 7</td>
-            <td>Image Size</td>
+            <td>Application Size</td>
             <td>Size of the application image</td>
         </tr>
         <tr>
             <td>8</td>
-            <td>Major App Revision</td>
+            <td>Major Application Revision</td>
             <td>Revision of the application</td>
         </tr>
         <tr>
             <td>9</td>
-            <td>Minor App Revision</td>
+            <td>Minor Application Revision</td>
             <td>Revision of the application</td>
         </tr>
         <tr>
@@ -373,8 +374,8 @@
     <p>All multi-byte values are stored in little-endian (MSB first) order.</p>
 
     <h3>Administration Mode</h3>
-    <p>The administration mode is a privileged mode that must be entered for system critical configuration changes on a device.</p>
-    <p>The administration mode can be activated by sending the “Enter Administration Mode” instruction or pressing the administration button on the device.</p>
+    <p>The administration mode is a privileged mode that must be entered to perform system critical configuration changes on a device.</p>
+    <p>The administration mode can be activated by sending the “Enter Administration Mode” instruction or pressing and holding the administration button on the device for more then 3 sekunds.</p>
 
     <p>Entering the administration mode will trigger a "System Information" message.</p>
 </document-page>
@@ -527,39 +528,39 @@
                 Device Name</td>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>0x08</td>
-            <td>Heartbeat Settings</td>
+            <td>0x07</td>
+            <td>Heartbeat Settings*</td>
             <td>Heartbeat parameter</td>
             <td>-</td>
         </tr>
         <tr>
-            <td>0x09</td>
+            <td>0x08</td>
             <td>Write Control</td>
             <td>Control Byte</td>
             <td>-</td>
         </tr>
         <tr>
-            <td>0x0A</td>
+            <td>0x09</td>
             <td>Set Control</td>
             <td>Control Byte</td>
             <td>-</td>
         </tr>
         <tr>
-            <td>0x0B</td>
+            <td>0x0A</td>
             <td>Clear Control</td>
             <td>Control Byte</td>
             <td>-</td>
         </tr>
         <tr>
-            <td>0x0C</td>
+            <td>0x0B</td>
             <td>Enter Administration Mode</td>
-            <td>Password</td>
+            <td>Key</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>0x0C</td>
+            <td>Exit Administration Mode</td>
+            <td>-</td>
             <td>-</td>
         </tr>
         <tr>
@@ -575,10 +576,13 @@
             <td>-</td>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>0x0F</td>
+            <td>Set Administration Key*</td>
+            <td>New Key</td>
+            <td>Heartbeat + Warning in case of invalid key</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
         </tr>
         <tr>
             <td>0xF0</td>
@@ -589,14 +593,25 @@
         <tr>
             <td>0xF1</td>
             <td>Diagnostics Report</td>
-            <td>Diagnostics  Report</td>
+            <td>Diagnostics Report</td>
             <td>Empty</td>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td colspan="4"></td>
+        </tr>
+
+        <tr>
+            <td>0xF8</td>
+            <td>EEPROM Read Request</td>
+            <td>EEPROM Offset</td>
+            <td>EEPROM Report</td>
+        </tr>
+
+        <tr>
+            <td>0xF9</td>
+            <td>EEPROM Read Report</td>
+            <td>EEPROM Data</td>
+            <td>-</td>
         </tr>
 
         <tr>
@@ -607,7 +622,7 @@
         </tr>
         <tr>
             <td>0xFB</td>
-            <td>Reboot*</td>
+            <td>Reboot</td>
             <td>Empty</td>
             <td></td>
         </tr>
@@ -640,10 +655,25 @@
 </document-page>
 
 <document-page>
-    <h4>Heartbeat (0x00)</h4>
-    <p>A heartbeat messages will be sent periodically to signal the devices presence on the BUS. The Heartbeat message contains the Status Byte.</p>
+    <h4>Heartbeat - 0 (00h)</h4>
+    <p>A heartbeat messages will be sent periodically to signal the devices presence on the BUS. The Heartbeat message contains the Status.</p>
 
-    <h4>System Information</h4> 
+    <table>
+        <tr>
+            <th>Index</th>
+            <th>Data</th>
+            <th>Data Type</th>
+            <th>Size</th>
+        </tr>
+        <tr>
+            <td>0-3</td>
+            <td>Status</td>
+            <td>32-Bit Integer</td>
+            <td>4 Byte</td>
+        </tr>
+    </table>
+
+    <h4>System Information - 1 (01h)</h4> 
     <table>
         <tr>
             <th>Index</th>
@@ -712,13 +742,13 @@
             <td>4 Byte</td>
         </tr>
         <tr>
-            <td>22-25</td>
+            <td>32-35</td>
             <td>Device Serial Number Word 2</td>
             <td>32-Bit Intege</td>
             <td>4 Byte</td>
         </tr>
         <tr>
-            <td>26-29</td>
+            <td>36-39</td>
             <td>Device Serial Number Word 3</td>
             <td>32-Bit Intege</td>
             <td>4 Byte</td>
@@ -823,14 +853,14 @@
         <tr><td style="border: none;"></td></tr>
         <tr>
             <td></td>
+            <td>Application Error</td>
             <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
+            <td>RX Buffer Overrun</td>
+            <td>TX Message Overrun</td>
+            <td>TX Buffer Overrun</td>
             <td>Watchdog Error</td>
-            <td>Watchdog Warning</td>    
+            <td>Watchdog Warning</td>
+            <td>System Error</td>    
         </tr>
 
         <tr><td style="border: none;"></td></tr>
@@ -847,13 +877,13 @@
         </tr>
         <tr>
             <td></td>
-            <td>System Error Flag</td>
             <td>-</td>
-            <td>Setup Mode Flag</td>
+            <td>Message Log Enabled</td>
+            <td>Administration Mode Flag</td>
             <td>Identify Flag</td>
-            <td>LEDs On /Off</td>
+            <td>LEDs Enabled</td>
             <td>Run App on startup</td>
-            <td>App CRC</td>
+            <td>App CRC Error</td>
             <td>App Running</td>    
         </tr>
     </table>
@@ -920,14 +950,14 @@
         </tr>
         <tr>
             <td></td>
+            <td>Clear Application Error</td>
             <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>Force App Shutdown</td>
-            <td>Reboot System</td>
-            <td>Reboot App</td>    
+            <td>Clear Rx Buffer Overrun</td>
+            <td>Clear Tx Message Overrun</td>
+            <td>Clear Tx Buffer Overrun</td>
+            <td>Clear Watchdog Error</td>
+            <td>Clear Watchdog Warning</td>
+            <td>Clear System Error</td>    
         </tr>
         <tr><td style="border: none;"></td></tr>
         <tr>
@@ -943,11 +973,11 @@
         </tr>
         <tr>
             <td></td>
-            <td>System Error Flag</td>
             <td>-</td>
+            <td>Message Log Enabled</td>
             <td>-</td>
-            <td>Identify</td>
-            <td>LEDs On /Off</td>
+            <td>Identify Enabled</td>
+            <td>LEDs Enabled</td>
             <td>Run App on startup</td>
             <td>Check App CRC</td>
             <td>Run App</td>    
@@ -990,6 +1020,11 @@
             <td>4 Byte</td>
         </tr>
     </table>
+
+    <h4>EEPROM Read Request (0xF8)</h4>
+
+    <h4>EEPROM Read Report (0xF9)</h4>
+
 
     <h4>Echo (0xFA)</h4>
     <p>The Echo Instruction will return a received payload back to the sender.</p>

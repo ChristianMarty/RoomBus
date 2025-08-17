@@ -1,30 +1,30 @@
 #include "fileTransferWidget.h"
 #include "ui_fileTransferWidget.h"
 #include <QFileDialog>
-fileTransferWidget::fileTransferWidget(RoomBusDevice *busDevice, QWidget *parent) :
+FileTransferWidget::FileTransferWidget(RoomBusDevice *busDevice, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::fileTransferWidget),
     _fileTransferProtocol(busDevice)
 {
     ui->setupUi(this);
 
-    connect(&_fileTransferProtocol, &FileTransferProtocol::fileList_change, this, &fileTransferWidget::on_fileList_change);
+    connect(&_fileTransferProtocol, &FileTransferProtocol::fileList_change, this, &FileTransferWidget::on_fileList_change);
 
-    connect(&_fileTransferProtocol, &FileTransferProtocol::readTransfereStatus_change, this, &fileTransferWidget::on_transfereStatus_change);
-    connect(&_fileTransferProtocol, &FileTransferProtocol::writeTransfereStatus_change, this, &fileTransferWidget::on_transfereStatus_change);
+    connect(&_fileTransferProtocol, &FileTransferProtocol::readTransfereStatus_change, this, &FileTransferWidget::on_transfereStatus_change);
+    connect(&_fileTransferProtocol, &FileTransferProtocol::writeTransfereStatus_change, this, &FileTransferWidget::on_transfereStatus_change);
 
     ui->treeView->setModel(&fileTree);
 
     fileTree.setHorizontalHeaderLabels(QStringList({"Type","Name","Size"}));
 }
 
-fileTransferWidget::~fileTransferWidget()
+FileTransferWidget::~FileTransferWidget()
 {
     delete ui;
 }
 
 
-void fileTransferWidget::on_fileList_change(QMap<QString, FileTransferProtocol::file_t> files)
+void FileTransferWidget::on_fileList_change(QMap<QString, FileTransferProtocol::file_t> files)
 {
 
     for(int i=0; i<fileItems.count(); ++i)
@@ -58,27 +58,27 @@ void fileTransferWidget::on_fileList_change(QMap<QString, FileTransferProtocol::
 
 }
 
-void fileTransferWidget::on_makeFileButton_clicked()
+void FileTransferWidget::on_makeFileButton_clicked()
 {
     _fileTransferProtocol.makeFile(ui->makeEdit->text());
 }
 
-void fileTransferWidget::on_deleteButton_clicked()
+void FileTransferWidget::on_deleteButton_clicked()
 {
     _fileTransferProtocol.deleteFile(_selectedRemotePath);
 }
 
-void fileTransferWidget::on_readButton_clicked()
+void FileTransferWidget::on_readButton_clicked()
 {
     _fileTransferProtocol.readFile(_selectedRemotePath, ui->localPathEdit->text());
 }
 
-void fileTransferWidget::on_writeButton_clicked()
+void FileTransferWidget::on_writeButton_clicked()
 {
     _fileTransferProtocol.writeFile(_selectedRemotePath, ui->localPathEdit->text());
 }
 
-void fileTransferWidget::on_treeView_clicked(const QModelIndex &index)
+void FileTransferWidget::on_treeView_clicked(const QModelIndex &index)
 {
     QModelIndex temp = fileTree.index(index.row(),1);
 
@@ -87,17 +87,17 @@ void fileTransferWidget::on_treeView_clicked(const QModelIndex &index)
     _selectedRemotePath = path;
 }
 
-void fileTransferWidget::on_reloadButton_clicked()
+void FileTransferWidget::on_reloadButton_clicked()
 {
     _fileTransferProtocol.list("/");
 }
 
-void fileTransferWidget::on_localPathToolButton_clicked()
+void FileTransferWidget::on_localPathToolButton_clicked()
 {
      ui->localPathEdit->setText(QFileDialog::getOpenFileName(this,tr("Select File Path"), "", tr("All files (*.*)")));
 }
 
-void fileTransferWidget::on_transfereStatus_change(FileTransferProtocol::transfereStatus_t status, uint8_t progress)
+void FileTransferWidget::on_transfereStatus_change(FileTransferProtocol::transfereStatus_t status, uint8_t progress)
 {
     ui->progressBar->setValue(progress);
 

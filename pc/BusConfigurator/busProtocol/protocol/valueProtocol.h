@@ -91,7 +91,7 @@ public:
 
     ValueSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message msg);
+    void handleMessage(RoomBus::Message message);
 
     void sendValueCommand(uint16_t channel, ValueData value);
 
