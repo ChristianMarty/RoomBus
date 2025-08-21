@@ -9,10 +9,10 @@ SerialBridgeProtocol::SerialBridgeProtocol(RoomBusDevice *device)
 
 void SerialBridgeProtocol::sendData(uint8_t port, QByteArray data)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
 
-    msg.protocol = RoomBus::Protocol::SerialBridgeProtocol;
-    msg.command = (uint8_t)RoomBus::SerialBridgeCommand::Data;
+    msg.protocol = (MiniBus::Protocol)Protocol::SerialBridgeProtocol;
+    msg.command = (uint8_t)Command::Data;
     //msg.data.append(port);
     //msg.data.append(static_cast<uint8_t>(sbp_status_t::ok));
     msg.data.append(data);
@@ -20,13 +20,45 @@ void SerialBridgeProtocol::sendData(uint8_t port, QByteArray data)
     sendMessage(msg);
 }
 
-void SerialBridgeProtocol::handleMessage(RoomBus::Message msg)
+void SerialBridgeProtocol::handleMessage(MiniBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::SerialBridgeProtocol) return;
+    if(msg.protocol != (MiniBus::Protocol)Protocol::SerialBridgeProtocol) return;
 
-    if(msg.command == (uint8_t)RoomBus::SerialBridgeCommand::Data){
+    if(msg.command == (uint8_t)Command::Data){
         _parseData(msg.data);
     }
+}
+
+QString SerialBridgeProtocol::commandName(MiniBus::Command command)
+{
+    switch((Command)command){
+        case Command::Data : return "Data"; break;
+        case Command::PortInfoReport : return "Port Info Report"; break;
+        case Command::PortInfoRequest : return "Port Info Request"; break;
+    }
+
+    return "Unknown Command";
+}
+
+QString SerialBridgeProtocol::dataDecoder(MiniBus::Command command, const QByteArray &data)
+{
+    QString output = "Unknown Command";
+    switch((Command)command){
+    case Command::Data:{
+        output = "Port: "+QString::number(data.at(0));
+        output += " Status: "+QString::number(data.at(1),16);
+        output += " Data (Hex): "+data.mid(2).toHex(' ').toUpper();
+    } break;
+    case Command::PortInfoReport:{
+        output = "Port: "+QString::number(data.at(0));
+        switch((SerialBridgeType)data.at(1)){
+            case SBC_Type_UART: output += " Type: UART"; break;
+            case SBC_Type_I2C: output += " Type: I2C"; break;
+        }
+    } break;
+    case Command::PortInfoRequest: return ""; break;
+    }
+    return output;
 }
 
 void SerialBridgeProtocol::_parseData(QByteArray data)

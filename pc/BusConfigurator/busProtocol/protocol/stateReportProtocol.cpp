@@ -7,44 +7,44 @@ StateSystemProtocol::StateSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void StateSystemProtocol::handleMessage(RoomBus::Message msg)
+void StateSystemProtocol::handleMessage(MiniBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::StateSystemProtocol) return;
+    if(msg.protocol != (MiniBus::Protocol)Protocol::StateSystemProtocol) return;
 
-    switch((RoomBus::StateSystemCommand)msg.command)
+    switch((Command)msg.command)
     {
-        case RoomBus::StateSystemCommand::State: _parseStateReport(msg); break;
-        case RoomBus::StateSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
-        case RoomBus::StateSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
+        case Command::State: _parseStateReport(msg); break;
+        case Command::SignalInformationReport: _parseSignalInformationReport(msg); break;
+        case Command::SlotInformationReport: _parseSlotInformationReport(msg); break;
     }
 }
 
 void StateSystemProtocol::requestSignalInformation()
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
 
-    msg.protocol = RoomBus::Protocol::StateSystemProtocol;
-    msg.command = (uint8_t)RoomBus::StateSystemCommand::SignalInformationRequest;
+    msg.protocol = (MiniBus::Protocol)Protocol::StateSystemProtocol;
+    msg.command = (uint8_t)Command::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
 void StateSystemProtocol::requestSlotInformation()
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
 
-    msg.protocol = RoomBus::Protocol::StateSystemProtocol;
-    msg.command = (uint8_t)RoomBus::StateSystemCommand::SlotInformationRequest;
+    msg.protocol = (MiniBus::Protocol)Protocol::StateSystemProtocol;
+    msg.command = (uint8_t)Command::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
 void StateSystemProtocol::requestAllState()
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
 
-    msg.protocol = RoomBus::Protocol::StateSystemProtocol;
-    msg.command = (uint8_t)RoomBus::StateSystemCommand::StateRequest;
+    msg.protocol = (MiniBus::Protocol)Protocol::StateSystemProtocol;
+    msg.command = (uint8_t)Command::StateRequest;
 
     sendMessage(msg);
 }
@@ -83,11 +83,35 @@ QMap<uint16_t, StateSystemProtocol::StateReportSlot> StateSystemProtocol::stateR
     return _stateReportSlot;
 }
 
-void StateSystemProtocol::_parseStateReport(RoomBus::Message msg)
+QString StateSystemProtocol::commandName(MiniBus::Command command)
+{
+    switch((Command)command){
+        case Command::State : return "State Report";
+        case Command::StateRequest : return "State Report Request";
+        case Command::Reserved0 :
+        case Command::Reserved1 : return "Reserved";
+
+        case Command::SignalInformationReport : return "Signal Information Report";
+        case Command::SlotInformationReport : return "Slot Information Report";
+        case Command::SignalInformationRequest : return "Signal Information Request";
+        case Command::SlotInformationRequest : return "Slot Information Request";
+    }
+
+    return "Unknown Command";
+}
+
+QString StateSystemProtocol::dataDecoder(MiniBus::Command command, const QByteArray &data)
+{
+    Q_UNUSED(command);
+    Q_UNUSED(data);
+    return "Not implemented";
+}
+
+void StateSystemProtocol::_parseStateReport(MiniBus::Message msg)
 {
     for(uint8_t i = 0; i < msg.data.length(); i+=3)
     {
-        uint16_t channel = RoomBus::unpackUint16(msg.data.mid(i,2), 0);
+        uint16_t channel = MiniBus::unpackUint16(msg.data.mid(i,2), 0);
         StateSystemProtocol::SignalState state = (StateSystemProtocol::SignalState) msg.data.at(i+2);
 
         _signalState[channel] = state;
@@ -95,11 +119,11 @@ void StateSystemProtocol::_parseStateReport(RoomBus::Message msg)
     }
 }
 
-void StateSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
+void StateSystemProtocol::_parseSignalInformationReport(MiniBus::Message msg)
 {
     StateReportSignal signal;
-    signal.channel = RoomBus::unpackUint16(msg.data,0);
-    signal.interval = RoomBus::unpackUint16(msg.data,2);
+    signal.channel = MiniBus::unpackUint16(msg.data,0);
+    signal.interval = MiniBus::unpackUint16(msg.data,2);
     signal.description = msg.data.remove(0,4);
 
     _stateReportSignal[signal.channel] = signal;
@@ -107,11 +131,11 @@ void StateSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
     emit signalListChange();
 }
 
-void StateSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
+void StateSystemProtocol::_parseSlotInformationReport(MiniBus::Message msg)
 {
     StateReportSlot slot;
-    slot.channel = RoomBus::unpackUint16(msg.data,0);
-    slot.timeout = RoomBus::unpackUint16(msg.data,2);
+    slot.channel = MiniBus::unpackUint16(msg.data,0);
+    slot.timeout = MiniBus::unpackUint16(msg.data,2);
     slot.description = msg.data.remove(0,4);
 
     _stateReportSlot[slot.channel] = slot;

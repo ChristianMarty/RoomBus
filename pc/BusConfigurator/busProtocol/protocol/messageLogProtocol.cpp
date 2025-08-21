@@ -7,9 +7,9 @@ MessageLogProtocol::MessageLogProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void MessageLogProtocol::handleMessage(RoomBus::Message msg)
+void MessageLogProtocol::handleMessage(MiniBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::MessageLogProtocolId){
+    if(msg.protocol != (MiniBus::Protocol)Protocol::MessageLogProtocolId){
         return;
     }
 
@@ -26,8 +26,8 @@ void MessageLogProtocol::handleMessage(RoomBus::Message msg)
     else if(msg.command == 0x06) temp.messageType = LogMessage::appError;
     else if(msg.command == 0x07) temp.messageType = LogMessage::appReserved;
 
-    temp.tickTime = RoomBus::unpackUint32(msg.data, 0);
-    temp.messageCode = RoomBus::unpackUint32(msg.data, 4);
+    temp.tickTime = MiniBus::unpackUint32(msg.data, 0);
+    temp.messageCode = MiniBus::unpackUint32(msg.data, 4);
 
     QString temp2 = "";
 
@@ -49,6 +49,27 @@ void MessageLogProtocol::handleMessage(RoomBus::Message msg)
 void MessageLogProtocol::clearLog(void)
 {
     _messages.clear();
+}
+
+QString MessageLogProtocol::commandName(MiniBus::Command command)
+{
+    switch((Command)command){
+        case Command::SystemMessage: return "System Message"; break;
+        case Command::SystemWarning: return "System Warning"; break;
+        case Command::SystemError: return "System Error"; break;
+        case Command::ApplicationMessage: return "Application Message"; break;
+        case Command::ApplicationWarning: return "Application Warning"; break;
+        case Command::ApplicationError: return "Application Error"; break;
+    }
+
+    return "Unknown Command";
+}
+
+QString MessageLogProtocol::dataDecoder(MiniBus::Command command, const QByteArray &data)
+{
+    Q_UNUSED(command);
+    Q_UNUSED(data);
+    return "Not implemented";
 }
 
 QList<LogMessage> MessageLogProtocol::messages() const

@@ -1,11 +1,12 @@
 #include "serialConnection.h"
+#include "busAccess.h"
 
-using namespace std;
-
-SerialConnection::SerialConnection(QString port, uint32_t baud)
+SerialConnection::SerialConnection(MiniBusAccess *parrent, QString port, uint32_t baud)
     :_port{port}
     ,_baud{baud}
 {
+    _parrent = parrent;
+
     _canSerial.setBaudrate(CANbeSerial::Baud500k);
     _canSerial.setDataBaudrate(CANbeSerial::Baud500k);
     _canSerial.setTxPaddingEnable(true, 0x00);
@@ -31,7 +32,7 @@ void SerialConnection::open(void)
 
     _canSerial.setEnabled(true);
 
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void SerialConnection::close()
@@ -40,7 +41,7 @@ void SerialConnection::close()
     _serialPort.flush();
     _serialPort.close();
     _isConnected = false;
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 QString SerialConnection::getConnectionName()
@@ -53,14 +54,14 @@ QString SerialConnection::getConnectionPath()
     return _port;
 }
 
-bool SerialConnection::write(RoomBus::Message message)
+bool SerialConnection::write(MiniBus::Message message)
 {
     if(!_serialPort.isOpen()){
         return false;
     }
 
     CanBusFrame frame;
-    frame.identifier = RoomBus::toCanIdentifier(message);
+    frame.identifier = MiniBus::toCanIdentifier(message);
     frame.extended = true;
     frame.fd = true;
     frame.data = message.data;
@@ -78,7 +79,7 @@ void SerialConnection::on_canBeSerial_writeReady(QByteArray data)
 
 void SerialConnection::on_canBeSerial_readReady(CanBusFrame frame)
 {
-    emit received(RoomBus::toMessage(frame.identifier, frame.data));
+    _parrent->_handleMessageReceived(MiniBus::toMessage(frame.identifier, frame.data));
 }
 
 void SerialConnection::on_serialPort_readyRead(void)
@@ -111,5 +112,5 @@ void SerialConnection::on_serialPort_errorOccurred(QSerialPort::SerialPortError 
         _isConnected = true;
     }
 
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }

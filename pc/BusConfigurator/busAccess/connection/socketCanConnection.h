@@ -8,17 +8,17 @@
 #include "connection.h"
 
 
-class SocketCanConnection : public RoomBusConnection
+class SocketCanConnection : public MiniBusConnection
 {
     Q_OBJECT
 public:
-    SocketCanConnection(QString port);
+    SocketCanConnection(MiniBusAccess *parrent, QString port);
     ~SocketCanConnection();
 
     void open(void) override;
     void close(void) override;
 
-    bool write(RoomBus::Message message) override;
+    bool write(MiniBus::Message message) override;
 
     QString getConnectionName(void) override;
     QString getConnectionPath(void) override;

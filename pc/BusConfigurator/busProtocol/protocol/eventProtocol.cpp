@@ -7,40 +7,40 @@ EventSystemProtocol::EventSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void EventSystemProtocol::handleMessage(RoomBus::Message msg)
+void EventSystemProtocol::handleMessage(MiniBus::Message msg)
 {
-    if(msg.protocol != RoomBus::Protocol::EventSystemProtocol){
+    if(msg.protocol != (MiniBus::Protocol)Protocol::EventSystemProtocol){
         return;
     }
 
-    switch((RoomBus::EventSystemCommand)msg.command){
-        case RoomBus::EventSystemCommand::Event: _parseEvent(msg); break;
-        case RoomBus::EventSystemCommand::SignalInformationReport: _parseSignalInformationReport(msg); break;
-        case RoomBus::EventSystemCommand::SlotInformationReport: _parseSlotInformationReport(msg); break;
+    switch((Command)msg.command){
+        case Command::Event: _parseEvent(msg); break;
+        case Command::SignalInformationReport: _parseSignalInformationReport(msg); break;
+        case Command::SlotInformationReport: _parseSlotInformationReport(msg); break;
 
-        case RoomBus::EventSystemCommand::Reserved0:
-        case RoomBus::EventSystemCommand::Reserved1:
-        case RoomBus::EventSystemCommand::Reserved2:
-        case RoomBus::EventSystemCommand::SignalInformationRequest:
-        case RoomBus::EventSystemCommand::SlotInformationRequest:
+        case Command::Reserved0:
+        case Command::Reserved1:
+        case Command::Reserved2:
+        case Command::SignalInformationRequest:
+        case Command::SlotInformationRequest:
             break;
     }
 }
 
 void EventSystemProtocol::requestSignalInformation(void)
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::EventSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::EventSystemCommand::SignalInformationRequest;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::EventSystemProtocol;
+    msg.command = (MiniBus::Command)Command::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
 void EventSystemProtocol::requestSlotInformation(void)
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::EventSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::EventSystemCommand::SlotInformationRequest;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::EventSystemProtocol;
+    msg.command = (MiniBus::Command)Command::SlotInformationRequest;
 
     sendMessage(msg);
 }
@@ -56,12 +56,12 @@ void EventSystemProtocol::clearInformation()
 
 void EventSystemProtocol::sendEvent(QList<uint16_t>eventChannels)
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::EventSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::EventSystemCommand::Event;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::EventSystemProtocol;
+    msg.command = (MiniBus::Command)Command::Event;
 
     for(const uint16_t &channel: eventChannels){
-        msg.data.append(RoomBus::packUint16(channel));
+        msg.data.append(MiniBus::packUint16(channel));
     }
 
     sendMessage(msg);
@@ -93,33 +93,57 @@ QList<EventSystemProtocol::EventSignal *> EventSystemProtocol::eventSignls()
     return output;
 }
 
-void EventSystemProtocol::_parseEvent(RoomBus::Message msg)
+QString EventSystemProtocol::commandName(MiniBus::Command command)
+{
+    switch((Command)command){
+    case Command::Event : return "Event";
+    case Command::Reserved0 :
+    case Command::Reserved1 :
+    case Command::Reserved2 : return "Reserved";
+
+    case Command::SignalInformationReport : return "Signal Information Report";
+    case Command::SlotInformationReport : return "Slot Information Report";
+    case Command::SignalInformationRequest : return "Signal Information Request";
+    case Command::SlotInformationRequest : return "Slot Information Request";
+    }
+
+    return "Unknown Command";
+}
+
+QString EventSystemProtocol::dataDecoder(MiniBus::Command command, const QByteArray &data)
+{
+    Q_UNUSED(command);
+    Q_UNUSED(data);
+    return "Not implemented";
+}
+
+void EventSystemProtocol::_parseEvent(MiniBus::Message msg)
 {
     QList<uint16_t> eventSignal;
 
     for(uint8_t i = 0; i< msg.data.size(); i+= 2){
-        eventSignal.append(RoomBus::unpackUint16(msg.data,i));
+        eventSignal.append(MiniBus::unpackUint16(msg.data,i));
     }
 
     emit eventSignalReceived(eventSignal);
 }
 
-void EventSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
+void EventSystemProtocol::_parseSignalInformationReport(MiniBus::Message msg)
 {
     EventSignal signal;
-    signal.channel = RoomBus::unpackUint16(msg.data,0);
-    signal.interval = RoomBus::unpackUint16(msg.data,2);
+    signal.channel = MiniBus::unpackUint16(msg.data,0);
+    signal.interval = MiniBus::unpackUint16(msg.data,2);
     signal.description = msg.data.remove(0,4);
     _eventSignal[signal.channel] = signal;
 
     emit eventSignalListChange();
 }
 
-void EventSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
+void EventSystemProtocol::_parseSlotInformationReport(MiniBus::Message msg)
 {
     EventSlot slot;
-    slot.channel = RoomBus::unpackUint16(msg.data,0);
-    slot.timeout = RoomBus::unpackUint16(msg.data,2);
+    slot.channel = MiniBus::unpackUint16(msg.data,0);
+    slot.timeout = MiniBus::unpackUint16(msg.data,2);
     slot.description = msg.data.remove(0,4);
     _eventSlot[slot.channel] = slot;
 

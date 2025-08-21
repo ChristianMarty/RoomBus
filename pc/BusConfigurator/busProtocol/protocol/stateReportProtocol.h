@@ -3,12 +3,27 @@
 
 #include <QObject>
 #include <QMap>
+
 #include "protocolBase.h"
 
 class StateSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
+
+    enum class Command:MiniBus::Command {
+        State,
+        StateRequest,
+        Reserved0,
+        Reserved1,
+
+        SignalInformationReport,
+        SlotInformationReport,
+
+        SignalInformationRequest,
+        SlotInformationRequest
+    };
+
     typedef enum {
         off = 0,
         on = 1,
@@ -31,7 +46,7 @@ public:
 
     StateSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message msg);
+    void handleMessage(MiniBus::Message msg);
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
@@ -46,6 +61,9 @@ public:
     QMap<uint16_t, StateSystemProtocol::StateReportSignal> stateReportSignalMap() const;
     QMap<uint16_t, StateSystemProtocol::StateReportSlot> stateReportSlotMap() const;
 
+    static QString commandName(MiniBus::Command command);
+    static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
+
 signals:
     void signalStateChnage(uint16_t channel, SignalState newState);
 
@@ -58,9 +76,9 @@ private:
 
     QMap<uint16_t, StateSystemProtocol::SignalState> _signalState;
 
-    void _parseStateReport(RoomBus::Message msg);
-    void _parseSignalInformationReport(RoomBus::Message msg);
-    void _parseSlotInformationReport(RoomBus::Message msg);
+    void _parseStateReport(MiniBus::Message msg);
+    void _parseSignalInformationReport(MiniBus::Message msg);
+    void _parseSlotInformationReport(MiniBus::Message msg);
 };
 
 #endif // STATEREPORTPROTOCOL_H

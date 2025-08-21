@@ -8,11 +8,23 @@
 
 #include "protocolBase.h"
 
-
 class FileTransferProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
+
+    enum class Command:MiniBus::Command {
+        Request  = 0,
+        Response = 1,
+        Reserved0,
+        Reserved1,
+
+        Read = 4,
+        ReadAcknowledgment = 5,
+
+        Write = 6,
+        WriteAcknowledgment = 7
+    };
 
     enum reqest_t{
         req_list = 0,
@@ -64,7 +76,7 @@ public:
 
     FileTransferProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message msg);
+    void handleMessage(MiniBus::Message msg);
 
     void list(QString path);
     void makeFile(QString path);
@@ -72,6 +84,9 @@ public:
 
     void writeFile(QString path, QString localPath);
     void readFile(QString path, QString localPath);
+
+    static QString commandName(MiniBus::Command command);
+    static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
 
 signals:
 
@@ -100,14 +115,14 @@ private:
     }_fromDeviceTransfer, _toDeviceTransfer;
 
 
-    void handle_readStart(RoomBus::Message msg);
-    void handle_read(RoomBus::Message msg);
-    void handle_readEnd(RoomBus::Message msg);
+    void handle_readStart(MiniBus::Message msg);
+    void handle_read(MiniBus::Message msg);
+    void handle_readEnd(MiniBus::Message msg);
 
     // Wite functions
-    void handle_writeStart(RoomBus::Message msg);
-    void handle_writeAck(RoomBus::Message msg);
-    void handle_writeComplete(RoomBus::Message msg);
+    void handle_writeStart(MiniBus::Message msg);
+    void handle_writeAck(MiniBus::Message msg);
+    void handle_writeComplete(MiniBus::Message msg);
 
 
 };

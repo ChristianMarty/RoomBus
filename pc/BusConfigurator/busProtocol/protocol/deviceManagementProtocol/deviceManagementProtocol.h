@@ -13,13 +13,26 @@ class DeviceManagementProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
+
+    enum class Command:MiniBus::Command {
+        DeviceToHost,
+        HostToDevice,
+        Reserved0,
+        Reserved1,
+
+        Reserved2,
+        Reserved3,
+        Reserved4,
+        SystemTimeSynchronisation = 0x07
+    };
+
     struct SystemStatus {
         uint32_t applicationRuning : 1;
         uint32_t applicationCrcError : 1;
         uint32_t applicationRunOnStartup : 1;
         uint32_t userLedEnabled : 1;
         uint32_t identify : 1;
-        uint32_t administrationMode : 1;
+        uint32_t administratorAccess : 1;
         uint32_t messageLogEnabled : 1;
         uint32_t reserved0 : 1;
 
@@ -95,7 +108,7 @@ public:
 
     DeviceManagementProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message message) override;
+    void handleMessage(MiniBus::Message message) override;
 
     uint16_t heartbeatInterval() const;
     uint16_t systemInfoInterval() const;
@@ -147,9 +160,12 @@ public:
 
     friend RoomBusDevice;
 
-    void sendMessage(RoomBus::Message message);
+    void sendMessage(MiniBus::Message message);
 
     Eeprom &eeprom();
+
+    static QString commandName(MiniBus::Command command);
+    static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
 
 signals:
     void bootloadStatusUpdate(uint8_t progress, bool error, QString message);
@@ -200,7 +216,7 @@ private:
     QuCLib::HexFileParser _appBinary;
     uint32_t _bootloadDataIndex;
     bool _bootloadWritePending = false;
-    RoomBus::Message _bootloadLastWrite;
+    MiniBus::Message _bootloadLastWrite;
     QTimer _bootloadRetryTimer;
 
     Eeprom _eeprom{this};

@@ -14,7 +14,7 @@ class ConnectionWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ConnectionWidget(RoomBusAccess &roomBusAccess, QWidget *parent = nullptr);
+    explicit ConnectionWidget(MiniBusAccess &roomBusAccess, QWidget *parent = nullptr);
     ~ConnectionWidget();
 
 
@@ -25,7 +25,7 @@ private slots:
 
 private:
     Ui::ConnectionWidget *ui;
-    RoomBusAccess &_roomBusAccess;
+    MiniBusAccess &_roomBusAccess;
 
     void _updateUi(void);
 };

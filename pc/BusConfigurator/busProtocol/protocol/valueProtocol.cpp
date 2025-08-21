@@ -7,40 +7,40 @@ ValueSystemProtocol::ValueSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void ValueSystemProtocol::handleMessage(RoomBus::Message message)
+void ValueSystemProtocol::handleMessage(MiniBus::Message message)
 {
-    if(message.protocol != RoomBus::Protocol::ValueSystemProtocol){
+    if(message.protocol != (MiniBus::Protocol)Protocol::ValueSystemProtocol){
         return;
     }
 
-    switch((RoomBus::ValueSystemCommand)message.command){
-        case RoomBus::ValueSystemCommand::ValueReport: _parseValue(message); break;
-        case RoomBus::ValueSystemCommand::SignalInformationReport: _parseSignalInformationReport(message); break;
-        case RoomBus::ValueSystemCommand::SlotInformationReport: _parseSlotInformationReport(message); break;
+    switch((Command)message.command){
+        case Command::ValueReport: _parseValue(message); break;
+        case Command::SignalInformationReport: _parseSignalInformationReport(message); break;
+        case Command::SlotInformationReport: _parseSlotInformationReport(message); break;
 
-        case RoomBus::ValueSystemCommand::ValueRequest:
-        case RoomBus::ValueSystemCommand::ValueCommand:
-        case RoomBus::ValueSystemCommand::Reserved0:
-        case RoomBus::ValueSystemCommand::SignalInformationRequest:
-        case RoomBus::ValueSystemCommand::SlotInformationRequest:
+        case Command::ValueRequest:
+        case Command::ValueCommand:
+        case Command::Reserved0:
+        case Command::SignalInformationRequest:
+        case Command::SlotInformationRequest:
             break;
     }
 }
 
 void ValueSystemProtocol::requestSignalInformation()
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::ValueSystemCommand::SignalInformationRequest;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::ValueSystemProtocol;
+    msg.command = (MiniBus::Command)Command::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
 void ValueSystemProtocol::requestSlotInformation()
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::ValueSystemCommand::SlotInformationRequest;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::ValueSystemProtocol;
+    msg.command = (MiniBus::Command)Command::SlotInformationRequest;
 
     sendMessage(msg);
 }
@@ -111,9 +111,33 @@ QList<ValueSystemProtocol::ValueSignal *> ValueSystemProtocol::valueSignls()
     return output;
 }
 
-void ValueSystemProtocol::_parseValue(RoomBus::Message msg)
+QString ValueSystemProtocol::commandName(MiniBus::Command command)
 {
-    uint16_t channel = RoomBus::unpackUint16(msg.data, 0);
+    switch((Command)command){
+        case Command::ValueReport: return "Value Report"; break;
+        case Command::ValueRequest: return "Value Request"; break;
+        case Command::ValueCommand: return "Value Command"; break;
+        case Command::Reserved0 : return "Reserved";
+
+        case Command::SignalInformationReport : return "Signal Information Report";
+        case Command::SlotInformationReport : return "Slot Information Report";
+        case Command::SignalInformationRequest : return "Signal Information Request";
+        case Command::SlotInformationRequest : return "Slot Information Request";
+    }
+
+    return "Unknown Command";
+}
+
+QString ValueSystemProtocol::dataDecoder(MiniBus::Command command, const QByteArray &data)
+{
+    Q_UNUSED(command);
+    Q_UNUSED(data);
+    return "Not implemented";
+}
+
+void ValueSystemProtocol::_parseValue(MiniBus::Message msg)
+{
+    uint16_t channel = MiniBus::unpackUint16(msg.data, 0);
 
     uint16_t uomIndex = _valueSignal[channel].uom;
 
@@ -133,13 +157,13 @@ QList<ValueSystemProtocol::ValueSlot *> ValueSystemProtocol::valueSlots()
     return output;
 }
 
-void ValueSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
+void ValueSystemProtocol::_parseSignalInformationReport(MiniBus::Message msg)
 {
     ValueSignal signal;
-    signal.channel = RoomBus::unpackUint16(msg.data,0);
-    signal.interval = RoomBus::unpackUint16(msg.data,2);
+    signal.channel = MiniBus::unpackUint16(msg.data,0);
+    signal.interval = MiniBus::unpackUint16(msg.data,2);
 
-    uint16_t uomIndex = (UnitOfMeasure)RoomBus::unpackUint16(msg.data,4);
+    uint16_t uomIndex = (UnitOfMeasure)MiniBus::unpackUint16(msg.data,4);
     UnitType type = UnitOfMeasurements[uomIndex].type;
 
     signal.readOnly = (uomIndex & 0x8000);
@@ -153,11 +177,11 @@ void ValueSystemProtocol::_parseSignalInformationReport(RoomBus::Message msg)
     emit signalListChange();
 }
 
-void ValueSystemProtocol::_parseSlotInformationReport(RoomBus::Message msg)
+void ValueSystemProtocol::_parseSlotInformationReport(MiniBus::Message msg)
 {
     ValueSlot slot;
-    slot.channel = RoomBus::unpackUint16(msg.data,0);
-    slot.timeout = RoomBus::unpackUint16(msg.data,2);
+    slot.channel = MiniBus::unpackUint16(msg.data,0);
+    slot.timeout = MiniBus::unpackUint16(msg.data,2);
     slot.description = msg.data.mid(4);
 
     _valueSlot[slot.channel] = slot;
@@ -202,14 +226,14 @@ ValueSystemProtocol::ValueData ValueSystemProtocol::_decodeData(UnitType type, Q
 
 void ValueSystemProtocol::sendValueCommand(uint16_t channel, ValueData value)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
 
-    msg.protocol = RoomBus::Protocol::ValueSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::ValueSystemCommand::ValueCommand;
+    msg.protocol = (MiniBus::Protocol)Protocol::ValueSystemProtocol;
+    msg.command = (MiniBus::Command)Command::ValueCommand;
 
-    msg.data.append(RoomBus::packUint16(channel));
+    msg.data.append(MiniBus::packUint16(channel));
     msg.data.append((uint8_t)ValueCommand::setLongValueClamp);
-    msg.data.append(RoomBus::packUint32(value.Long));
+    msg.data.append(MiniBus::packUint32(value.Long));
 
     sendMessage(msg);
 }

@@ -3,12 +3,26 @@
 
 #include <QObject>
 #include <QMap>
+
 #include "protocolBase.h"
 
 class TriggerSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
+
+    enum class Command:MiniBus::Command {
+        Trigger,
+        Reserved0,
+        Reserved1,
+        Reserved2,
+
+        SignalInformationReport,
+        SlotInformationReport,
+
+        SignalInformationRequest,
+        SlotInformationRequest
+    };
 
     struct TriggerSignal {
         uint16_t channel;
@@ -23,7 +37,7 @@ public:
 
     TriggerSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message message) override;
+    void handleMessage(MiniBus::Message message) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
@@ -38,6 +52,9 @@ public:
     QMap<uint16_t, TriggerSystemProtocol::TriggerSlot> triggerSlotMap() const;
     QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> triggerSignalMap() const;
 
+    static QString commandName(MiniBus::Command command);
+    static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
+
 signals:
     void triggerSignalReceived(QList<uint16_t> triggerSignal);
 
@@ -48,9 +65,9 @@ private:
     QMap<uint16_t, TriggerSystemProtocol::TriggerSlot> _triggerSlot;
     QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> _triggerSignal;
 
-    void _parseTrigger(RoomBus::Message message);
-    void _parseSignalInformationReport(RoomBus::Message message);
-    void _parseSlotInformationReport(RoomBus::Message message);
+    void _parseTrigger(MiniBus::Message message);
+    void _parseSignalInformationReport(MiniBus::Message message);
+    void _parseSlotInformationReport(MiniBus::Message message);
 };
 
 #endif // TRIGGER_PROTOCOL_H

@@ -1,11 +1,12 @@
 #include "socketCanConnection.h"
+#include "busAccess.h"
 #include <QCanBus>
 #include <QVariant>
 
-SocketCanConnection::SocketCanConnection(QString port)
+SocketCanConnection::SocketCanConnection(MiniBusAccess *parrent, QString port)
     :_port{port}
 {
-
+    _parrent = parrent;
 }
 
 SocketCanConnection::~SocketCanConnection()
@@ -45,7 +46,7 @@ void SocketCanConnection::close()
     _device = nullptr;
 }
 
-bool SocketCanConnection::write(RoomBus::Message message)
+bool SocketCanConnection::write(MiniBus::Message message)
 {
     if(_device == nullptr){
         return false;
@@ -57,7 +58,7 @@ bool SocketCanConnection::write(RoomBus::Message message)
     frame.setBitrateSwitch(false);
     frame.setFrameType(QCanBusFrame::DataFrame);
 
-    frame.setFrameId(RoomBus::toCanIdentifier(message));
+    frame.setFrameId(MiniBus::toCanIdentifier(message));
     frame.setPayload(message.data);
 
     return _device->writeFrame(frame);
@@ -78,7 +79,7 @@ void SocketCanConnection::on_framesReceived()
     QList<QCanBusFrame> frames = _device->readAllFrames();
 
     for(const QCanBusFrame &frame : frames){
-        emit received(RoomBus::toMessage(frame.frameId(), frame.payload()));
+        _parrent->_handleMessageReceived(MiniBus::toMessage(frame.frameId(), frame.payload()));
     }
 }
 

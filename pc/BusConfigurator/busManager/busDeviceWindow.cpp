@@ -62,7 +62,7 @@ void BusDeviceWindow::updateStatus()
         ui->label_runStatus->setStyleSheet("font-weight: bold; color: red;");
     }
 
-    ui->label_administrationMode->setEnabled(systemStatus.administrationMode);
+    ui->label_administratorAccess->setEnabled(systemStatus.administratorAccess);
     ui->label_watchdogError->setEnabled(systemStatus.watchdogError);
     ui->label_watchdogWarning->setEnabled(systemStatus.watchdogWarning);
     ui->label_txBufferOverrun->setEnabled(systemStatus.txBufferOverrun);

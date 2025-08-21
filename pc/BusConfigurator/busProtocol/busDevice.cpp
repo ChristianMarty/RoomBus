@@ -100,7 +100,7 @@ void RoomBusDevice::removeProtocol(ProtocolBase* protocol)
     _protocols.removeOne(protocol);
 }
 
-void RoomBusDevice::handleMessage(RoomBus::Message message)
+void RoomBusDevice::handleMessage(MiniBus::Message message)
 {
     if(message.sourceAddress != _deviceAddress) return;
 
@@ -112,14 +112,14 @@ void RoomBusDevice::handleMessage(RoomBus::Message message)
     }
 }
 
-RoomBus::Message RoomBusDevice::busScan()
+MiniBus::Message RoomBusDevice::busScan()
 {
-    RoomBus::Message msg;
-    msg.destinationAddress = RoomBus::BroadcastAddress;
-    msg.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    msg.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    MiniBus::Message msg;
+    msg.destinationAddress = MiniBus::BroadcastAddress;
+    msg.protocol = (MiniBus::Protocol)ProtocolBase::Protocol::DeviceManagementProtocol;
+    msg.command = (MiniBus::Command)DeviceManagementProtocol::Command::HostToDevice;
     msg.data.append((uint8_t)DeviceManagementProtocol::DeviceManagementSubCommand::SystemInformationRequest);
-    msg.priority = RoomBus::Priority::Normal;
+    msg.priority = MiniBus::Priority::Normal;
 
     return msg;
 }

@@ -7,52 +7,52 @@ TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void TriggerSystemProtocol::handleMessage(RoomBus::Message message)
+void TriggerSystemProtocol::handleMessage(MiniBus::Message message)
 {
-    if(message.protocol != RoomBus::Protocol::TriggerSystemProtocol){
+    if(message.protocol != (MiniBus::Protocol)Protocol::TriggerSystemProtocol){
         return;
     }
 
-    switch((RoomBus::TriggerSystemCommand)message.command){
-        case RoomBus::TriggerSystemCommand::Trigger: _parseTrigger(message); break;
-        case RoomBus::TriggerSystemCommand::SignalInformationReport: _parseSignalInformationReport(message); break;
-        case RoomBus::TriggerSystemCommand::SlotInformationReport: _parseSlotInformationReport(message); break;
+    switch((Command)message.command){
+        case Command::Trigger: _parseTrigger(message); break;
+        case Command::SignalInformationReport: _parseSignalInformationReport(message); break;
+        case Command::SlotInformationReport: _parseSlotInformationReport(message); break;
 
-        case RoomBus::TriggerSystemCommand::Reserved0:
-        case RoomBus::TriggerSystemCommand::Reserved1:
-        case RoomBus::TriggerSystemCommand::Reserved2:
-        case RoomBus::TriggerSystemCommand::SignalInformationRequest:
-        case RoomBus::TriggerSystemCommand::SlotInformationRequest:
+        case Command::Reserved0:
+        case Command::Reserved1:
+        case Command::Reserved2:
+        case Command::SignalInformationRequest:
+        case Command::SlotInformationRequest:
             break;
     }
 }
 
 void TriggerSystemProtocol::requestSignalInformation(void)
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::TriggerSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::TriggerSystemCommand::SignalInformationRequest;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::TriggerSystemProtocol;
+    msg.command = (MiniBus::Command)Command::SignalInformationRequest;
 
     sendMessage(msg);
 }
 
 void TriggerSystemProtocol::requestSlotInformation(void)
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::TriggerSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::TriggerSystemCommand::SlotInformationRequest;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::TriggerSystemProtocol;
+    msg.command = (MiniBus::Command)Command::SlotInformationRequest;
 
     sendMessage(msg);
 }
 
 void TriggerSystemProtocol::sendTrigger(QList<uint16_t> triggerChannels)
 {
-    RoomBus::Message msg;
-    msg.protocol = RoomBus::Protocol::TriggerSystemProtocol;
-    msg.command = (RoomBus::Command)RoomBus::TriggerSystemCommand::Trigger;
+    MiniBus::Message msg;
+    msg.protocol = (MiniBus::Protocol)Protocol::TriggerSystemProtocol;
+    msg.command = (MiniBus::Command)Command::Trigger;
 
     for(uint16_t channel: triggerChannels){
-        msg.data.append(RoomBus::packUint16(channel));
+        msg.data.append(MiniBus::packUint16(channel));
     }
 
     sendMessage(msg);
@@ -103,21 +103,45 @@ QMap<uint16_t, TriggerSystemProtocol::TriggerSignal> TriggerSystemProtocol::trig
     return _triggerSignal;
 }
 
-void TriggerSystemProtocol::_parseTrigger(RoomBus::Message message)
+QString TriggerSystemProtocol::commandName(MiniBus::Command command)
+{
+    switch((Command)command){
+        case Command::Trigger : return "Trigger";
+        case Command::Reserved0 :
+        case Command::Reserved1 :
+        case Command::Reserved2 : return "Reserved";
+
+        case Command::SignalInformationReport : return "Signal Information Report";
+        case Command::SlotInformationReport : return "Slot Information Report";
+        case Command::SignalInformationRequest : return "Signal Information Request";
+        case Command::SlotInformationRequest : return "Slot Information Request";
+    }
+
+    return "Unknown Command";
+}
+
+QString TriggerSystemProtocol::dataDecoder(MiniBus::Command command, const QByteArray &data)
+{
+    Q_UNUSED(command);
+    Q_UNUSED(data);
+    return "Not implemented";
+}
+
+void TriggerSystemProtocol::_parseTrigger(MiniBus::Message message)
 {
     QList<uint16_t> triggerSignals;
     
     for(uint8_t i = 0; i < message.data.size(); i+=2){
-        triggerSignals.append(RoomBus::unpackUint16(message.data,i));
+        triggerSignals.append(MiniBus::unpackUint16(message.data,i));
     }
 
     emit triggerSignalReceived(triggerSignals);
 }
 
-void TriggerSystemProtocol::_parseSignalInformationReport(RoomBus::Message message)
+void TriggerSystemProtocol::_parseSignalInformationReport(MiniBus::Message message)
 {
     TriggerSignal signal;
-    signal.channel = RoomBus::unpackUint16(message.data,0);
+    signal.channel = MiniBus::unpackUint16(message.data,0);
     signal.description = message.data.remove(0,2);
 
     _triggerSignal[signal.channel] = signal;
@@ -125,10 +149,10 @@ void TriggerSystemProtocol::_parseSignalInformationReport(RoomBus::Message messa
     emit triggerSignalListChange();
 }
 
-void TriggerSystemProtocol::_parseSlotInformationReport(RoomBus::Message message)
+void TriggerSystemProtocol::_parseSlotInformationReport(MiniBus::Message message)
 {
     TriggerSlot slot;
-    slot.channel = RoomBus::unpackUint16(message.data,0);
+    slot.channel = MiniBus::unpackUint16(message.data,0);
     slot.description = message.data.remove(0,2);
     slot.trigger = this;
 

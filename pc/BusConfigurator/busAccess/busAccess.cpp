@@ -1,20 +1,21 @@
 #include "busAccess.h"
+#include "connection/connection.h"
 
 #include "connection/serialConnection.h"
 #include "connection/tcpConnection.h"
 #include "connection/udpConnection.h"
 #include "connection/socketCanConnection.h"
 
-RoomBusAccess::RoomBusAccess(void)
+MiniBusAccess::MiniBusAccess(void)
 {
 }
 
-RoomBusAccess::~RoomBusAccess(void)
+MiniBusAccess::~MiniBusAccess(void)
 {
     closeConnection();
 }
 
-QString RoomBusAccess::getConnectionName()
+QString MiniBusAccess::getConnectionName()
 {
     if(_connection == nullptr){
         switch(_type){
@@ -29,7 +30,7 @@ QString RoomBusAccess::getConnectionName()
     return _connection->getConnectionName();
 }
 
-QString RoomBusAccess::getConnectionPath()
+QString MiniBusAccess::getConnectionPath()
 {
     if(_connection == nullptr){
         return _url;
@@ -38,84 +39,109 @@ QString RoomBusAccess::getConnectionPath()
     return _connection->getConnectionPath();
 }
 
-void RoomBusAccess::on_received(RoomBus::Message message)
+bool MiniBusAccess::setSocketCanConnection(QString port)
 {
-    rxMsgBuffer.append(message);
-    emit newData();
-}
+    if(_type != Type::Undefined) return false;
+    if(isConnected()) return false;
 
-void RoomBusAccess::on_connectionChanged()
-{
-    emit connectionChanged();
-}
-
-void RoomBusAccess::setSocketCanConnection(QString port)
-{
     _type = Type::SocketCan;
     _url = port;
+
+    return true;
 }
 
-void RoomBusAccess::setSerialConnection(QString port)
+bool MiniBusAccess::setSerialConnection(QString port)
 {
+    if(_type != Type::Undefined) return false;
+    if(isConnected()) return false;
+
     _type = Type::Serial;
     _url = port;
+
+    return true;
 }
 
-void RoomBusAccess::setTcpConnection(QString ip, uint16_t port)
+bool MiniBusAccess::setTcpConnection(QString ip, uint16_t port)
 {
+    if(_type != Type::Undefined) return false;
+    if(isConnected()) return false;
+
     _type = Type::Tcp;
     _url = ip;
     _port = port;
+
+    return true;
 }
 
-void RoomBusAccess::setUdpConnection(QString ip, uint16_t port)
-{   
+bool MiniBusAccess::setUdpConnection(QString ip, uint16_t port)
+{
+    if(_type != Type::Undefined) return false;
+    if(isConnected()) return false;
+
     _type = Type::Udp;
     _url = ip;
     _port = port;
+
+    return true;
 }
 
-void RoomBusAccess::openConnection()
+void MiniBusAccess::restConnection(void)
+{
+    if(isConnected()){
+        closeConnection();
+    }
+
+    _type = Type::Undefined;
+    _url.clear();
+    _port = 0;
+}
+
+void MiniBusAccess::openConnection()
 {
     closeConnection();
 
     switch(_type){
         case Type::Undefined: return;
         case Type::Serial:
-            _connection = new SerialConnection(_url, 614400);
+            _connection = new SerialConnection(this, _url, 614400);
             break;
         case Type::Tcp:
-            _connection = new TcpConnection(_url, _port);
+            _connection = new TcpConnection(this, _url, _port);
             break;
         case Type::Udp:
-            _connection = new UdpConnection(_url, _port);
+            _connection = new UdpConnection(this, _url, _port);
             break;
         case Type::SocketCan:
-            _connection = new SocketCanConnection(_url);
+            _connection = new SocketCanConnection(this, _url);
             break;
     }
 
     _openConnection();
 }
 
-void RoomBusAccess::_openConnection(void)
+void MiniBusAccess::_openConnection(void)
 {
     if(_connection == nullptr) return;
-
-    connect(_connection, &RoomBusConnection::received, this, &RoomBusAccess::on_received);
-    connect(_connection, &RoomBusConnection::connectionChanged, this, &RoomBusAccess::on_connectionChanged);
 
     _connection->open();
 
     emit connectionChanged();
 }
 
-void RoomBusAccess::closeConnection(void)
+void MiniBusAccess::_handleMessageReceived(const MiniBus::Message &message)
+{
+    rxMessageBuffer.append(message);
+    emit messageReceived();
+}
+
+void MiniBusAccess::setSourceAddress(uint8_t newSourceAddress)
+{
+    _sourceAddress = newSourceAddress;
+}
+
+void MiniBusAccess::closeConnection(void)
 {
     if(_connection == nullptr) return;
-
-    disconnect(_connection, &RoomBusConnection::received, this, &RoomBusAccess::on_received);
-    disconnect(_connection, &RoomBusConnection::connectionChanged, this, &RoomBusAccess::on_connectionChanged);
 
     delete _connection;
     _connection = nullptr;
@@ -123,25 +149,35 @@ void RoomBusAccess::closeConnection(void)
     emit connectionChanged();
 }
 
-bool RoomBusAccess::write(RoomBus::Message message)
+bool MiniBusAccess::write(MiniBus::Message message, bool sourceOverride)
 {
     if(_connection == nullptr){
         return false;
     }
 
-    message.sourceAddress = _sourceAddress;
+    if(sourceOverride){
+        message.sourceAddress = _sourceAddress;
+    }
+
+    if(message.sourceAddress >= 0x7F) return false;
+    if(message.destinationAddress > 0x7F) return false;
+    if(static_cast<uint8_t>(message.protocol) > 0x3F) return false;
+    if(static_cast<uint8_t>(message.priority) > 0x03) return false;
+    if(static_cast<uint8_t>(message.command) > 0x07) return false;
+    if(message.data.length() > 64) return false;
+
     _connection->write(message);
 
     return true;
 }
 
-bool RoomBusAccess::isConnected(void)
+bool MiniBusAccess::isConnected(void)
 {
     if(_connection == nullptr) return false;
     else return _connection->connected();
 }
 
-QString RoomBusAccess::lastError()
+QString MiniBusAccess::lastError()
 {
     if(_connection == nullptr) return "No open connection";
     else return _connection->lastError();

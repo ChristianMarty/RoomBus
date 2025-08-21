@@ -81,12 +81,12 @@ RoomBusInterface *Remote::roomBusInterface()
     return _roomBusInterface;
 }
 
-void Remote::pushRoomBusMessage(const RoomBus::Message &message)
+void Remote::pushRoomBusMessage(const MiniBus::Message &message)
 {
     for(Entity *entity:_server.entities()){
-        if(message.protocol == RoomBus::Protocol::StateSystemProtocol){
+        if(message.protocol == MiniBus::Protocol::StateSystemProtocol){
             for(uint8_t i = 0; i < message.data.length(); i+=3){
-                uint16_t channel = RoomBus::unpackUint16(message.data.mid(i,2), 0);
+                uint16_t channel = MiniBus::unpackUint16(message.data.mid(i,2), 0);
                 uint8_t state = message.data.at(i+2);
                 entity->stateSystemHandler(channel, state);
             }

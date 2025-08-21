@@ -30,7 +30,6 @@ SOURCES += \
         protocol/deviceManagementProtocol/deviceManagementProtocol.cpp \
         protocol/deviceManagementProtocol/eeprom.cpp \
         protocol/protocolBase.cpp \
-        protocolDecoder.cpp \
         protocol/messageLogProtocol.cpp \
         protocol/eventProtocol.cpp \
         protocol/fileTransferProtocol.cpp \
@@ -48,7 +47,6 @@ HEADERS += \
         protocol/deviceManagementProtocol/deviceManagementProtocol.h \
         protocol/deviceManagementProtocol/eeprom.h \
         protocol/protocolBase.h \
-        protocolDecoder.h \
         protocol/messageLogProtocol.h \
         protocol/eventProtocol.h \
         protocol/fileTransferProtocol.h \

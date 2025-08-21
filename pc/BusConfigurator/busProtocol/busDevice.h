@@ -2,7 +2,6 @@
 #define BUSDEVICE_H
 
 #include <QObject>
-
 #include <QTimer>
 #include <QMap>
 
@@ -36,12 +35,12 @@ public:
     void addProtocol(ProtocolBase* protocol);
     void removeProtocol(ProtocolBase* protocol);
 
-    void handleMessage(RoomBus::Message message);
+    void handleMessage(MiniBus::Message message);
 
-    static RoomBus::Message busScan(void);
+    static MiniBus::Message busScan(void);
 
 signals:
-    void dataReady(RoomBus::Message message);
+    void dataReady(MiniBus::Message message);
 
 private:
     uint8_t _deviceAddress;

@@ -1,19 +1,24 @@
-#ifndef BUSACCESS_H
-#define BUSACCESS_H
+#ifndef BUS_ACCESS_H
+#define BUS_ACCESS_H
 
 #include <QObject>
 
 #include "busaccess_global.h"
+#include "miniBusMessage.h"
 
-#include "connection/connection.h"
-#include "roomBusMessage.h"
+class MiniBusConnection;
 
-class BUSACCESSSHARED_EXPORT RoomBusAccess : public QObject
+class SerialConnection;
+class SocketCanConnection;
+class TcpConnection;
+class UdpConnection;
+
+class BUSACCESSSHARED_EXPORT MiniBusAccess : public QObject
 {
     Q_OBJECT
 public:
-    RoomBusAccess(void);
-    ~RoomBusAccess(void);
+    MiniBusAccess(void);
+    ~MiniBusAccess(void);
 
     enum class Type:uint8_t{
         Undefined,
@@ -23,10 +28,12 @@ public:
         SocketCan
     };
 
-    void setSocketCanConnection(QString port);
-    void setSerialConnection(QString port);
-    void setTcpConnection(QString ip, uint16_t port);
-    void setUdpConnection(QString ip, uint16_t port);
+    bool setSocketCanConnection(QString port);
+    bool setSerialConnection(QString port);
+    bool setTcpConnection(QString ip, uint16_t port);
+    bool setUdpConnection(QString ip, uint16_t port);
+
+    void restConnection(void);
 
     void openConnection(void);
     void closeConnection(void);
@@ -37,17 +44,19 @@ public:
     QString getConnectionName(void);
     QString getConnectionPath(void);
 
-    bool write(RoomBus::Message message);
+    void setSourceAddress(uint8_t newSourceAddress);
+    bool write(MiniBus::Message message, bool sourceOverride = true);
 
-    QList<RoomBus::Message> rxMsgBuffer;
+    QList<MiniBus::Message> rxMessageBuffer;
+
+    friend SerialConnection;
+    friend SocketCanConnection;
+    friend TcpConnection;
+    friend UdpConnection;
 
 signals:
-    void newData(void);
+    void messageReceived(void);
     void connectionChanged(void);
-
-private slots:
-    void on_received(RoomBus::Message message);
-    void on_connectionChanged(void);
 
 private:
     Type _type = Type::Undefined;
@@ -56,9 +65,11 @@ private:
 
     void _openConnection(void);
 
+    void _handleMessageReceived(const MiniBus::Message &message);
+
     uint8_t _sourceAddress = 0x7E; // DEC 126
-    RoomBusConnection *_connection = nullptr;
+    MiniBusConnection *_connection = nullptr;
 };
 
-#endif // BUSACCESS_H
+#endif // BUS_ACCESS_H
 

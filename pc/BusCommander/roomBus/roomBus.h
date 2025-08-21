@@ -21,10 +21,10 @@ public:
     void sendTrigger(uint16_t triggerChannel);
     void sendValue(uint16_t valueChannel, uint32_t value);
 
-    RoomBusAccess *busConnection(void);
+    MiniBusAccess *busConnection(void);
 
 private:
-    RoomBusAccess _busConnection;
+    MiniBusAccess _busConnection;
     uint8_t _sourceAddress = 0x7E;
     Type _type = Type::Undefined;
 };

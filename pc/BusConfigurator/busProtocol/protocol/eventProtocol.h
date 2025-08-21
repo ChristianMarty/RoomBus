@@ -3,14 +3,26 @@
 
 #include <QObject>
 #include <QMap>
-#include "protocolBase.h"
 
-#include "roomBusMessage.h"
+#include "protocolBase.h"
 
 class EventSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
+
+    enum class Command:MiniBus::Command {
+        Event,
+        Reserved0,
+        Reserved1,
+        Reserved2,
+
+        SignalInformationReport,
+        SlotInformationReport,
+
+        SignalInformationRequest,
+        SlotInformationRequest
+    };
 
     struct EventSignal {
         uint16_t channel;
@@ -26,7 +38,7 @@ public:
 
     EventSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message msg) override;
+    void handleMessage(MiniBus::Message msg) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);
@@ -38,6 +50,9 @@ public:
     QList<EventSystemProtocol::EventSlot*> eventSlots();
     QList<EventSystemProtocol::EventSignal*> eventSignls();
 
+    static QString commandName(MiniBus::Command command);
+    static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
+
 signals:
     void eventSignalReceived(QList<uint16_t>eventSignal);
 
@@ -48,9 +63,9 @@ private:
     QMap<uint16_t, EventSystemProtocol::EventSlot> _eventSlot;
     QMap<uint16_t, EventSystemProtocol::EventSignal> _eventSignal;
 
-    void _parseEvent(RoomBus::Message msg);
-    void _parseSignalInformationReport(RoomBus::Message msg);
-    void _parseSlotInformationReport(RoomBus::Message msg);
+    void _parseEvent(MiniBus::Message msg);
+    void _parseSignalInformationReport(MiniBus::Message msg);
+    void _parseSlotInformationReport(MiniBus::Message msg);
 };
 
 #endif // EVENT_PROTOCOL_H

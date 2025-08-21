@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>500</height>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -85,9 +85,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_administrationMode">
+          <widget class="QCheckBox" name="checkBox_administratorAccess">
            <property name="text">
-            <string>Administration Mode</string>
+            <string>Administrator Access</string>
            </property>
           </widget>
          </item>
@@ -245,19 +245,19 @@
        <item>
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Administration Key:</string>
+          <string>Administrator Key:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_administrationKey">
+        <widget class="QLineEdit" name="lineEdit_administratorKey">
          <property name="maxLength">
           <number>60</number>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_setAdministrationKey">
+        <widget class="QPushButton" name="pushButton_setAdministratorKey">
          <property name="text">
           <string>Set Key</string>
          </property>

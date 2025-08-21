@@ -18,10 +18,10 @@ void Eeprom::readAll()
 
 void Eeprom::requestEepromRead(uint16_t offset, uint8_t size)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementProtocol::DeviceManagementSubCommand::EepromReadRequest);
-    msg.data.append(RoomBus::packUint16(offset));
-    msg.data.append(RoomBus::packUint8(size));
+    msg.data.append(MiniBus::packUint16(offset));
+    msg.data.append(MiniBus::packUint8(size));
 
     _parent->sendMessage(msg);
 }
@@ -45,7 +45,7 @@ void Eeprom::_decodeEepromReadReport(const QByteArray &data)
         return;
     }
 
-    uint16_t offste = RoomBus::unpackUint16(data,0);
+    uint16_t offste = MiniBus::unpackUint16(data,0);
     uint16_t length = data.length()-2;
 
     if(offste+length > _eepromSize){

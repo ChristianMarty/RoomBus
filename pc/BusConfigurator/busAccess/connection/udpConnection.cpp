@@ -1,11 +1,12 @@
 #include "udpConnection.h"
+#include "busAccess.h"
 
-using namespace std;
-
-UdpConnection::UdpConnection(QString ip, uint16_t port)
+UdpConnection::UdpConnection(MiniBusAccess *parrent, QString ip, uint16_t port)
     :_ip{ip}
     ,_port{port}
 {
+    _parrent = parrent;
+
     _canSerial.setBaudrate(CANbeSerial::Baud500k);
     _canSerial.setDataBaudrate(CANbeSerial::Baud500k);
     _canSerial.setTxPaddingEnable(true, 0x00);
@@ -27,7 +28,7 @@ UdpConnection::~UdpConnection()
 void UdpConnection::open()
 {
     _udpHost.setAddress(_ip);
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void UdpConnection::close()
@@ -55,7 +56,7 @@ void UdpConnection::on_canBeSerial_writeReady(QByteArray data)
 
 void UdpConnection::on_canBeSerial_readReady(CanBusFrame frame)
 {
-    emit received(RoomBus::toMessage(frame.identifier, frame.data));
+    _parrent->_handleMessageReceived(MiniBus::toMessage(frame.identifier, frame.data));
 }
 
 void UdpConnection::on_udpConnect(void)
@@ -66,29 +67,31 @@ void UdpConnection::on_udpConnect(void)
         _canSerial.setEnabled(true);
     }
 
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void UdpConnection::on_udpDisconnect(void)
 {
     _isConnected = _udpClient.isOpen();
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void UdpConnection::on_stateChanged(QAbstractSocket::SocketState socketState)
 {
+    Q_UNUSED(socketState);
+
     _isConnected = _udpClient.isOpen();
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
-bool UdpConnection::write(RoomBus::Message message)
+bool UdpConnection::write(MiniBus::Message message)
 {
     if(!_isConnected){
         return false;
     }
 
     CanBusFrame frame;
-    frame.identifier = RoomBus::toCanIdentifier(message);
+    frame.identifier = MiniBus::toCanIdentifier(message);
     frame.extended = true;
     frame.fd = true;
     frame.data = message.data;

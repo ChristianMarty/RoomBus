@@ -206,9 +206,9 @@
     <h3>Status LEDs</h3>
     <p>Every bus node should be equipped with 3 LEDs, colored red, green and blue. These can either be individual LEDs or one RGB-LED.</p>
     <ul>
-        <li>Red: Data Received and processed</li>
-        <li>Green: Data Transmit</li>
-        <li>Blue: Administration Mode is enabled</li>
+        <li>Red: Data received and processed</li>
+        <li>Green: Data transmit</li>
+        <li>Blue: Administrator access is enabled</li>
     </ul>
 
     <h2>Data Link Layer</h2>
@@ -373,11 +373,11 @@
     </table>
     <p>All multi-byte values are stored in little-endian (MSB first) order.</p>
 
-    <h3>Administration Mode</h3>
-    <p>The administration mode is a privileged mode that must be entered to perform system critical configuration changes on a device.</p>
-    <p>The administration mode can be activated by sending the “Enter Administration Mode” instruction or pressing and holding the administration button on the device for more then 3 sekunds.</p>
+    <h3>Administrator Access</h3>
+    <p>Administrator access is required to perform system critical configuration changes on a device.</p>
+    <p>Administrator access can be activated by sending the "Enable Administrator Access" instruction or by pressing and holding the administration button on the device for more then 3 sekunds.</p>
 
-    <p>Entering the administration mode will trigger a "System Information" message.</p>
+    <p>Changing the sdministrator access state will trigger a "System Information" message.</p>
 </document-page>
 
 <document-page>
@@ -409,7 +409,7 @@
         <tr>
             <td>0</td>
             <td>Device Management Protocol</td>
-            <td>The Device Management Protocol provides a basic set of instructions to manage basic device function and to transfer software (Bootloader) and data (File System) to or from the device.</td>
+            <td>Provides a basic set of instructions to manage device function and to transfer firmware updates to or from the device.</td>
         </tr>
         <tr>
             <td>1</td>
@@ -449,17 +449,12 @@
         <tr>
             <td>12</td>
             <td>Serial Bridge Protocol</td>
-            <td>Allowes serial comunication over the BUS</td>
+            <td>Encapsulates other serial comunication over the MiniBus</td>
         </tr>
         <tr>
-            <td>13-62</td>
+            <td>13-63</td>
             <td>Reserved</td>
             <td></td>
-        </tr>
-        <tr>
-            <td>63</td>
-            <td>Protocol No. extension</td>
-            <td>Additional 8bits (following Byte) are added to the Protocol No. size.</td>
         </tr>
     </table>  
     <h3>Protocol Conventions</h3>
@@ -473,6 +468,8 @@
     <h4>Commands</h4>
     <li>0x00 – Device to Host Communication</li>
     <li>0x01 – Host to Device Communication</li>
+    <li>0x02 - 0x06 – Reserved</li>
+    <li>0x07 – System Time Synchronisation</li>
 
     <h4>Instruction List</h4>
     <table>
@@ -553,13 +550,13 @@
         </tr>
         <tr>
             <td>0x0B</td>
-            <td>Enter Administration Mode</td>
+            <td>Enable Administrator Access</td>
             <td>Key</td>
             <td>-</td>
         </tr>
         <tr>
             <td>0x0C</td>
-            <td>Exit Administration Mode</td>
+            <td>Disable Administrator Access</td>
             <td>-</td>
             <td>-</td>
         </tr>
@@ -577,7 +574,7 @@
         </tr>
         <tr>
             <td>0x0F</td>
-            <td>Set Administration Key*</td>
+            <td>Set Administrator Key*</td>
             <td>New Key</td>
             <td>Heartbeat + Warning in case of invalid key</td>
         </tr>
@@ -602,7 +599,7 @@
 
         <tr>
             <td>0xF8</td>
-            <td>EEPROM Read Request</td>
+            <td>EEPROM Read Request*</td>
             <td>EEPROM Offset</td>
             <td>EEPROM Report</td>
         </tr>
@@ -651,7 +648,7 @@
             <td>-</td>
         </tr>
     </table>  
-    <p>*) The device must be in administration mode to execute these instructions.</p>
+    <p>*) Administrator access is needed to execute these instructions.</p>
 </document-page>
 
 <document-page>
@@ -879,7 +876,7 @@
             <td></td>
             <td>-</td>
             <td>Message Log Enabled</td>
-            <td>Administration Mode Flag</td>
+            <td>Administrator Access Flag</td>
             <td>Identify Flag</td>
             <td>LEDs Enabled</td>
             <td>Run App on startup</td>
@@ -1021,9 +1018,36 @@
         </tr>
     </table>
 
-    <h4>EEPROM Read Request (0xF8)</h4>
+    <h4>EEPROM Read Request* (0xF8)</h4>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th> 
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">Offset</td>
+            <td colspan="1">Size</td>
+        </tr>
+    </table>
 
     <h4>EEPROM Read Report (0xF9)</h4>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2-62</th>
+
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">Offset</td>
+            <td>Data</td>
+        </tr>
+    </table>
 
 
     <h4>Echo (0xFA)</h4>

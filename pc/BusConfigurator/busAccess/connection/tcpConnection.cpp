@@ -1,11 +1,12 @@
 #include "tcpConnection.h"
+#include "busAccess.h"
 
-using namespace std;
-
-TcpConnection::TcpConnection(QString ip, uint16_t port)
+TcpConnection::TcpConnection(MiniBusAccess *parrent, QString ip, uint16_t port)
     :_ip{ip}
     ,_port{port}
 {
+    _parrent = parrent;
+
     _canSerial.setBaudrate(CANbeSerial::Baud500k);
     _canSerial.setDataBaudrate(CANbeSerial::Baud500k);
     _canSerial.setTxPaddingEnable(true, 0x00);
@@ -29,7 +30,7 @@ void TcpConnection::open()
     _tcpClient.connectToHost(_ip ,_port);
     _tcpClient.setSocketOption(QAbstractSocket::LowDelayOption, 1);
 
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void TcpConnection::close()
@@ -37,14 +38,14 @@ void TcpConnection::close()
     _tcpClient.disconnectFromHost();
 }
 
-bool TcpConnection::write(RoomBus::Message message)
+bool TcpConnection::write(MiniBus::Message message)
 {
     if(!_isConnected){
         return false;
     }
 
     CanBusFrame frame;
-    frame.identifier = RoomBus::toCanIdentifier(message);
+    frame.identifier = MiniBus::toCanIdentifier(message);
     frame.extended = true;
     frame.fd = true;
     frame.data = message.data;
@@ -72,7 +73,7 @@ void TcpConnection::on_canBeSerial_writeReady(QByteArray data)
 
 void TcpConnection::on_canBeSerial_readReady(CanBusFrame frame)
 {
-    emit received(RoomBus::toMessage(frame.identifier, frame.data));
+    _parrent->_handleMessageReceived(MiniBus::toMessage(frame.identifier, frame.data));
 }
 
 void TcpConnection::on_tcpConnect(void)
@@ -83,19 +84,21 @@ void TcpConnection::on_tcpConnect(void)
         _canSerial.setEnabled(true);
     }
 
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void TcpConnection::on_tcpDisconnect(void)
 {
     _isConnected = _tcpClient.isOpen();
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void TcpConnection::on_stateChanged(QAbstractSocket::SocketState socketState)
 {
+    Q_UNUSED(socketState);
+
     _isConnected = _tcpClient.isOpen();
-    emit connectionChanged();
+    emit _parrent->connectionChanged();
 }
 
 void TcpConnection::on_readyRead(void)

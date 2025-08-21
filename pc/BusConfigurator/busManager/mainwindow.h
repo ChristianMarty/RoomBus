@@ -32,7 +32,7 @@ public:
 private slots:
 
     void on_newData(void);
-    void on_deviceTx(RoomBus::Message msg);
+    void on_deviceTx(MiniBus::Message msg);
 
     void on_scanButton_clicked();
     void on_monitorButton_clicked();
@@ -51,7 +51,7 @@ private:
 
     void addConnection(void);
 
-    RoomBusAccess _busConnection;
+    MiniBusAccess _busConnection;
     ConnectionWidget *_busConnectionWidget = new ConnectionWidget(_busConnection);
 
     busMonitor *_monitorWindow = nullptr;

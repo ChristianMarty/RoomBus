@@ -8,9 +8,9 @@ DeviceManagementProtocol::DeviceManagementProtocol(RoomBusDevice *device)
     connect(&_heartbeatTimer,  &QTimer::timeout, this, &DeviceManagementProtocol::on_heartbeatTimeout);
 }
 
-void DeviceManagementProtocol::handleMessage(RoomBus::Message message)
+void DeviceManagementProtocol::handleMessage(MiniBus::Message message)
 {
-    if(message.protocol != RoomBus::Protocol::DeviceManagementProtocol) return;
+    if(message.protocol != (MiniBus::Protocol)Protocol::DeviceManagementProtocol) return;
 
     _lastMessage = QDateTime::currentDateTime();
 
@@ -29,17 +29,17 @@ void DeviceManagementProtocol::handleMessage(RoomBus::Message message)
             break;
 
         case DeviceManagementSubCommand::HardwareName:
-            _hardwareName = RoomBus::unpackString(data);
+            _hardwareName = MiniBus::unpackString(data);
             emit statusUpdate();
             break;
 
         case DeviceManagementSubCommand::ApplicationName:
-            _applicationName = RoomBus::unpackString(data);
+            _applicationName = MiniBus::unpackString(data);
             emit statusUpdate();
             break;
 
         case DeviceManagementSubCommand::DeviceName:
-            _deviceName = RoomBus::unpackString(data);
+            _deviceName = MiniBus::unpackString(data);
             emit statusUpdate();
             break;
 
@@ -69,21 +69,21 @@ void DeviceManagementProtocol::_decodeSystemInformation(const QByteArray &data)
 {
     if(data.size() != 40) return;
 
-    uint32_t status = RoomBus::unpackUint32(data,0);
+    uint32_t status = MiniBus::unpackUint32(data,0);
     _systemStatus = *((SystemStatus*) &status);
 
-    _hardwareVersion = RoomBus::unpackUint16(data,4);
-    _kernelVersion = RoomBus::unpackUint16(data,6);
-    _heartbeatInterval = RoomBus::unpackUint16(data,8);
-    _extendedHeartbeatInterval = RoomBus::unpackUint16(data,10);
-    _appCRC = RoomBus::unpackUint32(data,12);
-    _appStartAddress = RoomBus::unpackUint32(data,16);
-    _deviceIdentificationCode = RoomBus::unpackUint32(data,20);
+    _hardwareVersion = MiniBus::unpackUint16(data,4);
+    _kernelVersion = MiniBus::unpackUint16(data,6);
+    _heartbeatInterval = MiniBus::unpackUint16(data,8);
+    _extendedHeartbeatInterval = MiniBus::unpackUint16(data,10);
+    _appCRC = MiniBus::unpackUint32(data,12);
+    _appStartAddress = MiniBus::unpackUint32(data,16);
+    _deviceIdentificationCode = MiniBus::unpackUint32(data,20);
 
-    _serialNumber.word0 = RoomBus::unpackUint32(data,24);
-    _serialNumber.word1 = RoomBus::unpackUint32(data,28);
-    _serialNumber.word2 = RoomBus::unpackUint32(data,32);
-    _serialNumber.word3 = RoomBus::unpackUint32(data,36);
+    _serialNumber.word0 = MiniBus::unpackUint32(data,24);
+    _serialNumber.word1 = MiniBus::unpackUint32(data,28);
+    _serialNumber.word2 = MiniBus::unpackUint32(data,32);
+    _serialNumber.word3 = MiniBus::unpackUint32(data,36);
 
     _heartbeatTimer.setInterval(_heartbeatInterval*2500);
     _timeoutStatus = false;
@@ -96,7 +96,7 @@ void DeviceManagementProtocol::_decodeHeartbeat(const QByteArray &data)
 {
     if(data.size() != 4) return;
 
-    uint32_t status = RoomBus::unpackUint32(data,0);
+    uint32_t status = MiniBus::unpackUint32(data,0);
     _systemStatus = *((SystemStatus*) &status);
 
     if(_heartbeatInterval){
@@ -119,9 +119,9 @@ void DeviceManagementProtocol::_decodeCanDiagnosticsReport(const QByteArray &dat
     canDignostics.dataLastErrorCode = static_cast<CanDignostics::ErrorCode>((temp >> 4)& 0x07);
 
     if(data.size() > 5) {
-        appBenchmark.avg = RoomBus::unpackUint32(data,4);
-        appBenchmark.min = RoomBus::unpackUint32(data,8);
-        appBenchmark.max = RoomBus::unpackUint32(data,12);
+        appBenchmark.avg = MiniBus::unpackUint32(data,4);
+        appBenchmark.min = MiniBus::unpackUint32(data,8);
+        appBenchmark.max = MiniBus::unpackUint32(data,12);
     }
 
     emit diagnosticsStatusUpdate();
@@ -130,6 +130,52 @@ void DeviceManagementProtocol::_decodeCanDiagnosticsReport(const QByteArray &dat
 Eeprom &DeviceManagementProtocol::eeprom()
 {
     return _eeprom;
+}
+
+QString DeviceManagementProtocol::commandName(MiniBus::Command command)
+{
+    switch((Command)command){
+    case Command::DeviceToHost: return "Device To Host"; break;
+    case Command::HostToDevice: return "Host To Device"; break;
+    }
+
+    return "Unknown Command";
+}
+
+QString DeviceManagementProtocol::dataDecoder(MiniBus::Command command, const QByteArray &data)
+{
+    if(data.isEmpty()) return ""; // TODO: error handling
+
+    DeviceManagementSubCommand subCommand = (DeviceManagementSubCommand)((uint8_t)data.at(0));
+    QString output = "Unknown Command";
+
+    switch(subCommand){
+        case DeviceManagementSubCommand::Heartbeat: output = "Heartbeat"; break;
+        case DeviceManagementSubCommand::SystemInformation: output = "System Information"; break;
+        case DeviceManagementSubCommand::HardwareName: output = "Hardware Name: "+QString(data.mid(1)) ; break;
+        case DeviceManagementSubCommand::ApplicationName: output = "Application Name: "+QString(data.mid(1)) ; break;
+        case DeviceManagementSubCommand::DeviceName: output = "Device Name: "+QString(data.mid(1)) ; break;
+        case DeviceManagementSubCommand::HeartbeatRequest: output = "Heartbeat Request"; break;
+        case DeviceManagementSubCommand::SystemInformationRequest: output = "System Information Request"; break;
+        case DeviceManagementSubCommand::HeartbeatSettings: output = "Heartbeat Settings"; break;
+        case DeviceManagementSubCommand::WriteControl: output = "Write Control"; break;
+        case DeviceManagementSubCommand::SetControl: output = "Set Control"; break;
+        case DeviceManagementSubCommand::ClearControl: output = "Clear Control"; break;
+        case DeviceManagementSubCommand::EnterAdministrationMode: output = "Enter Root Mode"; break;
+        case DeviceManagementSubCommand::SetDeviceName: output = "Set Device Name"; break;
+        case DeviceManagementSubCommand::SetAddress: output = "Set Address"; break;
+
+        case DeviceManagementSubCommand::CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
+        case DeviceManagementSubCommand::CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
+        case DeviceManagementSubCommand::Echo: output = "Echo"; break;
+        case DeviceManagementSubCommand::Reboot: output = "Reboot"; break;
+        case DeviceManagementSubCommand::EraseApplication: output = "Erase Application"; break;
+        case DeviceManagementSubCommand::EraseApplicationResponse: output = "Erase Application Response"; break;
+        case DeviceManagementSubCommand::Bootload: output = "Bootload"; break;
+        case DeviceManagementSubCommand::BootloadResponse: output = "Bootload Response"; break;
+    }
+
+    return output;
 }
 
 uint16_t DeviceManagementProtocol::heartbeatInterval() const
@@ -162,7 +208,7 @@ void DeviceManagementProtocol::sendEcho(QByteArray txData)
         txData.truncate(63);
     }
 
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::Echo);
     msg.data.append(txData);
 
@@ -226,7 +272,7 @@ void DeviceManagementProtocol::handleAppEraseComplete(void)
 
 void DeviceManagementProtocol::eraseApp(void)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::EraseApplication);
 
     sendMessage(msg);
@@ -234,17 +280,17 @@ void DeviceManagementProtocol::eraseApp(void)
 
 void DeviceManagementProtocol::enterAdministrationMode(QString key)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::EnterAdministrationMode);
     //msg.data.append(RoomBus::packString(key));
-    msg.data.append(RoomBus::packUint16(0x1234));
+    msg.data.append(MiniBus::packUint16(0x1234));
 
     sendMessage(msg);
 }
 
 void DeviceManagementProtocol::exitAdministrationMode(void)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::EnterAdministrationMode);
 
     sendMessage(msg);
@@ -252,7 +298,7 @@ void DeviceManagementProtocol::exitAdministrationMode(void)
 
 void DeviceManagementProtocol::writeAddress(uint8_t address)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::SetAddress);
     msg.data.append((uint8_t)address);
 
@@ -261,7 +307,7 @@ void DeviceManagementProtocol::writeAddress(uint8_t address)
 
 void DeviceManagementProtocol::writeDeviceName(QString name)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::SetDeviceName);
     msg.data.append(name.toLocal8Bit());
 
@@ -270,7 +316,7 @@ void DeviceManagementProtocol::writeDeviceName(QString name)
 
 void DeviceManagementProtocol::writeAdministrationModeKey(QString key)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::SetAdministrationModeKey);
     msg.data.append(key.toLocal8Bit());
 
@@ -279,7 +325,7 @@ void DeviceManagementProtocol::writeAdministrationModeKey(QString key)
 
 void DeviceManagementProtocol::requestHeartbeat(void)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::HeartbeatRequest);
 
     sendMessage(msg);
@@ -287,7 +333,7 @@ void DeviceManagementProtocol::requestHeartbeat(void)
 
 void DeviceManagementProtocol::requestSystemInfo(void)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::SystemInformationRequest);
 
     sendMessage(msg);
@@ -295,7 +341,7 @@ void DeviceManagementProtocol::requestSystemInfo(void)
 
 void DeviceManagementProtocol::requestCanDiagnostics(void)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::CanDiagnosticsRequest);
 
     sendMessage(msg);
@@ -303,7 +349,7 @@ void DeviceManagementProtocol::requestCanDiagnostics(void)
 
 void DeviceManagementProtocol::requestSystemRestart()
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::Reboot);
 
     sendMessage(msg);
@@ -311,37 +357,37 @@ void DeviceManagementProtocol::requestSystemRestart()
 
 void DeviceManagementProtocol::writeHeartbeatInterval(uint16_t heartbeatInterval, uint16_t systemInfoInterval)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::HeartbeatSettings);
-    msg.data.append(RoomBus::packUint16(heartbeatInterval));
-    msg.data.append(RoomBus::packUint16(systemInfoInterval));
+    msg.data.append(MiniBus::packUint16(heartbeatInterval));
+    msg.data.append(MiniBus::packUint16(systemInfoInterval));
 
     sendMessage(msg);
 }
 
 void DeviceManagementProtocol::writeControl(SystemControl sysControl)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::WriteControl);
-    msg.data.append(RoomBus::packUint32(sysControl.reg));
+    msg.data.append(MiniBus::packUint32(sysControl.reg));
 
     sendMessage(msg);
 }
 
 void DeviceManagementProtocol::writeSetControl(SystemControl sysControl)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::SetControl);
-    msg.data.append(RoomBus::packUint32(sysControl.reg));
+    msg.data.append(MiniBus::packUint32(sysControl.reg));
 
     sendMessage(msg);
 }
 
 void DeviceManagementProtocol::writeClearControl(SystemControl sysControl)
 {
-    RoomBus::Message msg;
+    MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::ClearControl);
-    msg.data.append(RoomBus::packUint32(sysControl.reg));
+    msg.data.append(MiniBus::packUint32(sysControl.reg));
 
     sendMessage(msg);
 }
@@ -362,10 +408,10 @@ QString DeviceManagementProtocol::getCanErrorCode(DeviceManagementProtocol::CanD
     return "Unknown";
 }
 
-void DeviceManagementProtocol::sendMessage(RoomBus::Message message)
+void DeviceManagementProtocol::sendMessage(MiniBus::Message message)
 {
-    message.protocol = RoomBus::Protocol::DeviceManagementProtocol;
-    message.command = (RoomBus::Command)RoomBus::DeviceManagementCommand::HostToDevice;
+    message.protocol = (MiniBus::Protocol)Protocol::DeviceManagementProtocol;
+    message.command = (MiniBus::Command)Command::HostToDevice;
     ProtocolBase::sendMessage(message);
 }
 
@@ -381,9 +427,9 @@ void DeviceManagementProtocol::writeBinaryChunk(void)
     QByteArray data = _appBinary.binary().at(0).data;
 
     if(_bootloadDataIndex < data.length()){
-        RoomBus::Message msg;
+        MiniBus::Message msg;
         msg.data.append((uint8_t)DeviceManagementSubCommand::Bootload);
-        msg.data.append(RoomBus::packUint32(_bootloadDataIndex));
+        msg.data.append(MiniBus::packUint32(_bootloadDataIndex));
 
         for(uint8_t i= 0; i<32;i++){
             if(_bootloadDataIndex >= data.length()) break;

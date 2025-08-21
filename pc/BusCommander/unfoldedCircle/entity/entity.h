@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-namespace RoomBus {
+namespace MiniBus {
     class Message;
 }
 
@@ -37,7 +37,7 @@ public:
     virtual void commandHandler(QJsonObject data) {Q_UNUSED(data)};
 
     virtual void stateSystemHandler(uint16_t channel, uint8_t state){Q_UNUSED(channel); Q_UNUSED(state);};
-    virtual void valueSystemHandler(const RoomBus::Message &message){Q_UNUSED(message)};
+    virtual void valueSystemHandler(const MiniBus::Message &message){Q_UNUSED(message)};
 
     virtual QJsonObject json(void) const;
 

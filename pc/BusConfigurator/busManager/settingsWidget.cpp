@@ -42,7 +42,7 @@ void SettingsWidget::updateData(void)
     ui->appRunBox->setChecked(_busDevice->systemStatus().applicationRuning);
     ui->autostartAppBox->setChecked(_busDevice->systemStatus().applicationRunOnStartup);
     ui->checkBox_messageLogEnabled->setChecked(_busDevice->systemStatus().messageLogEnabled);
-    ui->checkBox_administrationMode->setChecked(_busDevice->systemStatus().administrationMode);
+    ui->checkBox_administratorAccess->setChecked(_busDevice->systemStatus().administratorAccess);
 }
 
 void SettingsWidget::on_setNameButton_clicked()
@@ -142,13 +142,15 @@ void SettingsWidget::on_clearLog_button_clicked()
      ui->logBox->clear();
 }
 
-void SettingsWidget::on_checkBox_administrationMode_clicked(bool checked)
+void SettingsWidget::on_checkBox_administratorAccess_clicked(bool checked)
 {
-    if(checked) _busDevice->management().enterAdministrationMode(ui->lineEdit_administrationKey->text());
+    if(checked) _busDevice->management().enterAdministrationMode(ui->lineEdit_administratorKey->text());
     else _busDevice->management().exitAdministrationMode();
 }
 
-void SettingsWidget::on_pushButton_setAdministrationKey_clicked()
+void SettingsWidget::on_pushButton_setAdministratorKey_clicked()
 {
-    _busDevice->management().writeAdministrationModeKey(ui->lineEdit_administrationKey->text());
+    _busDevice->management().writeAdministrationModeKey(ui->lineEdit_administratorKey->text());
 }
+
+

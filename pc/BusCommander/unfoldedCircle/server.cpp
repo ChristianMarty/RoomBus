@@ -50,7 +50,7 @@ Server::Server(RoomBusInterface *roomBusInterface, QObject *parent)
     qDebug(("Server listening on port "+ QString::number(_port)).toLocal8Bit());
 
     if(_roomBusInterface){
-        connect(_roomBusInterface->busConnection(), &RoomBusAccess::newData, this, &Server::on_newRoomBusData);
+        connect(_roomBusInterface->busConnection(), &MiniBusAccess::newData, this, &Server::on_newRoomBusData);
     }
 }
 
@@ -113,7 +113,7 @@ void Server::on_newRoomBusData()
 {
     while(_roomBusInterface->busConnection()->rxMsgBuffer.size())
     {
-        RoomBus::Message temp = _roomBusInterface->busConnection()->rxMsgBuffer.first();
+        MiniBus::Message temp = _roomBusInterface->busConnection()->rxMsgBuffer.first();
         _roomBusInterface->busConnection()->rxMsgBuffer.removeFirst();
 
         for(Remote *remote: _remotes){

@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     _settings.readFile("C:/Users/Christian/Raumsteuerung/RoomBus/pc/BusConfigurator/settings.xml");
 
-    connect(&_busConnection, &RoomBusAccess::newData,this, &MainWindow::on_newData);
+    connect(&_busConnection, &MiniBusAccess::messageReceived,this, &MainWindow::on_newData);
 
     addConnection();
     ui->connectionDock->setWidget(_busConnectionWidget);
@@ -36,9 +36,9 @@ void MainWindow::addConnection()
 
 void MainWindow::on_newData(void)
 {
-    while(_busConnection.rxMsgBuffer.size()) {
-        RoomBus::Message temp = _busConnection.rxMsgBuffer.first();
-        _busConnection.rxMsgBuffer.removeFirst();
+    while(_busConnection.rxMessageBuffer.size()) {
+        MiniBus::Message temp = _busConnection.rxMessageBuffer.first();
+        _busConnection.rxMessageBuffer.removeFirst();
 
         if(_monitorWindow != nullptr) {
             _monitorWindow->on_newMessage(temp);
@@ -49,7 +49,7 @@ void MainWindow::on_newData(void)
     }
 }
 
-void MainWindow::on_deviceTx(RoomBus::Message msg)
+void MainWindow::on_deviceTx(MiniBus::Message msg)
 {
     msg.sourceAddress = 0;
     //msg.priority = RoomBus::Priority::Normal;

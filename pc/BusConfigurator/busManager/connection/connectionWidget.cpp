@@ -1,7 +1,7 @@
 #include "connectionWidget.h"
 #include "ui_connectionWidget.h"
 
-ConnectionWidget::ConnectionWidget(RoomBusAccess &roomBusAccess, QWidget *parent)
+ConnectionWidget::ConnectionWidget(MiniBusAccess &roomBusAccess, QWidget *parent)
     :QWidget(parent)
     ,ui(new Ui::ConnectionWidget)
     ,_roomBusAccess{roomBusAccess}
@@ -9,7 +9,7 @@ ConnectionWidget::ConnectionWidget(RoomBusAccess &roomBusAccess, QWidget *parent
     ui->setupUi(this);
     _updateUi();
 
-    connect(&_roomBusAccess, &RoomBusAccess::connectionChanged, this, &ConnectionWidget::on_connectionChanged);
+    connect(&_roomBusAccess, &MiniBusAccess::connectionChanged, this, &ConnectionWidget::on_connectionChanged);
 }
 
 ConnectionWidget::~ConnectionWidget()

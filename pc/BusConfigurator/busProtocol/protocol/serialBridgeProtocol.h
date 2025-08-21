@@ -1,15 +1,22 @@
 #ifndef SERIALBRIDGEPROTOCOL_H
 #define SERIALBRIDGEPROTOCOL_H
 
-
 #include <QObject>
 #include <QMap>
+
 #include "protocolBase.h"
 
 class SerialBridgeProtocol: public ProtocolBase
 {
     Q_OBJECT
 public:
+
+    enum class Command:MiniBus::Command {
+        Data  = 0,
+        PortInfoReport = 4,
+        PortInfoRequest = 5
+    };
+
     enum sbp_status_t{
         ok,
         crcError
@@ -25,7 +32,10 @@ public:
 
     void sendData(uint8_t port, QByteArray data);
 
-    void handleMessage(RoomBus::Message msg);
+    void handleMessage(MiniBus::Message msg);
+
+    static QString commandName(MiniBus::Command command);
+    static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
 
 signals:
     void receiveData(uint8_t port, sbp_status_t status, QByteArray data);

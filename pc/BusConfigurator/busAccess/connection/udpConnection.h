@@ -5,17 +5,17 @@
 #include "../../QuCLib/source/CANbeSerial.h"
 #include "connection.h"
 
-class UdpConnection : public RoomBusConnection
+class UdpConnection : public MiniBusConnection
 {
     Q_OBJECT
 public:
-    UdpConnection(QString ip, uint16_t port);
+    UdpConnection(MiniBusAccess *parrent, QString ip, uint16_t port);
     ~UdpConnection();
 
     void open(void) override;
     void close(void) override;
 
-    bool write(RoomBus::Message message) override;
+    bool write(MiniBus::Message message) override;
 
     QString getConnectionName(void) override;
     QString getConnectionPath(void) override;

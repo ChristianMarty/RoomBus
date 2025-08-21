@@ -6,17 +6,17 @@
 #include "../../QuCLib/source/CANbeSerial.h"
 #include "connection.h"
 
-class TcpConnection : public RoomBusConnection
+class TcpConnection : public MiniBusConnection
 {
     Q_OBJECT
 public:
-    TcpConnection(QString ip, uint16_t port);
+    TcpConnection(MiniBusAccess *parrent, QString ip, uint16_t port);
     ~TcpConnection();
 
     void open(void) override;
     void close(void) override;
 
-    bool write(RoomBus::Message message) override;
+    bool write(MiniBus::Message message) override;
 
     QString getConnectionName(void) override;
     QString getConnectionPath(void) override;

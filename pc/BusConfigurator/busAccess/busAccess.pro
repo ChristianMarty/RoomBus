@@ -48,7 +48,7 @@ HEADERS += \
         connection/socketCanConnection.h \
         connection/tcpConnection.h \
         connection/udpConnection.h \
-        roomBusMessage.h
+        miniBusMessage.h
 
 unix {
     target.path = /usr/lib

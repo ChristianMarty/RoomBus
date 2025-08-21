@@ -55,7 +55,7 @@ public:
     friend Entity;
 
     RoomBusInterface *roomBusInterface();
-    void pushRoomBusMessage(const RoomBus::Message &message);
+    void pushRoomBusMessage(const MiniBus::Message &message);
 
 signals:
     void disconnected(Remote* remote);

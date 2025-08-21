@@ -7,11 +7,23 @@
 
 #include "protocolBase.h"
 
-
 class ValueSystemProtocol : public ProtocolBase
 {
     Q_OBJECT
 public:
+
+    enum class Command:MiniBus::Command {
+        ValueReport,
+        ValueRequest,
+        ValueCommand,
+        Reserved0,
+
+        SignalInformationReport,
+        SlotInformationReport,
+
+        SignalInformationRequest,
+        SlotInformationRequest
+    };
 
     enum UnitType {
         Long,
@@ -91,7 +103,7 @@ public:
 
     ValueSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(RoomBus::Message message);
+    void handleMessage(MiniBus::Message message);
 
     void sendValueCommand(uint16_t channel, ValueData value);
 
@@ -112,6 +124,9 @@ public:
     QList<ValueSystemProtocol::ValueSlot*> valueSlots();
     QList<ValueSystemProtocol::ValueSignal*> valueSignls();
 
+    static QString commandName(MiniBus::Command command);
+    static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
+
 signals:
     void signalValueChnage(uint16_t channel);
 
@@ -122,9 +137,9 @@ private:
     QMap<uint16_t, ValueSystemProtocol::ValueSignal> _valueSignal;
     QMap<uint16_t, ValueSystemProtocol::ValueSlot> _valueSlot;
 
-    void _parseValue(RoomBus::Message msg);
-    void _parseSignalInformationReport(RoomBus::Message msg);
-    void _parseSlotInformationReport(RoomBus::Message msg);
+    void _parseValue(MiniBus::Message msg);
+    void _parseSignalInformationReport(MiniBus::Message msg);
+    void _parseSlotInformationReport(MiniBus::Message msg);
 
     uint8_t _typeToSize(UnitType type);
     ValueData _decodeData(UnitType type, QByteArray data);

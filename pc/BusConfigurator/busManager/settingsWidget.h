@@ -44,9 +44,9 @@ private slots:
 
     void on_clearLog_button_clicked();
 
-    void on_checkBox_administrationMode_clicked(bool checked);
+    void on_checkBox_administratorAccess_clicked(bool checked);
 
-    void on_pushButton_setAdministrationKey_clicked();
+    void on_pushButton_setAdministratorKey_clicked();
 
     void on_checkBox_messageLogEnabled_clicked(bool checked);
 

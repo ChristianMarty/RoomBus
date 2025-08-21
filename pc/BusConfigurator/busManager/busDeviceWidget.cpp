@@ -44,8 +44,8 @@ void BusDeviceWidget::updateData(void)
     if(_device->timeoutStatus()){
         ui->appStatusLabel->setText("Timeout");
         ui->appStatusLabel->setStyleSheet("color: orange;");
-    }else if(systemStatus.administrationMode){
-        ui->appStatusLabel->setText("Administration Mode");
+    }else if(systemStatus.administratorAccess){
+        ui->appStatusLabel->setText("Administrator Access");
         ui->appStatusLabel->setStyleSheet("color: blue;");
     }else if(systemStatus.applicationRuning){
         ui->appStatusLabel->setText("Runnig");
