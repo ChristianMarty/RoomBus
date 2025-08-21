@@ -31,7 +31,7 @@ tickTimer_t taskTimer;
 tickTimer_t redLedTimer;
 tickTimer_t greenLedTimer;
 
-uint8_t administrationModeButtonCounter = 0;
+uint8_t administratorAccessButtonCounter = 0;
 
 void userIo_initialize(void)
 {
@@ -42,23 +42,23 @@ void userIo_initialize(void)
 	ledState.byte = 0;
 
 	LedInitialization(); // Set pins for LED as output
-	AmbInitialization(); // enable input for Button pin
+	AabInitialization(); // enable input for Button pin
 }
 
 void userIo_handler(void)
 {
-	if(!AmbRead()){
-		administrationModeButtonCounter = 0;
+	if(!AabRead()){
+		administratorAccessButtonCounter = 0;
 	}
 	
 	if(tickTimer_delay1ms(&taskTimer, 500)){
 		
-		if(AmbRead()){
-			administrationModeButtonCounter++;
+		if(AabRead()){
+			administratorAccessButtonCounter++;
 		}
 		
-		if(administrationModeButtonCounter > 6) {
-			sysControlHandler.sysStatus.bit.administrationMode = true;
+		if(administratorAccessButtonCounter > 6) {
+			sysControlHandler.sysStatus.bit.administratorAccess = true;
 		}
 		
 		if(sysControlHandler.sysStatus.bit.identify){
@@ -75,12 +75,13 @@ void userIo_handler(void)
 		}
 	}
 	
-	if(sysControlHandler.sysStatus.bit.identify) return;
+	if(sysControlHandler.sysStatus.bit.identify) return; // <- return --------------------------------------------
 		
 	if(!sysControlHandler.sysControl.bit.userLedEnabled){
 		LedRedDisable();
 		LedGreenDisable();
-		LedBlueDisable();
+		if(sysControlHandler.sysStatus.bit.administratorAccess) LedBlueEnable();
+		else LedBlueDisable();
 		return;
 	}
 	
@@ -92,7 +93,7 @@ void userIo_handler(void)
 		ledState.bit.green = false;
 	}
 	
-	ledState.bit.blue = sysControlHandler.sysStatus.bit.administrationMode;
+	ledState.bit.blue = sysControlHandler.sysStatus.bit.administratorAccess;
 	
 	if(ledState.bit.red){
 		LedRedEnable();
@@ -125,11 +126,6 @@ void userIo_rxLed(void)
 {
 	tickTimer_reset(&greenLedTimer);
 	ledState.bit.green = true;
-}
-
-bool userIo_getButton(void)
-{
-	return AmbRead();
 }
 
 #ifdef __cplusplus

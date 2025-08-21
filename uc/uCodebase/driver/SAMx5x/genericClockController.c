@@ -49,7 +49,7 @@ gclk_error_t glck_generatorDisable(gclk_generator_t generator)
 	return GCLK_ERROR_noError;
 }
 
-gclk_error_t gclk_peripheralEnable(gclk_peripheral_t peripheralChannel,gclk_generator_t clkGenerator)
+gclk_error_t gclk_peripheralEnable(gclk_peripheral_t peripheralChannel, gclk_generator_t clkGenerator)
 {
 	if(peripheralChannel >= GCLK_PERIPHERAL_SIZE) return GCLK_ERROR_peripheralChannelOutOfRange;
 	if(clkGenerator >= GCLK_GENERATOR_SIZE) return GCLK_ERROR_generatorOutOfRange;

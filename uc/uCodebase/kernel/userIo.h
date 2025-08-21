@@ -20,8 +20,6 @@ void userIo_handler(void);
 void userIo_txLed(void);
 void userIo_rxLed(void);
 
-bool userIo_getButton(void);
-
 #ifdef __cplusplus
 }
 #endif

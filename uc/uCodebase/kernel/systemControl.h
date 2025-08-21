@@ -24,8 +24,8 @@ typedef struct {
 	uint8_t deviceName[MAX_STRING_SIZE];
 	uint8_t deviceNameLength;
 
-	uint8_t administrationModeKey[MAX_STRING_SIZE];
-	uint8_t administrationModeKeyLength;
+	uint8_t administratorAccessKey[MAX_STRING_SIZE];
+	uint8_t administratorAccessKeyLength;
 	
 	uint8_t reserved0[128];
 	
@@ -50,7 +50,7 @@ typedef struct {
     uint32_t applicationRunOnStartup : 1;
     uint32_t userLedEnabled : 1;
     uint32_t identify : 1;
-    uint32_t administrationMode : 1;
+    uint32_t administratorAccess : 1;
     uint32_t messageLogEnabled : 1;
     uint32_t reserved0 : 1;
 

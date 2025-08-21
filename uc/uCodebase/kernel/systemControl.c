@@ -17,7 +17,6 @@
 
 uint32_t sysControlTaskTick;
 
-
 eememData_t eememData EEPROM = {
 	.deviceAddress = 0,
 	.systemSavedSettings = 0,
@@ -27,8 +26,8 @@ eememData_t eememData EEPROM = {
 	.deviceName = {"New Device"},
 	.deviceNameLength = 10,
 	
-	.administrationModeKey  = {0x12, 0x34},
-	.administrationModeKeyLength = 2,
+	.administratorAccessKey  = {0x12, 0x34},
+	.administratorAccessKeyLength = 2,
 	
 	.reserved0 = {},
 	.appData = {}
@@ -133,7 +132,7 @@ void systemControl_handler(void)
 		systemControl_setAppCrcError(!systemControl_checkAppValid());
 		
 		kernel.kernelSignals->ledDisabled = sysControlHandler.sysControl.bit.userLedEnabled;
-		kernel.kernelSignals->administrationMode = sysControlHandler.sysStatus.bit.administrationMode;
+		kernel.kernelSignals->administratorAccess = sysControlHandler.sysStatus.bit.administratorAccess;
 	}
 	
 	if(systemControl_getAppRun()){

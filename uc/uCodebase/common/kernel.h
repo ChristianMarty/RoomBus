@@ -31,7 +31,7 @@ typedef struct{
 	uint32_t initApp : 1;
 	uint32_t shutdownApp : 1;
 	uint32_t ledDisabled : 1;
-	uint32_t administrationMode : 1;
+	uint32_t administratorAccess : 1;
 	uint32_t identify : 1;
 	uint32_t kernelError :1;
 } kernelSignals_t;

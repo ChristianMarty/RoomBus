@@ -55,10 +55,10 @@ void writeHeartbeatSettings(uint8_t *data, uint8_t size);
 void writeControl(uint8_t *data, uint8_t size);
 void setControl(uint8_t *data, uint8_t size);
 void clrControl(uint8_t *data, uint8_t size);
-void enterAdministrationMode(uint8_t *data, uint8_t size);
-void exitAdministrationMode(void);
+void enteradministratorAccess(uint8_t *data, uint8_t size);
+void exitadministratorAccess(void);
 void writeDeviceName(uint8_t *data, uint8_t size);
-void writeAdministrationModeKey(uint8_t *data, uint8_t size);
+void writeadministratorAccessKey(uint8_t *data, uint8_t size);
 void writeAddress(uint8_t sourceAddress, uint8_t *data, uint8_t size);
 void sendDiagnosticsReport(void);
 void sendEepromReport(uint8_t sourceAddress, uint8_t *data, uint8_t size);
@@ -138,12 +138,12 @@ bool dmp_receiveHandler(bus_rxMessage_t *message)
 			clrControl(data, dataLength);
 			return true;
 
-		case dmp_cmdEnterAdministrationMode:
-			enterAdministrationMode(data, dataLength);
+		case dmp_cmdEnteradministratorAccess:
+			enteradministratorAccess(data, dataLength);
 			return true;
 			
-		case dmp_cmdExitAdministrationMode:
-			exitAdministrationMode();
+		case dmp_cmdExitadministratorAccess:
+			exitadministratorAccess();
 			return true;
 		
 		case dmp_cmdReboot:
@@ -159,7 +159,7 @@ bool dmp_receiveHandler(bus_rxMessage_t *message)
 			return true;
 	}
 	
-	if(sysControlPtr->sysStatus.bit.administrationMode){
+	if(sysControlPtr->sysStatus.bit.administratorAccess){
 		switch(message->data[0])
 		{
 			// Administration mode commands
@@ -168,8 +168,8 @@ bool dmp_receiveHandler(bus_rxMessage_t *message)
 				sendSystemInfo();
 				return true;
 					
-			case dmp_cmdSetAdministrationModeKey:
-				writeAdministrationModeKey(data, dataLength);
+			case dmp_cmdSetadministratorAccessKey:
+				writeadministratorAccessKey(data, dataLength);
 				return true;
 			
 			case dmp_cmdSetDeviceName:
@@ -197,13 +197,13 @@ bool dmp_receiveHandler(bus_rxMessage_t *message)
 		switch(message->data[0])
 		{
 			case dmp_cmdHeartbeatSettings:
-			case dmp_cmdSetAdministrationModeKey:
+			case dmp_cmdSetadministratorAccessKey:
 			case dmp_cmdSetDeviceName:
 			case dmp_cmdSetAddress:
 			case dmp_cmdEraseApp:
 			case dmp_cmdBtl:
 			case dmp_eepromReadRequest:
-				mlp_sysWarning("Administration Mode required");
+				mlp_sysWarning("Administrator access required");
 				return true;
 		}
 	}
@@ -351,41 +351,41 @@ void clrControl(uint8_t *data, uint8_t size)
 	sysControlPtr->sysControl.reg &= ~unpack_uint32(&data[0]);
 }
 
-void enterAdministrationMode(uint8_t *data, uint8_t size)
+void enteradministratorAccess(uint8_t *data, uint8_t size)
 {
 	bool keyValid = false;
 	uint8_t deviceName[60];
 
-	uint8_t length = eeporm_readByte(&eememData.administrationModeKeyLength);
+	uint8_t length = eeporm_readByte(&eememData.administratorAccessKeyLength);
 	if(length > sizeof(deviceName)){
 		length = 0; // in case length is to long -> e.g. on first boot
 	}
 
 	if(length == size){
-		eeprom_readArray(&deviceName[0], &eememData.administrationModeKey[0], length);
+		eeprom_readArray(&deviceName[0], &eememData.administratorAccessKey[0], length);
 		keyValid = string_isEqual((char*)&data[0], (char*)&deviceName[0], size);
 	}
 
-	if(!keyValid && !sysControlPtr->sysStatus.bit.administrationMode){
+	if(!keyValid && !sysControlPtr->sysStatus.bit.administratorAccess){
 		mlp_sysWarning("Administration key invalid");
 	}
 
-	sysControlPtr->sysStatus.bit.administrationMode = keyValid;
-	sysControlPtr->sysStatusOld.bit.administrationMode = keyValid;
+	sysControlPtr->sysStatus.bit.administratorAccess = keyValid;
+	sysControlPtr->sysStatusOld.bit.administratorAccess = keyValid;
 
 	dmp_sendHeartbeat();
 }
 
-void exitAdministrationMode(void)
+void exitadministratorAccess(void)
 {
-	sysControlPtr->sysStatus.bit.administrationMode = false;
+	sysControlPtr->sysStatus.bit.administratorAccess = false;
 }
 
-void writeAdministrationModeKey(uint8_t *data, uint8_t size)
+void writeadministratorAccessKey(uint8_t *data, uint8_t size)
 {
 	if(size-1 < MAX_STRING_SIZE){
-		eeprom_writeArray(&data[0], &eememData.administrationModeKey[0], size);
-		eeprom_writeByte(size, &eememData.administrationModeKeyLength);
+		eeprom_writeArray(&data[0], &eememData.administratorAccessKey[0], size);
+		eeprom_writeByte(size, &eememData.administratorAccessKeyLength);
 	}
 }
 

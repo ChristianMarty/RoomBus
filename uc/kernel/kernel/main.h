@@ -27,10 +27,10 @@
 
 
 /******************************************************************************
-Administration Mode Button (AMB) settings
+Administrator Access Button (AAB) settings
 ******************************************************************************/
-#define AmbInitialization() PORT->Group[0].PINCFG[31].bit.INEN = true
-#define AmbRead() (PORT->Group[0].IN.reg & PORT_PA31)
+#define AabInitialization() PORT->Group[0].PINCFG[31].bit.INEN = true
+#define AabRead() (PORT->Group[0].IN.reg & PORT_PA31)
 
 
 /******************************************************************************

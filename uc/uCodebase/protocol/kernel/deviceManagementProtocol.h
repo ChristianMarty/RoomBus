@@ -30,11 +30,11 @@ typedef enum {
 	dmp_cmdWriteControl,
 	dmp_cmdSetControl,
 	dmp_cmdClearControl,
-	dmp_cmdEnterAdministrationMode,
-	dmp_cmdExitAdministrationMode,
+	dmp_cmdEnteradministratorAccess,
+	dmp_cmdExitadministratorAccess,
 	dmp_cmdSetDeviceName, //*
 	dmp_cmdSetAddress, //*
-	dmp_cmdSetAdministrationModeKey, //*
+	dmp_cmdSetadministratorAccessKey, //*
 	
 	dmp_canDiagnosticsRequest = 0xF0,
 	dmp_canDiagnosticsReport = 0xF1,
