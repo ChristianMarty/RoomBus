@@ -1,5 +1,5 @@
-#ifndef STATEREPORTPROTOCOL_H
-#define STATEREPORTPROTOCOL_H
+#ifndef STATESYSTEMPROTOCOL_H
+#define STATESYSTEMPROTOCOL_H
 
 #include <QObject>
 #include <QMap>
@@ -81,4 +81,4 @@ private:
     void _parseSlotInformationReport(MiniBus::Message msg);
 };
 
-#endif // STATEREPORTPROTOCOL_H
+#endif // STATESYSTEMPROTOCOL_H

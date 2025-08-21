@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "busDevice.h"
-#include "protocol/stateReportProtocol.h"
+#include "protocol/stateSystemProtocol.h"
 #include "stateReportSignalLine.h"
 #include "stateReportSlotLine.h"
 

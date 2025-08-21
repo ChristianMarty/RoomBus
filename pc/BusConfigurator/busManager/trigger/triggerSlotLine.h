@@ -2,7 +2,7 @@
 #define TRIGGER_SLOT_LINE_WIDGET_H
 
 #include <QWidget>
-#include "protocol/triggerProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
 
 namespace Ui {
 class TriggerSlotLineWidget;

@@ -1,6 +1,6 @@
 #include "valueSignalLine.h"
 #include "ui_valueSignalLine.h"
-#include "protocol/valueProtocol.h"
+#include "protocol/valueSystemProtocol.h"
 
 ValueSignalLineWidget::ValueSignalLineWidget(ValueSystemProtocol* protocol, ValueSystemProtocol::ValueSignal* valueSignal, QWidget *parent) :
     QWidget(parent),

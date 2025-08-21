@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "busDevice.h"
-#include "protocol/valueProtocol.h"
+#include "protocol/valueSystemProtocol.h"
 #include "valueSignalLine.h"
 #include "valueSlotLine.h"
 

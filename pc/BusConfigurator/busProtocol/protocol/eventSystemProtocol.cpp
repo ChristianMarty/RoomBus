@@ -1,4 +1,4 @@
-#include "eventProtocol.h"
+#include "eventSystemProtocol.h"
 #include "busDevice.h"
 
 EventSystemProtocol::EventSystemProtocol(RoomBusDevice *device)

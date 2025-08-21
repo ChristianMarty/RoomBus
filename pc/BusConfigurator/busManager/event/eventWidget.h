@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "busDevice.h"
-#include "protocol/eventProtocol.h"
+#include "protocol/eventSystemProtocol.h"
 #include "eventSignalLine.h"
 #include "eventSlotLine.h"
 

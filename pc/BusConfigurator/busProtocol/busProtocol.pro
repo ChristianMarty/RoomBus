@@ -29,14 +29,14 @@ SOURCES += \
         busDevice.cpp \
         protocol/deviceManagementProtocol/deviceManagementProtocol.cpp \
         protocol/deviceManagementProtocol/eeprom.cpp \
+        protocol/eventSystemProtocol.cpp \
         protocol/protocolBase.cpp \
         protocol/messageLogProtocol.cpp \
-        protocol/eventProtocol.cpp \
         protocol/fileTransferProtocol.cpp \
         protocol/serialBridgeProtocol.cpp \
-        protocol/stateReportProtocol.cpp \
-        protocol/triggerProtocol.cpp \
-        protocol/valueProtocol.cpp \
+        protocol/stateSystemProtocol.cpp \
+        protocol/triggerSystemProtocol.cpp \
+        protocol/valueSystemProtocol.cpp \
         serialBridge.cpp
 
 HEADERS += \
@@ -46,14 +46,14 @@ HEADERS += \
         busDevice.h \
         protocol/deviceManagementProtocol/deviceManagementProtocol.h \
         protocol/deviceManagementProtocol/eeprom.h \
+        protocol/eventSystemProtocol.h \
         protocol/protocolBase.h \
         protocol/messageLogProtocol.h \
-        protocol/eventProtocol.h \
         protocol/fileTransferProtocol.h \
         protocol/serialBridgeProtocol.h \
-        protocol/stateReportProtocol.h \
-        protocol/triggerProtocol.h \
-        protocol/valueProtocol.h \
+        protocol/stateSystemProtocol.h \
+        protocol/triggerSystemProtocol.h \
+        protocol/valueSystemProtocol.h \
         serialBridge.h
 unix {
     target.path = /usr/lib

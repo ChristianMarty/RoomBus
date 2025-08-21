@@ -4,11 +4,11 @@
 #include "deviceManagementProtocol/deviceManagementProtocol.h"
 #include "messageLogProtocol.h"
 #include "fileTransferProtocol.h"
-#include "triggerProtocol.h"
-#include "stateReportProtocol.h"
-#include "eventProtocol.h"
+#include "triggerSystemProtocol.h"
+#include "stateSystemProtocol.h"
+#include "eventSystemProtocol.h"
 #include "serialBridgeProtocol.h"
-#include "valueProtocol.h"
+#include "valueSystemProtocol.h"
 
 ProtocolBase::ProtocolBase(RoomBusDevice *device)
 {

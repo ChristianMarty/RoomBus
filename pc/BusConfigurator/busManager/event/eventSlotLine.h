@@ -2,7 +2,7 @@
 #define EVENT_SLOT_LINE_WIDGET_H
 
 #include <QWidget>
-#include "protocol/eventProtocol.h"
+#include "protocol/eventSystemProtocol.h"
 
 namespace Ui {
 class EventSlotLineWidget;

@@ -1,4 +1,4 @@
-#include "triggerProtocol.h"
+#include "triggerSystemProtocol.h"
 #include "busDevice.h"
 
 TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device)

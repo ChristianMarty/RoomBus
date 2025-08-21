@@ -1,4 +1,4 @@
-#include "stateReportProtocol.h"
+#include "stateSystemProtocol.h"
 #include "busDevice.h"
 
 StateSystemProtocol::StateSystemProtocol(RoomBusDevice *device)

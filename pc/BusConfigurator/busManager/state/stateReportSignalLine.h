@@ -2,7 +2,7 @@
 #define STATE_REPORT_SIGNAL_LINE_WIDGET_H
 
 #include <QWidget>
-#include "protocol/stateReportProtocol.h"
+#include "protocol/stateSystemProtocol.h"
 
 namespace Ui {
 class StateReportSignalLineWidget;

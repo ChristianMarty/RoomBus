@@ -2,7 +2,7 @@
 #define VALUE_SIGNAL_LINE_WIDGET_H
 
 #include <QWidget>
-#include "protocol/valueProtocol.h"
+#include "protocol/valueSystemProtocol.h"
 
 namespace Ui {
 class ValueSignalLineWidget;

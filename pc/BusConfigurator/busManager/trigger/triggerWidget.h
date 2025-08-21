@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "busDevice.h"
-#include "protocol/triggerProtocol.h"
+#include "protocol/triggerSystemProtocol.h"
 #include "triggerSignalLine.h"
 #include "triggerSlotLine.h"
 
