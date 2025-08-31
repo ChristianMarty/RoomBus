@@ -51,19 +51,19 @@ void sendSystemInfo(void);
 void sendHardwareName(void);
 void sendApplicationName(void);
 void sendDeviceName(void);
-void writeHeartbeatSettings(uint8_t *data, uint8_t size);
-void writeControl(uint8_t *data, uint8_t size);
-void setControl(uint8_t *data, uint8_t size);
-void clrControl(uint8_t *data, uint8_t size);
-void enteradministratorAccess(uint8_t *data, uint8_t size);
+void writeHeartbeatSettings(const uint8_t *data, uint8_t size);
+void writeControl(const uint8_t *data, uint8_t size);
+void setControl(const uint8_t *data, uint8_t size);
+void clrControl(const uint8_t *data, uint8_t size);
+void enteradministratorAccess(const uint8_t *data, uint8_t size);
 void exitadministratorAccess(void);
-void writeDeviceName(uint8_t *data, uint8_t size);
-void writeadministratorAccessKey(uint8_t *data, uint8_t size);
-void writeAddress(uint8_t sourceAddress, uint8_t *data, uint8_t size);
+void writeDeviceName(const uint8_t *data, uint8_t size);
+void writeadministratorAccessKey(const uint8_t *data, uint8_t size);
+void writeAddress(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 void sendDiagnosticsReport(void);
-void sendEepromReport(uint8_t sourceAddress, uint8_t *data, uint8_t size);
-void echo(uint8_t sourceAddress, uint8_t *data, uint8_t size);
-void reboot(uint8_t sourceAddress, uint8_t *data, uint8_t size);
+void sendEepromReport(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+void echo(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+void reboot(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 
 
 uint32_t appStartAddress;
@@ -110,10 +110,10 @@ uint8_t dmp_getDeviceAddress(void)
 	return tmp;
 }
 
-bool dmp_receiveHandler(bus_rxMessage_t *message)
+bool dmp_receiveHandler(const bus_rxMessage_t *message)
 {	
-	uint8_t *data = &message->data[1];
-	uint8_t dataLength = message->dataLength-1;
+	const uint8_t *data = &message->data[1];
+	uint8_t dataLength = message->length-1;
 	
 	switch(message->data[0])
 	{
@@ -213,7 +213,7 @@ bool dmp_receiveHandler(bus_rxMessage_t *message)
 
 void dmp_sendHeartbeat(void)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -235,7 +235,7 @@ void dmp_sendExtendedHeartbeat(void)
 
 void sendSystemInfo(void)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -262,7 +262,7 @@ void sendSystemInfo(void)
 
 void sendHardwareName(void)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -274,7 +274,7 @@ void sendHardwareName(void)
 
 void sendApplicationName(void)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -292,7 +292,7 @@ void sendDeviceName(void)
 	if(length > sizeof(DeviceName)) length = 0; // in case length is to long -> e.g. on first boot
 	eeprom_readArray(&DeviceName[0], &eememData.deviceName[0], length);
 	
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -304,7 +304,7 @@ void sendDeviceName(void)
 
 void sendDiagnosticsReport(void)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -320,7 +320,7 @@ void sendDiagnosticsReport(void)
 	benchmark_reset(&sysControlPtr->appBenchmark);
 }
 
-void writeHeartbeatSettings(uint8_t *data, uint8_t size)
+void writeHeartbeatSettings(const uint8_t *data, uint8_t size)
 {
 	uint16_t u16Temp = unpack_uint16(&data[0]);
 	if(u16Temp == 0) u16Temp = 1;
@@ -333,25 +333,25 @@ void writeHeartbeatSettings(uint8_t *data, uint8_t size)
 	extendedHeartbeatIntervalTime = eeporm_readWord(&eememData.extendedHeartbeatInterval);
 }
 
-void writeControl(uint8_t *data, uint8_t size)
+void writeControl(const uint8_t *data, uint8_t size)
 {
 	if(size!= 4) return;
 	sysControlPtr->sysControl.reg = unpack_uint32(&data[0]);
 }
 
-void setControl(uint8_t *data, uint8_t size)
+void setControl(const uint8_t *data, uint8_t size)
 {
 	if(size!= 4) return;
 	sysControlPtr->sysControl.reg |= unpack_uint32(&data[0]);
 }
 
-void clrControl(uint8_t *data, uint8_t size)
+void clrControl(const uint8_t *data, uint8_t size)
 {
 	if(size!= 4) return;
 	sysControlPtr->sysControl.reg &= ~unpack_uint32(&data[0]);
 }
 
-void enteradministratorAccess(uint8_t *data, uint8_t size)
+void enteradministratorAccess(const uint8_t *data, uint8_t size)
 {
 	bool keyValid = false;
 	uint8_t deviceName[60];
@@ -381,7 +381,7 @@ void exitadministratorAccess(void)
 	sysControlPtr->sysStatus.bit.administratorAccess = false;
 }
 
-void writeadministratorAccessKey(uint8_t *data, uint8_t size)
+void writeadministratorAccessKey(const uint8_t *data, uint8_t size)
 {
 	if(size-1 < MAX_STRING_SIZE){
 		eeprom_writeArray(&data[0], &eememData.administratorAccessKey[0], size);
@@ -389,7 +389,7 @@ void writeadministratorAccessKey(uint8_t *data, uint8_t size)
 	}
 }
 
-void writeDeviceName(uint8_t *data, uint8_t size)
+void writeDeviceName(const uint8_t *data, uint8_t size)
 {
 	if(size-1 < MAX_STRING_SIZE){
 		eeprom_writeArray(&data[0], &eememData.deviceName[0], size);
@@ -399,7 +399,7 @@ void writeDeviceName(uint8_t *data, uint8_t size)
 	sendDeviceName();
 }
 
-void writeAddress(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void writeAddress(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {	
 	if( (size==1) && ((data[0] != 0x00)||(data[0] < 0x7F)) )
 	{
@@ -408,7 +408,7 @@ void writeAddress(uint8_t sourceAddress, uint8_t *data, uint8_t size)
 	}
 }
 
-void sendEepromReport(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void sendEepromReport(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	if(size != 3){
 		mlp_sysWarning("EEPROM Request: parameter error");
@@ -432,7 +432,7 @@ void sendEepromReport(uint8_t sourceAddress, uint8_t *data, uint8_t size)
 	volatile uint8_t *eepormAddress = (uint8_t*)(&eememData)+eepromOffset; 
 	eeprom_readArray(&eepromData[0], eepormAddress, eepromSize);
 	
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg,sourceAddress, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -443,9 +443,9 @@ void sendEepromReport(uint8_t sourceAddress, uint8_t *data, uint8_t size)
 	}
 }
 
-void echo(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void echo(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(bus_getMessageSlot(&msg))
 	{
 		bus_writeHeader(&msg, sourceAddress, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
@@ -455,7 +455,7 @@ void echo(uint8_t sourceAddress, uint8_t *data, uint8_t size)
 	}
 }
 
-void reboot(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void reboot(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	if(size == 0){ 
 		system_reboot();

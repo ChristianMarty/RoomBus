@@ -67,7 +67,8 @@ void BusDeviceWindow::updateStatus()
     ui->label_watchdogWarning->setEnabled(systemStatus.watchdogWarning);
     ui->label_txBufferOverrun->setEnabled(systemStatus.txBufferOverrun);
     ui->label_txMessageOverrun->setEnabled(systemStatus.txMessageOverrun);
-    ui->label_rxBufferOverrun->setEnabled(systemStatus.rxBufferOverrun);
+    ui->label_kernelRxBufferOverrun->setEnabled(systemStatus.kernelRxBufferOverrun);
+    ui->label_appRxBufferOverrun->setEnabled(systemStatus.applicationRxBufferOverrun);
 
     if(_device->systemStatus().identify == false)ui->pushButton_identify->setText("Identify");
     else ui->pushButton_identify->setText("Identify Off");

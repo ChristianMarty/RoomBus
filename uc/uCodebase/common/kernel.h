@@ -36,15 +36,21 @@ typedef struct{
 	uint32_t kernelError :1;
 } kernelSignals_t;
 
-typedef bool (*bus_getMessageSlot_t)(bus_message_t *message);
-typedef void (*bus_writeHeader_t)(bus_message_t *message, uint8_t destAddr, busProtocol_t protocol, uint8_t command, busPriority_t priority);
-typedef void (*bus_pushByte_t)(bus_message_t *message, uint8_t data);
-typedef void (*bus_pushWord16_t)(bus_message_t *message, uint16_t data);
-typedef void (*bus_pushWord24_t)(bus_message_t *message, uint32_t data);
-typedef void (*bus_pushWord32_t)(bus_message_t *message, uint32_t data);
-typedef void (*bus_pushArray_t)(bus_message_t *message, const uint8_t *data, uint8_t dataSize);
-typedef void (*bus_pushString_t)(bus_message_t *message, const char *data);
-typedef bool (*bus_send_t)(bus_message_t *message);
+
+typedef void (*system_flagApplicationError_t)(void);
+
+typedef bool (*bus_getMessageSlot_t)(bus_txMessage_t *message);
+typedef void (*bus_writeHeader_t)(bus_txMessage_t *message, uint8_t destAddr, busProtocol_t protocol, uint8_t command, busPriority_t priority);
+typedef void (*bus_pushByte_t)(bus_txMessage_t *message, uint8_t data);
+typedef void (*bus_pushWord16_t)(bus_txMessage_t *message, uint16_t data);
+typedef void (*bus_pushWord24_t)(bus_txMessage_t *message, uint32_t data);
+typedef void (*bus_pushWord32_t)(bus_txMessage_t *message, uint32_t data);
+typedef void (*bus_pushArray_t)(bus_txMessage_t *message, const uint8_t *data, uint8_t dataSize);
+typedef void (*bus_pushString_t)(bus_txMessage_t *message, const char *data);
+typedef bool (*bus_send_t)(bus_txMessage_t *message);
+
+typedef bool (*bus_getReceivedMessage_t)(bus_rxMessage_t *message);
+typedef void (*bus_receivedProcessed_t)(bool processed);
 
 typedef void (*interruptHandler_t)(void);
 
@@ -91,6 +97,10 @@ typedef struct {
 	gclk_generator_t clk_16MHz;
 	
 	struct {
+		system_flagApplicationError_t flagApplicationError;
+	}system;
+	
+	struct {
 		bus_getMessageSlot_t getMessageSlot;
 		bus_writeHeader_t writeHeader;
 		bus_pushByte_t pushByte;
@@ -100,6 +110,9 @@ typedef struct {
 		bus_pushArray_t pushArray;
 		bus_pushString_t pushString;
 		bus_send_t send;
+		
+		bus_getReceivedMessage_t getReceivedMessage;
+		bus_receivedProcessed_t receivedProcessed;
 	}bus;
 	
 	struct {
@@ -155,7 +168,6 @@ typedef struct {
 	uint8_t appRevMin;
  	uint8_t appName[60];
  	applicationMain_t appRun;
- 	onReceive_t onRx;
 }applicationHeader_t;
 
 #ifdef __cplusplus

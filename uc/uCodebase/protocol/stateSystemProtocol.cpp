@@ -78,10 +78,10 @@ void ssp_mainHandler(const stateSystemProtocol_t *ssp)
 bool ssp_receiveHandler(const stateSystemProtocol_t *srp, const bus_rxMessage_t *message)
 {
 	switch(message->command){
-		case srp_cmd_state: return _ssp_parseStateReport(srp, message->sourceAddress, message->data, message->dataLength);
-		case srp_cmd_stateRequest: return _ssp_parseStateRequest(srp, message->sourceAddress, message->data, message->dataLength);
-		case srp_cmd_signalInformationRequest: return _ssp_parseStateReportSignalInformationRequest(srp, message->sourceAddress, message->data, message->dataLength);
-		case srp_cmd_slotInformationRequest: return _ssp_parseStateReportSlotInformationRequest(srp, message->sourceAddress, message->data, message->dataLength);
+		case srp_cmd_state: return _ssp_parseStateReport(srp, message->sourceAddress, message->data, message->length);
+		case srp_cmd_stateRequest: return _ssp_parseStateRequest(srp, message->sourceAddress, message->data, message->length);
+		case srp_cmd_signalInformationRequest: return _ssp_parseStateReportSignalInformationRequest(srp, message->sourceAddress, message->data, message->length);
+		case srp_cmd_slotInformationRequest: return _ssp_parseStateReportSlotInformationRequest(srp, message->sourceAddress, message->data, message->length);
 	}
 	return false;
 }
@@ -234,7 +234,7 @@ bool _ssp_parseStateReportSlotInformationRequest(const stateSystemProtocol_t* ss
 
 bool _ssp_sendStateReportSignalInformation(const ssp_stateSignal_t *stateSignal)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(kernel.bus.getMessageSlot(&msg) == false) return false; // Abort if TX buffer full
 		
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_stateSystemProtocol, srp_cmd_signalInformationReport, busPriority_low);
@@ -248,7 +248,7 @@ bool _ssp_sendStateReportSignalInformation(const ssp_stateSignal_t *stateSignal)
 
 bool _ssp_sendStateReportSlotInformation(const ssp_stateSlot_t *stateSlot)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(kernel.bus.getMessageSlot(&msg) == false) return false; // Abort if TX buffer full
 		
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_stateSystemProtocol, srp_cmd_slotInformationReport, busPriority_low);
@@ -262,7 +262,7 @@ bool _ssp_sendStateReportSlotInformation(const ssp_stateSlot_t *stateSlot)
 
 void _ssp_sendStateReports(const stateSystemProtocol_t* ssp)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	uint8_t stateCount = 0;
 		
 	for(uint8_t i = 0;  i < ssp->signalSize; i++)
@@ -296,7 +296,7 @@ void _ssp_sendStateReports(const stateSystemProtocol_t* ssp)
 
 void _ssp_sendStateRequests(const stateSystemProtocol_t* ssp)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	uint8_t stateCount = 0;
 	
 	for(uint8_t i = 0;  i < ssp->slotSize; i++)
@@ -328,7 +328,7 @@ void _ssp_sendStateRequests(const stateSystemProtocol_t* ssp)
 
 void _ssp_sendStateRequestAll(const stateSystemProtocol_t* ssp)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ){
 		return; // Abort if TX buffer full
 	}

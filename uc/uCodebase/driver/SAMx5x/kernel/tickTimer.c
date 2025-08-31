@@ -14,10 +14,12 @@ extern "C" {
 
 volatile uint32_t tickCounter;
 
-void tickTimer_initialize(uint32_t CPUclockFreq)
+void tickTimer_interruptHandler(void);
+
+void tickTimer_initialize(void)
 {
 #ifndef TEST_RUN
-	SysTick->LOAD = (CPUclockFreq/1000); // Set Time to 1 ms
+	SysTick->LOAD = (120000000/1000); // Set Time to 1 ms
 	SysTick->CTRL = 0x00000003; // enable
 	
 	nvic_assignInterruptHandler(SysTick_IRQn, tickTimer_interruptHandler);
@@ -57,12 +59,6 @@ uint16_t tickTimer_getTick_us(void)
 tickTimer_t tickTimer_getTickTime(void)
 {
 	return tickCounter;
-}
-
-void tickTimer_sleep1ms(uint32_t delay)
-{	
-	uint32_t start = tickCounter;
-	while((tickCounter-start) < delay);
 }
 
 #ifdef __cplusplus

@@ -47,9 +47,9 @@ typedef struct {
 	uint8_t sourceAddress;
 	busProtocol_t protocol;
 	busCommand_t command;
-	uint8_t *data;
-	uint8_t dataLength;
 	bool broadcast;
+	uint8_t data[64];
+	uint8_t length;
 }bus_rxMessage_t;
 
  
@@ -58,18 +58,18 @@ typedef struct {
 typedef struct {
 	uint8_t length;	// the length of the data in the buffer
 	uint8_t bufferIndex; // the index of the selected buffer
-}bus_message_t;
+}bus_txMessage_t;
 
 #else
 
 typedef struct {
     uint8_t destinationAddress; 
     busProtocol_t protocol;
-    uint8_t command;
+    busCommand_t command;
     busPriority_t priority;
     uint8_t data[64];
     uint8_t length;
-}bus_message_t;
+}bus_txMessage_t;
 
 #endif
 

@@ -324,9 +324,9 @@
               </widget>
              </item>
              <item row="3" column="0">
-              <widget class="QLabel" name="label_rxBufferOverrun">
+              <widget class="QLabel" name="label_kernelRxBufferOverrun">
                <property name="text">
-                <string>RX Buffer Overrun</string>
+                <string>Kernel RX Buffer Overrun</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -394,6 +394,16 @@
                </property>
                <property name="text">
                 <string>Administrator Access</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="label_appRxBufferOverrun">
+               <property name="text">
+                <string>App RX Buffer Overrun</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>

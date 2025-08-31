@@ -124,8 +124,17 @@ void reportBootReason(void)
 	if(RSTC->RCAUSE.bit.BACKUP) mlp_sysMessage("Backup Reset");
 }
 
+void receivedProcessed(bool processed)
+{
+	if(processed){
+		userIo_rxLed();
+	}
+}
+
 void initializeKernelStruct(void)
 {
+	kernel.system.flagApplicationError = systemControl_flagApplicationError;
+	
 	kernel.tickTimer.reset = tickTimer_reset;
 	kernel.tickTimer.delay1ms = tickTimer_delay1ms;
 	
@@ -138,6 +147,9 @@ void initializeKernelStruct(void)
 	kernel.bus.pushString = bus_pushString;
 	kernel.bus.send = bus_send;
 	kernel.bus.writeHeader = bus_writeHeader;
+	
+	kernel.bus.getReceivedMessage = bus_getAppMessage;
+	kernel.bus.receivedProcessed = receivedProcessed;
 	
 	kernel.nvic.assignInterruptHandler = nvic_assignInterruptHandler;
 	kernel.nvic.removeInterruptHandler = nvic_removeInterruptHandler;
@@ -169,44 +181,20 @@ void initializeKernelStruct(void)
 
 void busMessageHandler(void)
 {
-	if(bus_rxBufferEmpty()) return;
-
-	uint8_t rxIndex = bus_getRxFrameIndex();
-	can_rxFrame_t *rxFrame = bus_getRxFrame(rxIndex);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch" // ignore unhandled warning in switch
 	
-	bus_rxMessage_t rxMessage = {
-		.sourceAddress = bus_getSourceAddress(rxFrame),
-		.protocol = bus_getProtocol(rxFrame),
-		.command = bus_getCommand(rxFrame),
-		.data = &rxFrame->data[0],
-		.dataLength = bus_getRxDataSize(rxFrame),
-		.broadcast = (bus_getSourceAddress(rxFrame) == BUS_BROADCAST_ADDRESS)
-	};
+	bus_rxMessage_t rxMessage;
+	if(!bus_getKernelMessage(&rxMessage)) return;
 
 	bool processed = false;
-	
-	switch(rxMessage.protocol)
-	{
-		case busProtocol_deviceManagementProtocol:
-			processed = dmp_receiveHandler(&rxMessage);
-			break;
-		
-		case busProtocol_fileTransferProtocol:
-			processed = ftp_receiveHandler(&lfs, &rxMessage);
-			break;
-		
-		default:
-			if(systemControl_appIsActive()){
-				processed = appHead->onRx(&rxMessage);
-			}
-			break;
+	switch(rxMessage.protocol){
+		case busProtocol_deviceManagementProtocol: processed = dmp_receiveHandler(&rxMessage); break;
+		case busProtocol_fileTransferProtocol:     processed = ftp_receiveHandler(&lfs, &rxMessage); break;
 	}
+	receivedProcessed(processed);
 	
-	bus_freeRxFrame(rxIndex);
-	
-	if(processed){
-		userIo_rxLed();
-	}
+#pragma GCC diagnostic pop
 }
 
 int main(void)
@@ -216,7 +204,7 @@ int main(void)
 	
 	nvic_initialize();
 	userIo_initialize();
-	tickTimer_initialize(120000000);
+	tickTimer_initialize();
 	watchDogTimer_initialize(wdt_earlyWarningHandler);
 	rand_initialize();
 	
@@ -235,7 +223,6 @@ int main(void)
 	dmp_sendExtendedHeartbeat();
 	
 	ftp_initialize();
-	
 
 	initializeKernelStruct();
 
@@ -251,6 +238,7 @@ int main(void)
 		dmp_handler();
 		ftp_handler();
 		systemControl_handler();
+		bus_handler();
 		busMessageHandler();
     }
 }

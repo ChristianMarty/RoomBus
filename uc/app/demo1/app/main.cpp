@@ -29,17 +29,15 @@
 #define BUTTON4 IO_D04
 
 int main(void);
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
 kernel_t kernel __attribute__((section(".kernelCall")));
 
-__attribute__((section(".appHeader"))) appHead_t appHead ={
+__attribute__((section(".appHeader"))) applicationHeader_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
 /*appName[60]*/ "Demo 1",
-/*main		 */ main,
-/*onRx		 */ onReceive
+/*main		 */ main
 };
 
 
@@ -172,17 +170,21 @@ const valueSystemProtocol_t valueReportSystem = {
 
 //**** onReceive Configuration ****************************************************************************************
 
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
+void handleReceive(void)
 {
-	switch(protocol)
-	{
-		case busProtocol_triggerSystemProtocol:	return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_eventSystemProtocol:	return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
-		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateReportSystem, sourceAddress, command, data, size);
-		case busProtocol_valueSystemProtocol:	return vsp_receiveHandler(&valueReportSystem, sourceAddress, command, data, size);
+	bus_rxMessage_t message;
+	if(!kernel.bus.getReceivedMessage(&message)) return;
+	
+	bool processed = false;
+	switch(message.protocol){
+		case busProtocol_triggerSystemProtocol:	processed = tsp_receiveHandler(&triggerSystem, &message); break;
+		case busProtocol_eventSystemProtocol:	processed = esp_receiveHandler(&eventSystem, &message); break;
+		case busProtocol_stateSystemProtocol:	processed = ssp_receiveHandler(&stateReportSystem, &message); break;
+		case busProtocol_valueSystemProtocol:	processed = vsp_receiveHandler(&valueReportSystem, &message); break;
 	}
-	return false;
+	kernel.bus.receivedProcessed(processed);
 }
+
 
 edgeDetect_t button[4];
 bool led3;
@@ -232,6 +234,8 @@ int main(void)
 	
 	if(kernel.appSignals->appReady == true)
 	{	
+		handleReceive();
+		
 		tsp_mainHandler(&triggerSystem);
 		esp_mainHandler(&eventSystem);
 		ssp_mainHandler(&stateReportSystem);
@@ -269,9 +273,7 @@ int main(void)
 	}
 	
 	// App deinit code
-    if(kernel.kernelSignals->shutdownApp)
-    {
+    if(kernel.kernelSignals->shutdownApp){
 		kernel.appSignals->shutdownReady = true;
-    }
-	
+    }	
 }

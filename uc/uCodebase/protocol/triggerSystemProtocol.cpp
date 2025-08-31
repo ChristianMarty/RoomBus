@@ -60,9 +60,9 @@ void tsp_mainHandler(const triggerSystemProtocol_t* tsp)
 bool  tsp_receiveHandler(const triggerSystemProtocol_t* tsp, const bus_rxMessage_t *message)
 {
 	switch(message->command){
-		case tsp_cmd_trigger: return _tsp_parseTrigger(tsp, message->sourceAddress, message->data, message->dataLength);
-		case tsp_cmd_slotInformationRequest: return _tsp_parseTriggerSlotInformationRequest(tsp, message->sourceAddress, message->data, message->dataLength);
-		case tsp_cmd_signalInformationRequest: return _tsp_parseTriggerSignalInformationRequest(tsp, message->sourceAddress, message->data, message->dataLength);
+		case tsp_cmd_trigger: return _tsp_parseTrigger(tsp, message->sourceAddress, message->data, message->length);
+		case tsp_cmd_slotInformationRequest: return _tsp_parseTriggerSlotInformationRequest(tsp, message->sourceAddress, message->data, message->length);
+		case tsp_cmd_signalInformationRequest: return _tsp_parseTriggerSignalInformationRequest(tsp, message->sourceAddress, message->data, message->length);
 	}
 	return false;
 }
@@ -90,7 +90,7 @@ bool tsp_sendTriggerByIndex(const triggerSystemProtocol_t* tsp, uint8_t index)
 
 bool _tsp_sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerSystemProtocol, tsp_cmd_signalInformationReport, busPriority_low);
@@ -103,7 +103,7 @@ bool _tsp_sendTriggerSignalInformation(const tsp_triggerSignal_t *triggerSignal)
 
 bool _tsp_sendTriggerSoltInformation(const tsp_triggerSlot_t *triggerSlot)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_triggerSystemProtocol, tsp_cmd_slotInformationReport, busPriority_low);
@@ -136,7 +136,7 @@ bool _tsp_parseTrigger(const triggerSystemProtocol_t* tsp, uint8_t sourceAddress
 
 void _tsp_sendTriggers(const triggerSystemProtocol_t* tsp)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	uint8_t triggerCount = 0;
 	
 	for(uint8_t i = 0;  i < tsp->signalSize; i++) 

@@ -105,7 +105,7 @@ extern "C" {
 		return FLASH_NO_ERROR;
 	}
 	
-	static inline flash_error_t flash_write(uint32_t address, uint8_t *data, uint32_t size)
+	static inline flash_error_t flash_write(uint32_t address, const uint8_t *data, uint32_t size)
 	{
 		NVMCTRL->INTFLAG.reg = 0x0FF; // clear all flags
 		if(address >= FLASH_SIZE) return FLASH_ADDRESS_OUT_OF_RANGE;
@@ -153,7 +153,7 @@ extern "C" {
 		return FLASH_NO_ERROR;
 	}
 	
-	static inline void flash_writeQuadWord(uint32_t address, uint32_t *data)
+	static inline void flash_writeQuadWord(uint32_t address, const uint32_t *data)
 	{
 		
 		while(!NVMCTRL->STATUS.bit.READY);
@@ -176,7 +176,7 @@ extern "C" {
 		while(!NVMCTRL->STATUS.bit.READY);
 	}
 	
-	static inline void flash_writeWord(uint32_t address, uint32_t data)
+	static inline void flash_writeWord(uint32_t address, const uint32_t data)
 	{
 		NVMCTRL->INTFLAG.reg = 0xFFFF;
 		NVMCTRL->CTRLB.reg = ((FLASH_KEY<<8)|FLASH_PAGE_BUFFER_CLEAR);
@@ -192,7 +192,7 @@ extern "C" {
 
 	}
 	
-	static inline void flash_writePage(uint32_t address, uint8_t *data, uint32_t size)
+	static inline void flash_writePage(uint32_t address, const uint8_t *data, uint32_t size)
 	{
 		if(size > flash_getPageSize()) return;
 		
@@ -227,7 +227,7 @@ extern "C" {
 		return FLASH_NO_ERROR;
 	}
 
-	static inline flash_error_t flash_writeUserPage(uint32_t address, uint8_t *data, uint32_t size)
+	static inline flash_error_t flash_writeUserPage(uint32_t address, const uint8_t *data, uint32_t size)
 	{
 		//if(address >= FLASH_SIZE) return FLASH_ADDRESS_OUT_OF_RANGE;
 		if((address % 16) != 0) return FLSHE_ADDRESS_UNALIGNED;

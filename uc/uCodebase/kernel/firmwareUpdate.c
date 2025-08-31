@@ -40,7 +40,7 @@ void firmwareUpdate_handler(systemControl_t *sysControl)
 				flash_eraseBlock(APP_START_ADDRESS+ (i*flash_getBlockSize()) );
 			}
 			
-			bus_message_t msg;
+			bus_txMessage_t msg;
 
 			bus_getMessageSlot(&msg);
 			bus_writeHeader(&msg, adr, busProtocol_deviceManagementProtocol, 1, RESPONSE_PRIORITY);
@@ -52,15 +52,15 @@ void firmwareUpdate_handler(systemControl_t *sysControl)
 	}	
 }
 
-void firmwareUpdate_eraseApp(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void firmwareUpdate_eraseApp(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	adr = sourceAddress;
 	erase = true;
 }
 
-void firmwareUpdate_writeAppData(uint8_t sourceAddress, uint8_t *data, uint8_t size)
+void firmwareUpdate_writeAppData(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 
 	bus_getMessageSlot(&msg);
 	bus_writeHeader(&msg,sourceAddress, busProtocol_deviceManagementProtocol, 1, RESPONSE_PRIORITY);

@@ -139,6 +139,8 @@ void systemControl_handler(void)
 		if(sysControlHandler.appState == APP_STOP){
 			mlp_sysMessage("App Start");
 			sysControlHandler.appState = APP_INIT;
+			bus_clearAppReceiveBuffer();
+			bus_enableAppMessageBuffer(true);
 		}
 	}else{
 		if(sysControlHandler.appState == APP_RUN){
@@ -209,6 +211,7 @@ void systemControl_handler(void)
 	if(kernel.appSignals->shutdownReady == true)
 	{
 		sysControlHandler.appState = APP_STOP;
+		bus_enableAppMessageBuffer(false);
 	}
 	
 }
@@ -309,4 +312,9 @@ void benchmark_run(app_benchmark_t *benchmark)
 	benchmark->us_avg += time_us;
 	
 	benchmark->us_avg = (benchmark->us_avg >>1);
+}
+
+void systemControl_flagApplicationError(void)
+{
+	sysControlHandler.sysStatus.bit.applicationError = true;
 }

@@ -80,12 +80,12 @@ void vsp_mainHandler(const valueSystemProtocol_t* vsp)
 bool vsp_receiveHandler(const valueSystemProtocol_t* vsp, const bus_rxMessage_t *message)
 {
 	switch(message->command){
-		case vsp_cmd_valueReport: return _vsp_parseValueReport(vsp, message->sourceAddress, message->data, message->dataLength);
-		case vsp_cmd_valueRequest: return _vsp_parseValueRequest(vsp, message->sourceAddress, message->data, message->dataLength);
-		case vsp_cmd_valueCommand: return _vsp_parseValueCommands(vsp, message->sourceAddress, message->data, message->dataLength);
+		case vsp_cmd_valueReport: return _vsp_parseValueReport(vsp, message->sourceAddress, message->data, message->length);
+		case vsp_cmd_valueRequest: return _vsp_parseValueRequest(vsp, message->sourceAddress, message->data, message->length);
+		case vsp_cmd_valueCommand: return _vsp_parseValueCommands(vsp, message->sourceAddress, message->data, message->length);
 		
-		case vsp_cmd_signalInformationRequest: return _vsp_parseValueReportSignalInformationRequest(vsp, message->sourceAddress, message->data, message->dataLength);
-		case vsp_cmd_slotInformationRequest: return _vsp_parseValueReportSlotInformationRequest(vsp, message->sourceAddress, message->data, message->dataLength);
+		case vsp_cmd_signalInformationRequest: return _vsp_parseValueReportSignalInformationRequest(vsp, message->sourceAddress, message->data, message->length);
+		case vsp_cmd_slotInformationRequest: return _vsp_parseValueReportSlotInformationRequest(vsp, message->sourceAddress, message->data, message->length);
         default: return false;
 	}
 }
@@ -112,7 +112,7 @@ bool vsp_sendValueCommandByChannel(const valueSystemProtocol_t* vsp, uint16_t ch
 
 bool vsp_sendValueCommandByIndex(const valueSystemProtocol_t* vsp, uint8_t index, vsp_valueCommands_t command, vsp_valueData_t value)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(!kernel.bus.getMessageSlot(&msg)) return false; // Abort if TX buffer full
 	
 	vsp_valueSlot_t slot = vsp->slots[index];
@@ -384,7 +384,7 @@ bool _vsp_parseValueReportSlotInformationRequest(const valueSystemProtocol_t* vs
 
 bool _vsp_sendValueReportSignalInformation(const vsp_valueSignal_t *stateSignal)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(!kernel.bus.getMessageSlot(&msg)) return false; // Abort if TX buffer full
 		
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueSystemProtocol, vsp_cmd_signalInformationReport, busPriority_low);
@@ -406,7 +406,7 @@ bool _vsp_sendValueReportSignalInformation(const vsp_valueSignal_t *stateSignal)
 
 bool _vsp_sendValueReportSlotInformation(const vsp_valueSlot_t *stateSlot)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if(!kernel.bus.getMessageSlot(&msg)) return false; // Abort if TX buffer full
 		
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_valueSystemProtocol, vsp_cmd_slotInformationReport, busPriority_low);
@@ -424,7 +424,7 @@ void _vsp_sendValues(const valueSystemProtocol_t *vsp)
 	{
 		if(vsp->_signalState[i].sendSignalPending == false) continue;
 		
-		bus_message_t msg;
+		bus_txMessage_t msg;
 		if(!kernel.bus.getMessageSlot(&msg)){
 			return; // Abort if TX buffer full
 		}

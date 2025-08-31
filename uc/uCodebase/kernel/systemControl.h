@@ -57,10 +57,10 @@ typedef struct {
     uint32_t systemError : 1;
     uint32_t watchdogWarning : 1;
     uint32_t watchdogError : 1;
-    uint32_t txBufferOverrun: 1;
+    uint32_t kernelTxBufferOverrun: 1;
 	uint32_t txMessageOverrun: 1;
-    uint32_t rxBufferOverrun: 1;
-    uint32_t reserved1 : 1;
+    uint32_t kernelRxBufferOverrun: 1;
+    uint32_t applicationRxBufferOverrun: 1;
     uint32_t applicationError : 1;
 
 	uint32_t applicationSpecific : 16;
@@ -84,10 +84,10 @@ typedef struct {
     uint32_t clearSystemError : 1;
     uint32_t clearWatchdogWarning : 1;
     uint32_t clearWatchdogError : 1;
-    uint32_t clearTxBufferOverrun : 1;
+    uint32_t clearkernelTxBufferOverrun : 1;
 	uint32_t clearTxMessageOverrun: 1;
-    uint32_t clearRxBufferOverrun : 1;
-    uint32_t reserved2 : 1;
+    uint32_t clearKernelRxBufferOverrun : 1;
+    uint32_t clearApplicationRxBufferOverrun: 1;
     uint32_t clearApplicationError : 1;
 
     uint32_t applicationSpecific : 16;
@@ -147,6 +147,8 @@ bool systemControl_appIsActive(void);
 
 void benchmark_reset(app_benchmark_t *benchmark);
 void benchmark_run(app_benchmark_t *benchmark);
+
+void systemControl_flagApplicationError(void);
 
 #ifdef __cplusplus
 }

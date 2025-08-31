@@ -17,7 +17,7 @@ extern "C" {
 
 void ftp_initialize(void);
 void ftp_handler(void);
-bool ftp_receiveHandler(lfs_t *lfs, bus_rxMessage_t *message);
+bool ftp_receiveHandler(lfs_t *lfs, const bus_rxMessage_t *message);
 
 #ifdef __cplusplus
 }

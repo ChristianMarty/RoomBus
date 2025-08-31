@@ -16,8 +16,8 @@ extern "C" {
 
 void firmwareUpdate_handler(systemControl_t *sysControl);
 
-void firmwareUpdate_eraseApp(uint8_t sourceAddress, uint8_t *data, uint8_t size);
-void firmwareUpdate_writeAppData(uint8_t sourceAddress, uint8_t *data, uint8_t size);
+void firmwareUpdate_eraseApp(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+void firmwareUpdate_writeAppData(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 
 #ifdef __cplusplus
 }

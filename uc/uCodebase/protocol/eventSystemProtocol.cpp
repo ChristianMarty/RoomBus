@@ -83,9 +83,9 @@ void esp_mainHandler(const eventSystemProtocol_t* esp)
 bool esp_receiveHandler(const eventSystemProtocol_t* esp, const bus_rxMessage_t *message)
 {
 	switch(message->command){
-		case esp_cmd_event: return _esp_parseEvent(esp, message->sourceAddress, message->data, message->dataLength);
-		case esp_cmd_slotInformationRequest: return _esp_parseEventSlotInformationRequest(esp, message->sourceAddress, message->data, message->dataLength);
-		case esp_cmd_signalInformationRequest: return _esp_parseEventSignalInformationRequest(esp, message->sourceAddress, message->data, message->dataLength);
+		case esp_cmd_event: return _esp_parseEvent(esp, message->sourceAddress, message->data, message->length);
+		case esp_cmd_slotInformationRequest: return _esp_parseEventSlotInformationRequest(esp, message->sourceAddress, message->data, message->length);
+		case esp_cmd_signalInformationRequest: return _esp_parseEventSignalInformationRequest(esp, message->sourceAddress, message->data, message->length);
 	}
 	return false;
 }
@@ -103,6 +103,8 @@ bool esp_getStateByChannel(const eventSystemProtocol_t* esp, uint16_t channel)
 			return esp->_slotState[i].state;
 		}
 	}
+	
+	return false; // todo: this should not happen
 }
 
 void esp_setStateByIndex(const eventSystemProtocol_t* esp, uint8_t index, bool state)
@@ -127,7 +129,7 @@ bool esp_sendEventByIndex(const eventSystemProtocol_t* esp, uint8_t index)
 {
 	if(index >= esp->signalSize) return false;
 	
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 	
 	esp_eventSignal_t sig = esp->signals[index];
@@ -137,6 +139,7 @@ bool esp_sendEventByIndex(const eventSystemProtocol_t* esp, uint8_t index)
 	kernel.bus.pushWord16(&msg, sig.channel);
 	kernel.bus.send(&msg);
 	
+	return true;	
 }
 
 //**********************************************************************************************************************
@@ -145,7 +148,7 @@ bool esp_sendEventByIndex(const eventSystemProtocol_t* esp, uint8_t index)
 
 bool _esp_sendEventSignalInformation(const esp_eventSignal_t *eventSignal)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 	
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventSystemProtocol, esp_cmd_signalInformationReport, busPriority_low);
@@ -159,7 +162,7 @@ bool _esp_sendEventSignalInformation(const esp_eventSignal_t *eventSignal)
 
 bool _esp_sendEventSlotInformation(const esp_eventSlot_t *eventSlot)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	if( kernel.bus.getMessageSlot(&msg) == false ) return false; // Abort if TX buffer full
 	
 	kernel.bus.writeHeader(&msg, BROADCAST, busProtocol_eventSystemProtocol, esp_cmd_slotInformationReport, busPriority_low);
@@ -203,7 +206,7 @@ bool _esp_parseEvent(const eventSystemProtocol_t* esp, uint8_t sourceAddress, co
 
 void _esp_sendEvents(const eventSystemProtocol_t* esp)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	uint8_t eventCount = 0;
 	
 	for(uint8_t i = 0;  i < esp->signalSize; i++)

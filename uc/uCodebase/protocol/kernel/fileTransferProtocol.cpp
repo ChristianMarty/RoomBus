@@ -88,7 +88,7 @@ void ftp_handler(void)
 
 void ftp_sendFileInfo(uint8_t address, lfs_info *info)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	
 	bus_getMessageSlot(&msg);
 	bus_writeHeader(&msg,address, busProtocol_fileTransferProtocol, ftp_cmd_response , busPriority_low);
@@ -183,7 +183,7 @@ void ftp_startSendFile(uint8_t sourceAddress, lfs_t *lfs, const char *path)
 {
 	readTransfer.pending = true;
 	
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	
 	bus_getMessageSlot(&msg);
 	bus_writeHeader(&msg,sourceAddress, busProtocol_fileTransferProtocol, ftp_cmd_response, busPriority_low);
@@ -203,11 +203,11 @@ void ftp_startSendFile(uint8_t sourceAddress, lfs_t *lfs, const char *path)
 	bus_send(&msg);
 }
 
-void ftp_fileTransmitHandler(uint8_t sourceAddress, lfs_t *lfs, uint8_t *data, uint8_t size)
+void ftp_fileTransmitHandler(uint8_t sourceAddress, lfs_t *lfs, const uint8_t *data, uint8_t size)
 {
 	if(readTransfer.offset == readTransfer.size)
 	{
-		bus_message_t msg;
+		bus_txMessage_t msg;
 		
 		bus_getMessageSlot(&msg);
 		bus_writeHeader(&msg,sourceAddress, busProtocol_fileTransferProtocol, ftp_cmd_request, busPriority_low);
@@ -223,7 +223,7 @@ void ftp_fileTransmitHandler(uint8_t sourceAddress, lfs_t *lfs, uint8_t *data, u
 	
 		// TODO: Error handling
 	
-		bus_message_t msg;
+		bus_txMessage_t msg;
 	
 		bus_getMessageSlot(&msg);
 		bus_writeHeader(&msg,sourceAddress, busProtocol_fileTransferProtocol, ftp_cmd_read, busPriority_low);
@@ -250,7 +250,7 @@ void ftp_endTransmitFile(uint8_t sourceAddress, lfs_t *lfs)
  * ***************************************************************************/
 ftp_transfer_t writeTransfer;
 
-void ftp_startReceiveFile(uint8_t sourceAddress, lfs_t *lfs, uint8_t *data, uint8_t size)
+void ftp_startReceiveFile(uint8_t sourceAddress, lfs_t *lfs, const uint8_t *data, uint8_t size)
 {
 	writeTransfer.pending = true;
 	
@@ -270,7 +270,7 @@ void ftp_startReceiveFile(uint8_t sourceAddress, lfs_t *lfs, uint8_t *data, uint
 	writeTransfer.size = fileSize;
 	writeTransfer.crc = fileCRC;
 	
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	bus_getMessageSlot(&msg);
 	bus_writeHeader(&msg,sourceAddress, busProtocol_fileTransferProtocol, ftp_cmd_response, busPriority_low);
 	bus_pushByte(&msg,ftp_rsp_startFileWrite);
@@ -278,9 +278,9 @@ void ftp_startReceiveFile(uint8_t sourceAddress, lfs_t *lfs, uint8_t *data, uint
 	
 }
 
-void ftp_fileReceiveHandler(uint8_t sourceAddress, lfs_t *lfs, uint8_t *data, uint8_t size)
+void ftp_fileReceiveHandler(uint8_t sourceAddress, lfs_t *lfs, const uint8_t *data, uint8_t size)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	bus_getMessageSlot(&msg);
 	bus_writeHeader(&msg,sourceAddress, busProtocol_fileTransferProtocol, ftp_cmd_write_ack, busPriority_low);
 	
@@ -309,7 +309,7 @@ void ftp_endReceiveFile(uint8_t sourceAddress, lfs_t *lfs)
 	
 	uint32_t crc = ftp_fileCrc(lfs,writeTransfer.path);
 	
-	bus_message_t msg;
+	bus_txMessage_t msg;
 	bus_getMessageSlot(&msg);
 	bus_writeHeader(&msg,sourceAddress, busProtocol_fileTransferProtocol, ftp_cmd_response, busPriority_low);
 	bus_pushByte(&msg,ftp_rsp_completeWrite);
@@ -332,14 +332,14 @@ void ftp_endReceiveFile(uint8_t sourceAddress, lfs_t *lfs)
  * 
  * ***************************************************************************/
 
-bool ftp_receiveHandler(lfs_t *lfs, bus_rxMessage_t *message)
+bool ftp_receiveHandler(lfs_t *lfs, const bus_rxMessage_t *message)
 {
 	if(message->command == ftp_cmd_request) 
 	{
 		uint8_t request = message->data[0];
 		char path[50];
 		uint8_t i;
-		for(i= 0; i < message->dataLength-1; i++)
+		for(i= 0; i < message->length-1; i++)
 		{
 			path[i] = message->data[i+1];
 		}
@@ -361,7 +361,7 @@ bool ftp_receiveHandler(lfs_t *lfs, bus_rxMessage_t *message)
 			
 			
 			// File Write 
-			case ftp_req_startFileWrite: ftp_startReceiveFile(message->sourceAddress, lfs, &message->data[1], message->dataLength-1);
+			case ftp_req_startFileWrite: ftp_startReceiveFile(message->sourceAddress, lfs, &message->data[1], message->length-1);
 										 return true;
 			
 			case ftp_req_endFileWrite:	 ftp_endReceiveFile(message->sourceAddress,lfs);
@@ -372,12 +372,12 @@ bool ftp_receiveHandler(lfs_t *lfs, bus_rxMessage_t *message)
 	}
 	else if(message->command == ftp_cmd_write)
 	{
-		ftp_fileReceiveHandler(message->sourceAddress, lfs, message->data, message->dataLength);
+		ftp_fileReceiveHandler(message->sourceAddress, lfs, message->data, message->length);
 		return true;
 	}
 	else if(message->command == ftp_cmd_read_ack)
 	{
-		ftp_fileTransmitHandler(message->sourceAddress, lfs, message->data, message->dataLength);
+		ftp_fileTransmitHandler(message->sourceAddress, lfs, message->data, message->length);
 		return true;
 	}
 	

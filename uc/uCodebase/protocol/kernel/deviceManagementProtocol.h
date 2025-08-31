@@ -54,7 +54,7 @@ typedef enum {
 
 void dmp_initialize(uint8_t *appName, systemControl_t *sysControl);	
 void dmp_handler(void);
-bool dmp_receiveHandler(bus_rxMessage_t *rxMessage);
+bool dmp_receiveHandler(const bus_rxMessage_t *rxMessage);
 
 uint8_t dmp_getDeviceAddress(void);
 

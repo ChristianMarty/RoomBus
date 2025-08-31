@@ -63,7 +63,7 @@ static inline void eeprom_readArray(uint8_t *destAddress, volatile uint8_t *eepo
 	}
 }
 
-static inline void eeprom_writeArray(uint8_t *sourceAddress, volatile uint8_t *eepormAddress, uint16_t size)
+static inline void eeprom_writeArray(const uint8_t *sourceAddress, volatile uint8_t *eepormAddress, uint16_t size)
 {
 	NVMCTRL->CTRLB.reg = ((FLASH_KEY<<8)|FLASH_USEER_CMD);
 	NVMCTRL->SEECFG.bit.WMODE =1;
