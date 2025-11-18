@@ -18,6 +18,8 @@
 uint32_t sysControlTaskTick;
 
 eememData_t eememData EEPROM = {
+	.hardwareRevisionMajor = HARDWARE_VERSION_MAJOR,
+	.hardwareRevisionMinor = HARDWARE_VERSION_MINOR,
 	.deviceAddress = 0,
 	.systemSavedSettings = 0,
 	.heartbeatInterval = 10,
@@ -88,8 +90,6 @@ void systemControl_initialize(void)
 	
 	sysControlHandler.sysControlOld.reg = 0;
 	sysControlHandler.sysStatusOld.reg = 0;
-	
-	sysControlHandler.appState = APP_STOP;
 
 	sysSavedSettings_t settings;
 	settings.reg = eeporm_readByte(&eememData.systemSavedSettings);
@@ -114,75 +114,67 @@ void systemControl_initialize(void)
 
 void systemControl_handler(void)
 {
-	if(systemControl_hasChanged())
-	{
+	if(systemControl_hasChanged()){
 		systemControl_run();
 		systemControl_hasChanged(); // run again to not trigger twice after systemControl_run
-		
 		dmp_sendHeartbeat();
 		
 		eeprom_writeByte(systemControl_getSaveSetting().reg, &eememData.systemSavedSettings);
 	}
 	
 	// 500ms Task
-	if(tickTimer_delay1ms(&sysControlTaskTick, 500))
-	{
-		if(watchdogWarningConter > 0) watchdogWarningConter--;
+	if(tickTimer_delay1ms(&sysControlTaskTick, 500)){
+		if(watchdogWarningConter > 0){
+			watchdogWarningConter--;
+		}
 		
 		systemControl_setAppCrcError(!systemControl_checkAppValid());
-		
-		kernel.kernelSignals->ledDisabled = sysControlHandler.sysControl.bit.userLedEnabled;
-		kernel.kernelSignals->administratorAccess = sysControlHandler.sysStatus.bit.administratorAccess;
 	}
 	
 	if(systemControl_getAppRun()){
-		if(sysControlHandler.appState == APP_STOP){
+		if(sysControlHandler.sysStatus.bit.applicationState == APP_STOPPED){
 			mlp_sysMessage("App Start");
-			sysControlHandler.appState = APP_INIT;
-			bus_clearAppReceiveBuffer();
-			bus_enableAppMessageBuffer(true);
+			
+			if(systemControl_checkAppValid()){
+				kernel.kernelSignals->initApp = true;
+				bus_clearAppReceiveBuffer();
+				bus_enableAppMessageBuffer(true);
+			}else{
+				sysControlHandler.sysStatus.bit.applicationState = APP_STOPPED;
+				mlp_sysError("App CRC Error");
+				kernel.kernelSignals->initApp = false;
+			}
+		
+			kernel.appSignals->appReady = false;
+			kernel.appSignals->shutdownReady = false;
+			kernel.kernelSignals->shutdownApp = false;
+		
+			sysControlHandler.sysStatus.bit.applicationState = APP_STARTING;
 		}
 	}else{
-		if(sysControlHandler.appState == APP_RUN){
+		if(sysControlHandler.sysStatus.bit.applicationState == APP_RUNNING){
 			mlp_sysMessage("App Shutdown");
-			sysControlHandler.appState = APP_SHUTDOWN;
+			sysControlHandler.sysStatus.bit.applicationState = APP_SHUTDOWN;
 		}
 	}
 	
-	if(sysControlHandler.appState == APP_INIT)
-	{
-		if(systemControl_checkAppValid()) {
-			kernel.kernelSignals->initApp = true;
-		}else {
-			sysControlHandler.appState = APP_STOP;
-			mlp_sysError("App CRC Error");
-			kernel.kernelSignals->initApp = false;
-		}
-		
-		kernel.appSignals->appReady = false;
-		kernel.appSignals->shutdownReady = false;
-		kernel.appSignals->appError = false;
-		kernel.kernelSignals->shutdownApp = false;
-	}
-	else if(sysControlHandler.appState == APP_RUN)
+	if(sysControlHandler.sysStatus.bit.applicationState == APP_RUNNING)
 	{
 		kernel.kernelSignals->initApp = false;
 		kernel.kernelSignals->shutdownApp = false;
 	}
-	else if(sysControlHandler.appState == APP_SHUTDOWN)
+	else if(sysControlHandler.sysStatus.bit.applicationState == APP_SHUTDOWN)
 	{
 		kernel.kernelSignals->initApp = false;
 		kernel.kernelSignals->shutdownApp = true;
 	}
 	
 	if(systemControl_appIsActive())
-	{
-		sysControlHandler.sysStatus.bit.applicationRuning  = true;
-		
+	{		
 		volatile uint16_t startTick = tickTimer_getTick_us();
 		volatile uint32_t startTime = tickTimer_getTickTime();
 		
-		appHead->appRun();
+		appHead->appRun(); // <-------------------------------  Run app
 		
 		volatile uint32_t endTime = tickTimer_getTickTime();
 		volatile uint16_t endTick = tickTimer_getTick_us();
@@ -197,23 +189,23 @@ void systemControl_handler(void)
 		}
 		
 		benchmark_run(&sysControlHandler.appBenchmark);
-	}
-	else
+	}	
+	
+	if(sysControlHandler.sysStatus.bit.applicationState == APP_STARTING && kernel.appSignals->appReady==true)
 	{
-		sysControlHandler.sysStatus.bit.applicationRuning = false;
+		sysControlHandler.sysStatus.bit.applicationState = APP_RUNNING;
 	}
 	
-	if(kernel.appSignals->appReady==true)
-	{
-		sysControlHandler.appState = APP_RUN;
+	if(sysControlHandler.sysControl.bit.applicationFroceStop){
+		mlp_sysWarning("Force App Stop");
 	}
 	
-	if(kernel.appSignals->shutdownReady == true)
-	{
-		sysControlHandler.appState = APP_STOP;
+	if((sysControlHandler.sysStatus.bit.applicationState == APP_SHUTDOWN && kernel.appSignals->shutdownReady) || sysControlHandler.sysControl.bit.applicationFroceStop){
+		sysControlHandler.sysControl.bit.applicationRun = false;
+		sysControlHandler.sysControl.bit.applicationFroceStop = false;
+		sysControlHandler.sysStatus.bit.applicationState = APP_STOPPED;
 		bus_enableAppMessageBuffer(false);
 	}
-	
 }
 
 void systemControl_run(void)
@@ -222,6 +214,9 @@ void systemControl_run(void)
 	sysControlHandler.sysStatus.bit.identify = sysControlHandler.sysControl.bit.identify;
 	sysControlHandler.sysStatus.bit.applicationRunOnStartup = sysControlHandler.sysControl.bit.applicationRunOnStartup;	
 	sysControlHandler.sysStatus.bit.messageLogEnabled = sysControlHandler.sysControl.bit.messageLogEnabled;	
+	
+	kernel.kernelSignals->ledDisabled = sysControlHandler.sysControl.bit.userLedEnabled;
+	kernel.kernelSignals->administratorAccess = sysControlHandler.sysStatus.bit.administratorAccess;
 }
 
 bool systemControl_hasChanged(void)
@@ -290,7 +285,8 @@ bool systemControl_getAppRun(void)
 
 bool systemControl_appIsActive(void)
 {
-	return ( (sysControlHandler.appState == APP_INIT)||(sysControlHandler.appState == APP_RUN)||(sysControlHandler.appState == APP_SHUTDOWN) );
+	applicationState_t appState = sysControlHandler.sysStatus.bit.applicationState;
+	return ( (appState == APP_STARTING)||(appState == APP_RUNNING)||(appState == APP_SHUTDOWN) );
 }
 
 void benchmark_reset(app_benchmark_t *benchmark)

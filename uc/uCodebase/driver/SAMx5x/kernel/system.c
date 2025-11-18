@@ -9,14 +9,10 @@
 
 #include "driver/SAMx5x/kernel/fuse.h"
 
-void system_configure(void);
-
 void system_initialize(void)
 {
-	system_configure();
-	
 	// Setup OSC1
-	OSCCTRL->XOSCCTRL[1].reg = 0x00F0A646; // Enable OSC1
+	OSCCTRL->XOSCCTRL[1].reg = 0x00F0A646; // Enable OSC1 -> 16MHz
 	while(!OSCCTRL->STATUS.bit.XOSCRDY1); // Wait until OSC1 is ready to use
 	
 	// Setup PLL0
@@ -27,46 +23,11 @@ void system_initialize(void)
 
 	// Sets CPU Clk (GCLK 0) to 120MHz
 	GCLK[0].GENCTRL->reg |= 0x01; // Set OSC
+	
+	fuse_initialize();
 }
 
 void system_reboot(void)
 {
 	SCB->AIRCR = 0x5FA0004;
-}
-
-void system_configure(void)
-{
-	fuse_initialize();
-	//fuse_setDefault();
-	return;
-	
-	/*fuseUserPage_t userPage = fuse_getUserPage();
-	bool write = false;
-	
-	// If smartEEPROM is not enabled -> enable smartEEPRM
-	if((userPage.SEEPSZ != EEMEM_SEEPSZ)&&(userPage.SEESBLK != EEMEM_SEESBLK))
-	{
-		// SmartEEPROM Virtual Size: 512 Byte
-		userPage.SEEPSZ = EEMEM_SEEPSZ;
-		userPage.SEESBLK = EEMEM_SEESBLK;
-		write = true;
-		
-		//mlp_appMessage("Configure: EEPROM -> 512 Byte");
-	}
-	
-	if(userPage.BOD33Disable == 0x01)
-	{
-		userPage.BOD33Disable = 0x0;
-		
-		//mlp_appMessage("Configure: Brown Out Detection");
-		
-		write = true;
-	}
-	
-	if(write)
-	{
-		//mlp_appMessage("Write device configuration to NVM User Page");
-		fuse_setUserPage(userPage);
-	}*/
-	
 }

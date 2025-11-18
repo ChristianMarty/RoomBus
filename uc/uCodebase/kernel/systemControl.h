@@ -16,6 +16,8 @@ extern "C" {
 
 #define MAX_STRING_SIZE 60
 typedef struct {
+	uint8_t  hardwareRevisionMajor;
+	uint8_t  hardwareRevisionMinor;
 	uint8_t  deviceAddress;
 	uint8_t  systemSavedSettings;
 	uint16_t heartbeatInterval;
@@ -27,11 +29,10 @@ typedef struct {
 	uint8_t administratorAccessKey[MAX_STRING_SIZE];
 	uint8_t administratorAccessKeyLength;
 	
-	uint8_t reserved0[128];
+	uint8_t reserved0[126];
 	
 	uint8_t appData[256];
 } eememData_t;
-
 
 typedef struct {
 	uint8_t applicationRunOnStartup : 1;
@@ -44,15 +45,21 @@ typedef union {
 	uint8_t reg;
 }sysSavedSettings_t;
 
+typedef enum {
+	APP_STOPPED,
+	APP_STARTING,
+	APP_RUNNING,
+	APP_SHUTDOWN
+} applicationState_t;
+
 typedef struct {
-    uint32_t applicationRuning : 1;
+    uint32_t applicationState : 2;
     uint32_t applicationCrcError : 1;
     uint32_t applicationRunOnStartup : 1;
     uint32_t userLedEnabled : 1;
     uint32_t identify : 1;
     uint32_t administratorAccess : 1;
     uint32_t messageLogEnabled : 1;
-    uint32_t reserved0 : 1;
 
     uint32_t systemError : 1;
     uint32_t watchdogWarning : 1;
@@ -73,14 +80,14 @@ typedef union {
 
 typedef struct {
     uint32_t applicationRun : 1;
+	uint32_t applicationFroceStop : 1;
     uint32_t applicationCheckCrc : 1;
     uint32_t applicationRunOnStartup : 1;
     uint32_t userLedEnabled : 1;
     uint32_t identify : 1;
     uint32_t reserved0 : 1;
     uint32_t messageLogEnabled : 1;
-    uint32_t reserved1 : 1;
-
+    
     uint32_t clearSystemError : 1;
     uint32_t clearWatchdogWarning : 1;
     uint32_t clearWatchdogError : 1;
@@ -98,13 +105,6 @@ typedef union {
 	uint32_t reg;
 }sysControlData_t;
 
-typedef enum {
-	APP_STOP, 
-	APP_INIT, 
-	APP_RUN, 
-	APP_SHUTDOWN
-} appState_t;
-
 typedef struct{
 	uint32_t us_max;
 	uint32_t us_min;
@@ -121,8 +121,6 @@ typedef struct {
 	
 	sysControlData_t sysControlOld;
 	sysStatusData_t sysStatusOld;
-	
-	appState_t appState;
 	
 	app_benchmark_t appBenchmark;
 	

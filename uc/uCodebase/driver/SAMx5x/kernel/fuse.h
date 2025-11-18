@@ -89,8 +89,10 @@ static inline void fuse_setUserPage(fuseUserPage_t data)
 static inline void fuse_initialize(void)
 {
 	fuseUserPage_t data = fuse_getUserPage();
-	bool write = false;
-	if(data.bit.SEEPSZ != EEPROM_SETTINGS_SEEPSZ || data.bit.SEESBLK != EEPROM_SETTINGS_SEESBLK)  write = true;
+
+	if(data.bit.SEEPSZ == EEPROM_SETTINGS_SEEPSZ && data.bit.SEESBLK == EEPROM_SETTINGS_SEESBLK){
+		return;
+	}
 
 	// From data sheet; Page 58
 	data.bit.BOD33Disable		= 0x01;
@@ -98,11 +100,11 @@ static inline void fuse_initialize(void)
 	data.bit.BOD33Action		= 0x02;
 	data.bit.BOD33Hysteresis	= 0x02;
 	//data.bit.BOD12Calibration   = 0x535; // Factory settings - do not change
-	data.bit.NVMBOOT			= 0x0F;
+	data.bit.NVMBOOT			= 0x00;
 	//data.Reserved0		// Factory settings - do not change
-	data.bit.SEESBLK			= EEPROM_SETTINGS_SEESBLK; //0x00;
-	data.bit.SEEPSZ				= EEPROM_SETTINGS_SEEPSZ; //0x00;
-	data.bit.RAMECCDIS			= 0x01;
+	data.bit.SEESBLK			= EEPROM_SETTINGS_SEESBLK; // 4
+	data.bit.SEEPSZ				= EEPROM_SETTINGS_SEEPSZ; //1
+	data.bit.RAMECCDIS			= 0x00;
 	//data.Reserved1		// Factory settings - do not change
 	data.bit.WDTEnable			= 0x01;
 	data.bit.WDTAlwaysOn		= 0x01;
@@ -114,7 +116,7 @@ static inline void fuse_initialize(void)
 	data.bit.NVMLOCKS			= 0xFFFFFFFF;
 	data.bit.fourthWord			= 0xFFFFFFFF;
 	
-	if(write) fuse_setUserPage(data);
+	fuse_setUserPage(data);
 }
 
 // Fuse default settings

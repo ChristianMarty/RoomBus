@@ -14,17 +14,15 @@
 #include "utility/bistableRelay.h"
 
 int main(void);
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
 kernel_t kernel __attribute__((section(".kernelCall")));
 
-__attribute__((section(".appHeader"))) appHead_t appHead ={
+__attribute__((section(".appHeader"))) applicationHeader_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
 /*appName[60]*/ "Power Distributor",
-/*main		 */ main,
-/*onRx		 */ onReceive
+/*main		 */ main
 };
 
 #define OFF_DELAY 30000
@@ -209,17 +207,19 @@ const eventSystemProtocol_t eventSystem = {
 
 //**** onReceive Configuration ****************************************************************************************
 
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
+void handleReceive(void)
 {
-	switch(protocol)
-	{
-		case busProtocol_triggerSystemProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_eventSystemProtocol:			return esp_receiveHandler(&eventSystem, sourceAddress, command, data, size);
-		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
+	bus_rxMessage_t message;
+	if(!kernel.bus.getReceivedMessage(&message)) return;
+	
+	bool processed = false;
+	switch(message.protocol){
+		case busProtocol_triggerSystemProtocol:	processed = tsp_receiveHandler(&triggerSystem, &message); break;
+		case busProtocol_eventSystemProtocol:	processed = esp_receiveHandler(&eventSystem, &message);
+		case busProtocol_stateSystemProtocol:	processed = ssp_receiveHandler(&stateSystem, &message); break;
 	}
-	return false;
+	kernel.bus.receivedProcessed(processed);
 }
-
 
 typedef enum  {
 	onOff_idel,
@@ -498,6 +498,8 @@ int main(void)
 	// Main code here
 	if(kernel.appSignals->appReady == true)
 	{
+		handleReceive();
+		
 		tsp_mainHandler(&triggerSystem);
 		esp_mainHandler(&eventSystem);
 		ssp_mainHandler(&stateSystem);
@@ -546,6 +548,8 @@ int main(void)
     {
 		if(kernel.appSignals->appReady == true)
 		{
+			handleReceive();
+			
 			setOutput(0);
 			setAmpStandby(0);
 			bsRelay_set(&mainRelay, false);

@@ -26,15 +26,21 @@ public:
         SystemTimeSynchronisation = 0x07
     };
 
+    enum class ApplicationState{
+        Stopped,
+        Starting,
+        Running,
+        Shutdown
+    };
+
     struct SystemStatus {
-        uint32_t applicationRuning : 1;
+        uint32_t applicationState : 2;
         uint32_t applicationCrcError : 1;
         uint32_t applicationRunOnStartup : 1;
         uint32_t userLedEnabled : 1;
         uint32_t identify : 1;
         uint32_t administratorAccess : 1;
         uint32_t messageLogEnabled : 1;
-        uint32_t reserved0 : 1;
 
         uint32_t systemError : 1;
         uint32_t watchdogWarning : 1;
@@ -51,13 +57,13 @@ public:
     union SystemControl {
         struct {
             uint32_t applicationRun : 1;
+            uint32_t applicationFroceStop : 1;
             uint32_t applicationCheckCrc : 1;
             uint32_t applicationRunOnStartup : 1;
             uint32_t userLedEnabled : 1;
             uint32_t identify : 1;
             uint32_t reserved0 : 1;
             uint32_t messageLogEnabled : 1;
-            uint32_t reserved1 : 1;
 
             uint32_t clearSystemError : 1;
             uint32_t clearWatchdogWarning : 1;

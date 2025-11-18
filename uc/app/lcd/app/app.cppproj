@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>kernel</AssemblyName>
-    <Name>kernel</Name>
-    <RootNamespace>kernel</RootNamespace>
+    <AssemblyName>app</AssemblyName>
+    <Name>app</Name>
+    <RootNamespace>app</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -26,7 +26,7 @@
     <OverrideVtorValue>exception_table</OverrideVtorValue>
     <BootSegment>2</BootSegment>
     <ResetRule>0</ResetRule>
-    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <eraseonlaunchrule>2</eraseonlaunchrule>
     <EraseKey />
     <AsfFrameworkConfig>
       <framework-data xmlns="">
@@ -42,7 +42,7 @@
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
     <avrtoolserialnumber>J41800001563</avrtoolserialnumber>
-    <avrdeviceexpectedsignature>0x61810302</avrdeviceexpectedsignature>
+    <avrdeviceexpectedsignature>0x61810002</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
@@ -135,10 +135,10 @@
         </armgcc.compiler.symbols.DefSymbols>
         <armgcc.compiler.directories.IncludePaths>
           <ListValues>
-            <Value>../../../uCodebase</Value>
+            <Value>../../../../uCodebase</Value>
             <Value>..</Value>
-            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
             <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
+            <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
         <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -152,7 +152,7 @@
         </armgcccpp.compiler.symbols.DefSymbols>
         <armgcccpp.compiler.directories.IncludePaths>
           <ListValues>
-            <Value>../../../uCodebase</Value>
+            <Value>../../../../uCodebase</Value>
             <Value>..</Value>
             <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
             <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
@@ -162,9 +162,6 @@
         <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
         <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
         <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-        <armgcccpp.linker.general.GenerateMAPFile>False</armgcccpp.linker.general.GenerateMAPFile>
-        <armgcccpp.linker.general.UseNewlibNano>True</armgcccpp.linker.general.UseNewlibNano>
-        <armgcccpp.linker.general.AdditionalSpecs>Use syscall stubs (--specs=nosys.specs)</armgcccpp.linker.general.AdditionalSpecs>
         <armgcccpp.linker.libraries.Libraries>
           <ListValues>
             <Value>libm</Value>
@@ -176,6 +173,11 @@
           </ListValues>
         </armgcccpp.linker.libraries.LibrarySearchPaths>
         <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <armgcccpp.linker.memorysettings.Flash>
+          <ListValues>
+            <Value>.appHeader=0x8000</Value>
+          </ListValues>
+        </armgcccpp.linker.memorysettings.Flash>
         <armgcccpp.linker.memorysettings.ExternalRAM />
         <armgcccpp.linker.miscellaneous.LinkerFlags>-Tsame51j19a_flash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
         <armgcccpp.assembler.general.IncludePaths>
@@ -196,177 +198,85 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\uCodebase\common\io_same51jx.h">
+    <Compile Include="..\..\..\uCodebase\common\io_same51jx.h">
       <SubType>compile</SubType>
       <Link>common\io_same51jx.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\common\kernel.h">
+    <Compile Include="..\..\..\uCodebase\common\kernel.h">
       <SubType>compile</SubType>
       <Link>common\kernel.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\common\typedef.h">
+    <Compile Include="..\..\..\uCodebase\common\typedef.h">
       <SubType>compile</SubType>
       <Link>common\typedef.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\genericClockController.c">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\genericClockController.c">
       <SubType>compile</SubType>
       <Link>driver\genericClockController.c</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\genericClockController.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\genericClockController.h">
       <SubType>compile</SubType>
       <Link>driver\genericClockController.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\eeprom.h">
-      <SubType>compile</SubType>
-      <Link>driver\eeprom.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\flash.h">
-      <SubType>compile</SubType>
-      <Link>driver\flash.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\fuse.h">
-      <SubType>compile</SubType>
-      <Link>driver\fuse.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\interrupt.c">
-      <SubType>compile</SubType>
-      <Link>driver\interrupt.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\interrupt.h">
-      <SubType>compile</SubType>
-      <Link>driver\interrupt.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\qspi.c">
-      <SubType>compile</SubType>
-      <Link>driver\qspi.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\qspi.h">
-      <SubType>compile</SubType>
-      <Link>driver\qspi.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\random.h">
-      <SubType>compile</SubType>
-      <Link>driver\random.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\system.c">
-      <SubType>compile</SubType>
-      <Link>driver\system.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\system.h">
-      <SubType>compile</SubType>
-      <Link>driver\system.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\tickTimer.c">
-      <SubType>compile</SubType>
-      <Link>driver\tickTimer.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\tickTimer.h">
-      <SubType>compile</SubType>
-      <Link>driver\tickTimer.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\kernel\watchDogTimer.h">
-      <SubType>compile</SubType>
-      <Link>driver\watchDogTimer.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\pin.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\pin.h">
       <SubType>compile</SubType>
       <Link>driver\pin.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\bus.c">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\spiMaster.cpp">
       <SubType>compile</SubType>
-      <Link>kernel\bus.c</Link>
+      <Link>driver\spiMaster.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\bus.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\spiMaster.h">
       <SubType>compile</SubType>
-      <Link>kernel\bus.h</Link>
+      <Link>driver\spiMaster.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\dataSystem.c">
+    <Compile Include="..\..\..\uCodebase\peripheral\sitronix_ST7735.cpp">
       <SubType>compile</SubType>
-      <Link>kernel\dataSystem.c</Link>
+      <Link>peripheral\sitronix_ST7735.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\dataSystem.h">
+    <Compile Include="..\..\..\uCodebase\peripheral\sitronix_ST7735.h">
       <SubType>compile</SubType>
-      <Link>kernel\dataSystem.h</Link>
+      <Link>peripheral\sitronix_ST7735.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\firmwareUpdate.c">
+    <Compile Include="..\..\..\uCodebase\protocol\eventSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>kernel\firmwareUpdate.c</Link>
+      <Link>protocol\eventSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\firmwareUpdate.h">
+    <Compile Include="..\..\..\uCodebase\protocol\eventSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>kernel\firmwareUpdate.h</Link>
+      <Link>protocol\eventSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\littleFS\lfs.c">
+    <Compile Include="..\..\..\uCodebase\protocol\stateSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>kernel\littleFs\lfs.c</Link>
+      <Link>protocol\stateSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\littleFS\lfs.h">
+    <Compile Include="..\..\..\uCodebase\protocol\stateSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>kernel\littleFs\lfs.h</Link>
+      <Link>protocol\stateSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\littleFS\lfs_util.c">
+    <Compile Include="..\..\..\uCodebase\protocol\triggerSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>kernel\littleFs\lfs_util.c</Link>
+      <Link>protocol\triggerSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\littleFS\lfs_util.h">
+    <Compile Include="..\..\..\uCodebase\protocol\triggerSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>kernel\littleFs\lfs_util.h</Link>
+      <Link>protocol\triggerSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\systemControl.c">
+    <Compile Include="..\..\..\uCodebase\protocol\valueSystemProtocol.cpp">
       <SubType>compile</SubType>
-      <Link>kernel\systemControl.c</Link>
+      <Link>protocol\valueSystemProtocol.cpp</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\systemControl.h">
+    <Compile Include="..\..\..\uCodebase\protocol\valueSystemProtocol.h">
       <SubType>compile</SubType>
-      <Link>kernel\systemControl.h</Link>
+      <Link>protocol\valueSystemProtocol.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\userIo.c">
+    <Compile Include="..\..\..\uCodebase\utility\edgeDetect.h">
       <SubType>compile</SubType>
-      <Link>kernel\userIo.c</Link>
+      <Link>lib\edgeDetect.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\kernel\userIo.h">
-      <SubType>compile</SubType>
-      <Link>kernel\userIo.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\protocol\kernel\deviceManagementProtocol.cpp">
-      <SubType>compile</SubType>
-      <Link>protocol\deviceManagementProtocol.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\protocol\kernel\deviceManagementProtocol.h">
-      <SubType>compile</SubType>
-      <Link>protocol\deviceManagementProtocol.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\protocol\kernel\fileTransferProtocol.cpp">
-      <SubType>compile</SubType>
-      <Link>protocol\fileTransferProtocol.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\protocol\kernel\fileTransferProtocol.h">
-      <SubType>compile</SubType>
-      <Link>protocol\fileTransferProtocol.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\protocol\kernel\messageLogProtocol.cpp">
-      <SubType>compile</SubType>
-      <Link>protocol\messageLogProtocol.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\protocol\kernel\messageLogProtocol.h">
-      <SubType>compile</SubType>
-      <Link>protocol\messageLogProtocol.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\utility\pack.h">
+    <Compile Include="..\..\..\uCodebase\utility\pack.h">
       <SubType>compile</SubType>
       <Link>lib\pack.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\utility\softCRC.h">
-      <SubType>compile</SubType>
-      <Link>lib\softCRC.h</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\utility\string.c">
-      <SubType>compile</SubType>
-      <Link>lib\string.c</Link>
-    </Compile>
-    <Compile Include="..\..\uCodebase\utility\string.h">
-      <SubType>compile</SubType>
-      <Link>lib\string.h</Link>
     </Compile>
     <Compile Include="Device_Startup\startup_same51.c">
       <SubType>compile</SubType>
@@ -382,12 +292,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="common\" />
     <Folder Include="Device_Startup\" />
-    <Folder Include="driver" />
-    <Folder Include="kernel\littleFs" />
     <Folder Include="lib" />
-    <Folder Include="kernel" />
-    <Folder Include="common" />
+    <Folder Include="driver" />
+    <Folder Include="peripheral" />
     <Folder Include="protocol" />
   </ItemGroup>
   <ItemGroup>

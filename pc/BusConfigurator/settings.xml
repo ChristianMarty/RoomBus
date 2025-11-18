@@ -10,6 +10,6 @@
 	</connection>
 		
 	<connection type="serial">
-		<port>COM8</port>
+		<port>COM7</port>
 	</connection>
 </settings>

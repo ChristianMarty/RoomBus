@@ -24,17 +24,15 @@
 #include "addOn/buttonSwitch.h"
 
 int main(void);
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
 kernel_t kernel __attribute__((section(".kernelCall")));
 
-__attribute__((section(".appHeader"))) appHead_t appHead ={
+__attribute__((section(".appHeader"))) applicationHeader_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
 /*appName[60]*/ "Human Input Controller",
-/*main		 */ main,
-/*onRx		 */ onReceive
+/*main		 */ main
 };
 
 encoderSwitch_t encoderSwitch_0;
@@ -115,7 +113,7 @@ const triggerSystemProtocol_t triggerSystem = {
 //**** Value Configuration ********************************************************************************************
 
 const vsp_valueSlot_t valueSlots[] = {
-	{ 0x01, "Rotary Knob 1", SLOT_TIMEOUT, nullptr}
+	{ 0x01, "Rotary Knob 1", 10, nullptr}
 };
 #define valueSlotListSize ARRAY_LENGTH(valueSlots)
 
@@ -132,14 +130,18 @@ const valueSystemProtocol_t valueSystem = {
 
 //*********************************************************************************************************************
 
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
+void handleReceive(void)
 {
-	switch(protocol){
-		case busProtocol_triggerSystemProtocol:	return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_valueSystemProtocol:	return vsp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
-		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
-		default: return false;
+	bus_rxMessage_t message;
+	if(!kernel.bus.getReceivedMessage(&message)) return;
+	
+	bool processed = false;
+	switch(message.protocol){
+		case busProtocol_triggerSystemProtocol:	processed = tsp_receiveHandler(&triggerSystem, &message); break;
+		case busProtocol_valueSystemProtocol:	processed = vsp_receiveHandler(&valueSystem, &message); break;
+		case busProtocol_stateSystemProtocol:	processed = ssp_receiveHandler(&stateSystem, &message); break;
 	}
+	kernel.bus.receivedProcessed(processed);
 }
 
 int main(void)
@@ -192,7 +194,9 @@ int main(void)
 	// Main code here
 	if(kernel.appSignals->appReady == true)
 	{
-				
+			
+		handleReceive();
+			
 		tsp_mainHandler(&triggerSystem);
 		vsp_mainHandler(&valueSystem);
 		ssp_mainHandler(&stateSystem);

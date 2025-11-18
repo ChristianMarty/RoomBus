@@ -24,7 +24,6 @@ extern "C" {
 typedef struct{
 	 uint32_t appReady : 1;
 	 uint32_t shutdownReady :1;
-	 uint32_t appError : 1;
 } appSignals_t;
 
 typedef struct{
@@ -33,7 +32,6 @@ typedef struct{
 	uint32_t ledDisabled : 1;
 	uint32_t administratorAccess : 1;
 	uint32_t identify : 1;
-	uint32_t kernelError :1;
 } kernelSignals_t;
 
 

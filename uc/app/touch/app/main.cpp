@@ -11,25 +11,20 @@
 
 #include "protocol/triggerSystemProtocol.h"
 #include "protocol/stateSystemProtocol.h"
-
 #include "driver/SAMx5x/pin.h"
-
 #include "utility/edgeDetect.h"
-
 #include "peripheral/nextion.h"
 
 int main(void);
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
 kernel_t kernel __attribute__((section(".kernelCall")));
 
-__attribute__((section(".appHeader"))) appHead_t appHead ={
+__attribute__((section(".appHeader"))) applicationHeader_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
 /*appName[60]*/ "Touch display",
-/*main		 */ main,
-/*onRx		 */ onReceive
+/*main		 */ main
 };
 
 void stdEventHandler(uint8_t index, uint8_t page, uint8_t component);
@@ -154,12 +149,17 @@ const triggerSystemProtocol_t triggerSystem = {
 
 
 //*********************************************************************************************************************
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size){
-	switch(protocol){
-		case busProtocol_triggerSystemProtocol:		return tsp_receiveHandler(&triggerSystem, sourceAddress, command, data, size);
-		case busProtocol_stateSystemProtocol:	return ssp_receiveHandler(&stateSystem, sourceAddress, command, data, size);
-		default: return false;
+void handleReceive(void)
+{
+	bus_rxMessage_t message;
+	if(!kernel.bus.getReceivedMessage(&message)) return;
+	
+	bool processed = false;
+	switch(message.protocol){
+		case busProtocol_triggerSystemProtocol:	processed = tsp_receiveHandler(&triggerSystem, &message); break;
+		case busProtocol_stateSystemProtocol:	processed = ssp_receiveHandler(&stateSystem, &message); break;
 	}
+	kernel.bus.receivedProcessed(processed);
 }
 
 void stdEventHandler(uint8_t index, uint8_t page, uint8_t component)
@@ -229,6 +229,8 @@ int main()
 	// Main app
 	if(kernel.appSignals->appReady == true)
 	{	
+		handleReceive();
+		
 		if(!pin_getInput(IO_D06)) nextion_setPage(&nextion_0, 1);
 		else if(!pin_getInput(IO_D07)) nextion_setPage(&nextion_0, 2);
 		else if(!pin_getInput(IO_D04)) nextion_setPage(&nextion_0, 3);

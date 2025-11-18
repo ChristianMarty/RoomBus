@@ -54,12 +54,25 @@ void BusDeviceWindow::updateStatus()
     if(_device->timeoutStatus()){
         ui->label_runStatus->setText("Timeout");
         ui->label_runStatus->setStyleSheet("font-weight: bold; color: orange;");
-    }else if(systemStatus.applicationRuning){
-        ui->label_runStatus->setText("Runnig");
-        ui->label_runStatus->setStyleSheet("font-weight: bold; color: green;");
     }else{
-        ui->label_runStatus->setText("Stopped");
-        ui->label_runStatus->setStyleSheet("font-weight: bold; color: red;");
+        switch((DeviceManagementProtocol::ApplicationState)systemStatus.applicationState) {
+            case DeviceManagementProtocol::ApplicationState::Stopped :
+                ui->label_runStatus->setText("Stopped");
+                ui->label_runStatus->setStyleSheet("font-weight: bold; color: red;");
+                break;
+            case DeviceManagementProtocol::ApplicationState::Starting :
+                ui->label_runStatus->setText("Starting");
+                ui->label_runStatus->setStyleSheet("font-weight: bold; color: green;");
+                break;
+            case DeviceManagementProtocol::ApplicationState::Running :
+                ui->label_runStatus->setText("Runnig");
+                ui->label_runStatus->setStyleSheet("font-weight: bold; color: green;");
+                break;
+            case DeviceManagementProtocol::ApplicationState::Shutdown :
+                ui->label_runStatus->setText("Shutdown");
+                ui->label_runStatus->setStyleSheet("font-weight: bold; color: red;");
+                break;
+        }
     }
 
     ui->label_administratorAccess->setEnabled(systemStatus.administratorAccess);

@@ -50,7 +50,7 @@ typedef struct{
 }serialBridgeProtocol_t;
 
 
-bool sbp_receiveHandler(const serialBridgeProtocol_t* sbp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size);
+bool sbp_receiveHandler(const serialBridgeProtocol_t* sbp, const bus_rxMessage_t *message);
 
 void sbp_sendData(const serialBridgeProtocol_t* sbp, uint8_t destinationAddress, uint8_t port, sbp_status_t state, const uint8_t *data, uint8_t size);
 

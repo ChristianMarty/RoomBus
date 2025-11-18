@@ -47,12 +47,25 @@ void BusDeviceWidget::updateData(void)
     }else if(systemStatus.administratorAccess){
         ui->appStatusLabel->setText("Administrator Access");
         ui->appStatusLabel->setStyleSheet("color: blue;");
-    }else if(systemStatus.applicationRuning){
-        ui->appStatusLabel->setText("Runnig");
-        ui->appStatusLabel->setStyleSheet("color: green;");
     }else{
-        ui->appStatusLabel->setText("Stopped");
-        ui->appStatusLabel->setStyleSheet("color: red;");
+        switch((DeviceManagementProtocol::ApplicationState)systemStatus.applicationState) {
+            case DeviceManagementProtocol::ApplicationState::Stopped :
+                ui->appStatusLabel->setText("Stopped");
+                ui->appStatusLabel->setStyleSheet("color: red;");
+                break;
+            case DeviceManagementProtocol::ApplicationState::Starting :
+                ui->appStatusLabel->setText("Starting");
+                ui->appStatusLabel->setStyleSheet("color: green;");
+                break;
+            case DeviceManagementProtocol::ApplicationState::Running :
+                ui->appStatusLabel->setText("Runnig");
+                ui->appStatusLabel->setStyleSheet("color: green;");
+                break;
+            case DeviceManagementProtocol::ApplicationState::Shutdown :
+                ui->appStatusLabel->setText("Shutdown");
+                ui->appStatusLabel->setStyleSheet("color: red;");
+                break;
+        }
     }
 }
 

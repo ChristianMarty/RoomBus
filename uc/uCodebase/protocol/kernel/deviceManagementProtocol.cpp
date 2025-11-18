@@ -45,8 +45,6 @@ uint16_t extendedHeartbeatIntervalTime;
 tickTimer_t heartbeatTimer = 0;
 tickTimer_t extendedHeartbeatTimer = 0;
 
-
-
 void sendSystemInfo(void);
 void sendHardwareName(void);
 void sendApplicationName(void);
@@ -64,7 +62,6 @@ void sendDiagnosticsReport(void);
 void sendEepromReport(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 void echo(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 void reboot(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
-
 
 uint32_t appStartAddress;
 
@@ -241,8 +238,8 @@ void sendSystemInfo(void)
 		bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
 		bus_pushByte(&msg, dmp_cmdSystemInfo);
 		bus_pushWord32(&msg, sysControlPtr->sysStatus.reg); 
-		bus_pushByte(&msg, HARDWARE_VERSION_MAJOR);
-		bus_pushByte(&msg, HARDWARE_VERSION_MINOR);
+		bus_pushByte(&msg, eeporm_readByte(&eememData.hardwareRevisionMajor));
+		bus_pushByte(&msg, eeporm_readByte(&eememData.hardwareRevisionMinor));
 		bus_pushByte(&msg, KERNEL_VERSION_MAJOR);
 		bus_pushByte(&msg, KERNEL_VERSION_MINOR);
 		bus_pushWord16(&msg, heartbeatIntervalTime);

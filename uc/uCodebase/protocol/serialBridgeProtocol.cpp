@@ -14,19 +14,21 @@ extern "C" {
 bool _sendPortInfo(uint8_t destinationAddress, const serialBridgeProtocol_t *sbp);
 bool _handleData(uint8_t port, const uint8_t *data, uint8_t size, const serialBridgeProtocol_t *sbp);
 
-bool sbp_receiveHandler(const serialBridgeProtocol_t* sbp, uint8_t sourceAddress, uint8_t command, const uint8_t *data, uint8_t size)
+bool sbp_receiveHandler(const serialBridgeProtocol_t* sbp, const bus_rxMessage_t *message)
 {
-	switch(command)
+	switch(message->command)
 	{
-		case sbp_cmd_portInfoReqest:	return _sendPortInfo(sourceAddress, sbp);
-		case sbp_cmd_data:				return _handleData(0, data, size,  sbp); 
+		case sbp_cmd_portInfoReqest:	return _sendPortInfo(message->sourceAddress, sbp);
+		case sbp_cmd_data:				return _handleData(0, message->data, message->length, sbp); 
 	}
 	return false;
 }
 
 void sbp_sendData(const serialBridgeProtocol_t* sbp, uint8_t destinationAddress, uint8_t port, sbp_status_t state, const uint8_t *data, uint8_t size)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
+	if(kernel.bus.getMessageSlot(&msg) == false) return; // Abort if TX buffer full
+		
 	kernel.bus.getMessageSlot(&msg);
 	kernel.bus.writeHeader(&msg,destinationAddress, busProtocol_serialBridgeProtocol, sbp_cmd_data, busPriority_low);
 	kernel.bus.pushByte(&msg,port);
@@ -37,7 +39,9 @@ void sbp_sendData(const serialBridgeProtocol_t* sbp, uint8_t destinationAddress,
 
 bool _sendPortInfo(uint8_t destinationAddress, const serialBridgeProtocol_t *sbp)
 {
-	bus_message_t msg;
+	bus_txMessage_t msg;
+	if(kernel.bus.getMessageSlot(&msg) == false) return false; // Abort if TX buffer full
+		
 	kernel.bus.getMessageSlot(&msg);
 	kernel.bus.writeHeader(&msg,destinationAddress, busProtocol_serialBridgeProtocol, sbp_cmd_data, busPriority_low);
 	kernel.bus.pushByte(&msg,sbp->portSize);

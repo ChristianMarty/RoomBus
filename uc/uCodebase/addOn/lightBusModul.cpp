@@ -126,7 +126,7 @@ void lightBusModul_init(lightBusModul_t *lightBusModul)
 			pin_enableOutput(IO_D06);
 			pin_setOutput(IO_D06, true);
 			
-			dma_init();
+			dma_initialize();
 			dma_dmxTx = dma_getTransfer(DMA_CH00);
 			
 			kernel.tickTimer.reset(&dmx_timer);
@@ -177,7 +177,7 @@ void lightBusModul_handler(lightBusModul_t *lightBusModul)
 			
 			dmx.sendBreak();
 			dma_transfer_dataToPeripheral(dma_dmxTx, &lightBusModul->dmx_data[0],sizeof(lightBusModul->dmx_data_size),&SERCOM2->USART.DATA.reg);
-			dma_channel_init(DMA_CH00,DMA_SERCOM2_TX, DMA_BURST_TRIGGER);
+			dma_channel_initialize(DMA_CH00, DMA_SERCOM2_TX, DMA_BURST_TRIGGER);
 		}
 	}
 }

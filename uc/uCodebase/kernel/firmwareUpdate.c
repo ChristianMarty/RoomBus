@@ -27,11 +27,11 @@ void firmwareUpdate_handler(systemControl_t *sysControl)
 {
 	if(erase)
 	{
-		if(sysControl->appState == APP_RUN)
+		if(sysControl->sysStatus.bit.applicationState == APP_RUNNING)
 		{
-			sysControl->appState = APP_SHUTDOWN;
+			sysControl->sysStatus.bit.applicationState = APP_SHUTDOWN;
 		}
-		else if(sysControl->appState == APP_STOP)
+		else if(sysControl->sysStatus.bit.applicationState == APP_STOPPED)
 		{
 			uint8_t blocksToErase = (APP_END_ADDRESS - APP_START_ADDRESS) / flash_getBlockSize();
 			

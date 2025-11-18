@@ -15,16 +15,18 @@
 	#define APP_START_ADDR   0x10000
 #endif
 
-#ifndef HARDWARE_VERSION_MAJOR
-	#define HARDWARE_VERSION_MAJOR 2
-	#define HARDWARE_VERSION_MINOR 3
-#endif
-
 #ifndef KERNEL_VERSION_MAJOR
 	#define KERNEL_VERSION_MAJOR 3
 	#define KERNEL_VERSION_MINOR 0
 #endif
 
+/******************************************************************************
+Hardware version is written to EEPROM with programmer
+******************************************************************************/  
+#ifndef HARDWARE_VERSION_MAJOR
+	#define HARDWARE_VERSION_MAJOR 2
+	#define HARDWARE_VERSION_MINOR 3
+#endif
 
 /******************************************************************************
 Administrator Access Button (AAB) settings

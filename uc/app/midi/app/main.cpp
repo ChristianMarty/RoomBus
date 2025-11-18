@@ -17,17 +17,15 @@
 #include "utility/string.h"
 
 int main(void);
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
 kernel_t kernel __attribute__((section(".kernelCall")));
 
-__attribute__((section(".appHeader"))) appHead_t appHead ={
+__attribute__((section(".appHeader"))) applicationHeader_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
 /*appName[60]*/ "Midi Controller",
-/*main		 */ main,
-/*onRx		 */ onReceive
+/*main		 */ main
 };
 
 //**** Value Configuration ********************************************************************************************
@@ -83,14 +81,18 @@ midiModul_t midiModul={
 	
 };
 
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
+void handleReceive(void)
 {
-	switch(protocol){
-		case busProtocol_valueSystemProtocol:	return vsp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
-		default: return false;
+	bus_rxMessage_t message;
+	if(!kernel.bus.getReceivedMessage(&message)) return;
+	
+	bool processed = false;
+	switch(message.protocol){
+		case busProtocol_valueSystemProtocol:	processed = vsp_receiveHandler(&valueSystem,  &message); break;
 	}
+	kernel.bus.receivedProcessed(processed);
 }
-
+	
 
 int main(void)
 {
@@ -106,6 +108,7 @@ int main(void)
 	// Main code here
 	if(kernel.appSignals->appReady == true)
 	{
+		handleReceive();
 		midiModul_handler();
 		vsp_mainHandler(&valueSystem);
 	}

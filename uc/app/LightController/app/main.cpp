@@ -19,17 +19,15 @@
 #include "utility/string.h"
 
 int main(void);
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size);
 kernel_t kernel __attribute__((section(".kernelCall")));
 
-__attribute__((section(".appHeader"))) appHead_t appHead ={
+__attribute__((section(".appHeader"))) applicationHeader_t appHead ={
 /*appCRC	 */ 0xAABBCCDD, // Will be written by Bootload tool
 /*appSize	 */ 0xEEFF0000, // Will be written by Bootload tool
 /*appRevMaj	 */ 0x01,
 /*appRevMin	 */ 0x00,
 /*appName[60]*/ "Light Controller",
-/*main		 */ main,
-/*onRx		 */ onReceive
+/*main		 */ main
 };
 
 
@@ -101,17 +99,18 @@ void lightBusModul_onReceive(lightBusModul_channel_t channel, const uint8_t *dat
 	else if(channel == lightBusModul_channel_t::lightBusModul_channel_2) sbp_sendData(&serialBridge, 0x7E,1,status,data,size);
 }
 
-
-
-bool onReceive(uint8_t sourceAddress, busProtocol_t protocol, uint8_t command, const uint8_t *data, uint8_t size)
-{	
-	switch(protocol){
-		case busProtocol_valueSystemProtocol:	return vsp_receiveHandler(&valueSystem, sourceAddress, command, data, size);
-		case busProtocol_serialBridgeProtocol:	return sbp_receiveHandler(&serialBridge, sourceAddress, command, data, size);
-		default: return false;
+void handleReceive(void)
+{
+	bus_rxMessage_t message;
+	if(!kernel.bus.getReceivedMessage(&message)) return;
+	
+	bool processed = false;
+	switch(message.protocol){
+		case busProtocol_valueSystemProtocol:	processed = vsp_receiveHandler(&valueSystem,  &message);
+		case busProtocol_serialBridgeProtocol:	processed = sbp_receiveHandler(&serialBridge, &message);
 	}
+	kernel.bus.receivedProcessed(processed);
 }
-
 
 uint8_t dmx_txBuffer[514];
 lightBusModul_t lightBusModul = {
@@ -136,6 +135,8 @@ int main(void)
 	// Main code here
 	if(kernel.appSignals->appReady == true)
 	{
+		handleReceive();
+		
 		vsp_mainHandler(&valueSystem);
 		lightBusModul_handler(&lightBusModul);
 	}

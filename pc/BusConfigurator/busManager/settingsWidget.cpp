@@ -39,7 +39,7 @@ void SettingsWidget::updateData(void)
     }
 
     ui->ledOnBox->setChecked(_busDevice->systemStatus().userLedEnabled);
-    ui->appRunBox->setChecked(_busDevice->systemStatus().applicationRuning);
+    ui->appRunBox->setChecked((DeviceManagementProtocol::ApplicationState)_busDevice->systemStatus().applicationState == DeviceManagementProtocol::ApplicationState::Running);
     ui->autostartAppBox->setChecked(_busDevice->systemStatus().applicationRunOnStartup);
     ui->checkBox_messageLogEnabled->setChecked(_busDevice->systemStatus().messageLogEnabled);
     ui->checkBox_administratorAccess->setChecked(_busDevice->systemStatus().administratorAccess);
@@ -153,4 +153,12 @@ void SettingsWidget::on_pushButton_setAdministratorKey_clicked()
     _busDevice->management().writeAdministrationModeKey(ui->lineEdit_administratorKey->text());
 }
 
+void SettingsWidget::on_pushButton_forceStop_clicked()
+{
+    DeviceManagementProtocol::SystemControl temp;
+    temp.reg = 0;
+    temp.bit.applicationFroceStop = true;
+
+    _busDevice->management().writeSetControl(temp);
+}
 
