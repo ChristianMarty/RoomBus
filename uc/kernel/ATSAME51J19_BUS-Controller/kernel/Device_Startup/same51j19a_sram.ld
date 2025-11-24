@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief Linker script for running in internal FLASH on the SAME51J19A
+ * \brief Linker script for running in internal SRAM on the SAME51J19A
  *
  * Copyright (c) 2017 Microchip Technology Inc.
  *
@@ -35,36 +35,17 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-  rom      (rx)  : ORIGIN = 0x00000000, LENGTH = 0x0000FFFF
-  ivt      (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00000268
-  ram      (rwx) : ORIGIN = 0x20000268, LENGTH = 0x0003FD98
-  eeprom   (rwx) : ORIGIN = 0x44000000, LENGTH = 0x000001E0
+  ram      (rwx) : ORIGIN = 0x20000268, LENGTH = 0x0003FB98
   bkupram  (rwx) : ORIGIN = 0x47000000, LENGTH = 0x00002000
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
 STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 0xC000;
-HEAP_SIZE = 0x4000; /* 16Kb heap */
 
 /* Section Definitions */
 SECTIONS
-{	
-	.eeprom :
-	{
-		*(.eemem*)
-	} > eeprom
-
-/*	.ahdr :
-	{
-		KEEP(*(.appHeader))
-	} > ahdr */
-
-	.interruptVectorTable :
-	{
-		*(.interruptVectorTable*)
-	} > ivt
-
+{
     .text :
     {
         . = ALIGN(4);
@@ -112,14 +93,14 @@ SECTIONS
 
         . = ALIGN(4);
         _efixed = .;            /* End of text section */
-    } > rom
+    } > ram
 
     /* .ARM.exidx is sorted, so has to go in its own output section.  */
     PROVIDE_HIDDEN (__exidx_start = .);
     .ARM.exidx :
     {
       *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > rom
+    } > ram
     PROVIDE_HIDDEN (__exidx_end = .);
 
     . = ALIGN(4);
@@ -175,17 +156,6 @@ SECTIONS
         . = ALIGN(8);
         _estack = .;
     } > ram
-
-	.heap :
-	{
-		. = ALIGN(4);
-		PROVIDE ( end = . );
-		_sheap = .;
-		. = . + HEAP_SIZE;
-		. = ALIGN(4);
-		_eheap = .;
-	} > ram
-
 
     . = ALIGN(4);
     _end = . ;
