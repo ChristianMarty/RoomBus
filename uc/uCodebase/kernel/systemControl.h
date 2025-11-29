@@ -18,6 +18,7 @@ extern "C" {
 typedef struct {
 	uint8_t  hardwareRevisionMajor;
 	uint8_t  hardwareRevisionMinor;
+	
 	uint8_t  deviceAddress;
 	uint8_t  systemSavedSettings;
 	uint16_t heartbeatInterval;

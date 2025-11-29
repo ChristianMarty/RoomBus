@@ -55,9 +55,9 @@ void setControl(const uint8_t *data, uint8_t size);
 void clrControl(const uint8_t *data, uint8_t size);
 void enteradministratorAccess(const uint8_t *data, uint8_t size);
 void exitadministratorAccess(void);
-void writeDeviceName(const uint8_t *data, uint8_t size);
-void writeadministratorAccessKey(const uint8_t *data, uint8_t size);
-void writeAddress(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
+bool writeDeviceName(const uint8_t *data, uint8_t size);
+bool writeAdministratorAccessKey(const uint8_t *data, uint8_t size);
+bool writeAddress(const uint8_t *data, uint8_t size);
 void sendDiagnosticsReport(void);
 void sendEepromReport(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 void echo(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
@@ -166,16 +166,23 @@ bool dmp_receiveHandler(const bus_rxMessage_t *message)
 				return true;
 					
 			case dmp_cmdSetadministratorAccessKey:
-				writeadministratorAccessKey(data, dataLength);
+				if(!writeAdministratorAccessKey(data, dataLength)){
+					mlp_sysWarning("New administrator key invalid! Key not changed!");
+				}
 				return true;
 			
 			case dmp_cmdSetDeviceName:
-				writeDeviceName(data, dataLength);
+				if(!writeDeviceName(data, dataLength)){
+					mlp_sysWarning("New device name invalid! Name not changed!");
+				}
 				sendDeviceName();
 				return true;
 
 			case dmp_cmdSetAddress:
-				writeAddress(message->sourceAddress, data, dataLength);
+				if(!writeAddress(data, dataLength)){
+					mlp_sysWarning("New address invalid! Address not changed!");
+				}
+				system_reboot();
 				return true;
 
 			case dmp_cmdEraseApp:
@@ -378,31 +385,38 @@ void exitadministratorAccess(void)
 	sysControlPtr->sysStatus.bit.administratorAccess = false;
 }
 
-void writeadministratorAccessKey(const uint8_t *data, uint8_t size)
+bool writeAdministratorAccessKey(const uint8_t *data, uint8_t size)
 {
-	if(size-1 < MAX_STRING_SIZE){
-		eeprom_writeArray(&data[0], &eememData.administratorAccessKey[0], size);
-		eeprom_writeByte(size, &eememData.administratorAccessKeyLength);
-	}
+	if(size > MAX_STRING_SIZE) return false;
+	
+	eeprom_writeArray(&data[0], &eememData.administratorAccessKey[0], size);
+	eeprom_writeByte(size, &eememData.administratorAccessKeyLength);
+	
+	return true;
 }
 
-void writeDeviceName(const uint8_t *data, uint8_t size)
+bool writeDeviceName(const uint8_t *data, uint8_t size)
 {
-	if(size-1 < MAX_STRING_SIZE){
-		eeprom_writeArray(&data[0], &eememData.deviceName[0], size);
-		eeprom_writeByte(size, &eememData.deviceNameLength);
-	}
-
-	sendDeviceName();
+	if(size > MAX_STRING_SIZE) return false;
+	
+	eeprom_writeArray(&data[0], &eememData.deviceName[0], size);
+	eeprom_writeByte(size, &eememData.deviceNameLength);
+	
+	return true;
 }
 
-void writeAddress(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
-{	
-	if( (size==1) && ((data[0] != 0x00)||(data[0] < 0x7F)) )
-	{
-		eeprom_writeByte(data[0], &eememData.deviceAddress);
-		if( data[0] == eeporm_readByte(&eememData.deviceAddress)) system_reboot();
-	}
+bool writeAddress(const uint8_t *data, uint8_t size)
+{
+	if(size != 1) return false;
+	
+	uint8_t newAddress = data[0];
+	if(newAddress == 0x00) return false;
+	if(newAddress == 0x7F) return false;
+
+	eeprom_writeByte(newAddress, &eememData.deviceAddress);
+	
+	if(newAddress != eeporm_readByte(&eememData.deviceAddress)) return false;
+	return true;
 }
 
 void sendEepromReport(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
