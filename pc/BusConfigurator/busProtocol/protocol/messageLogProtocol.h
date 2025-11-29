@@ -49,7 +49,7 @@ public:
 
     MessageLogProtocol(RoomBusDevice *device);
 
-    void handleMessage(MiniBus::Message msg);
+    void handleMessage(const MiniBus::Message &message) override;
 
     QList<LogMessage> messages() const;
     void clearLog(void);

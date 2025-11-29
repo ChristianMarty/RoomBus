@@ -20,12 +20,12 @@ void SerialBridgeProtocol::sendData(uint8_t port, QByteArray data)
     sendMessage(msg);
 }
 
-void SerialBridgeProtocol::handleMessage(MiniBus::Message msg)
+void SerialBridgeProtocol::handleMessage(const MiniBus::Message &message)
 {
-    if(msg.protocol != (MiniBus::Protocol)Protocol::SerialBridgeProtocol) return;
+    if(message.protocol != (MiniBus::Protocol)Protocol::SerialBridgeProtocol) return;
 
-    if(msg.command == (uint8_t)Command::Data){
-        _parseData(msg.data);
+    if(message.command == (uint8_t)Command::Data){
+        _parseData(message.data);
     }
 }
 

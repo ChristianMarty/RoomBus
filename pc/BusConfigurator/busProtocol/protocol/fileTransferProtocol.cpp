@@ -7,28 +7,28 @@ FileTransferProtocol::FileTransferProtocol(RoomBusDevice *device):ProtocolBase(d
     _device->addProtocol(this);
 }
 
-void FileTransferProtocol::handleMessage(MiniBus::Message msg)
+void FileTransferProtocol::handleMessage(const MiniBus::Message &message)
 {
-    if(msg.protocol != (MiniBus::Protocol)Protocol::FileTransferProtocol){
+    if(message.protocol != (MiniBus::Protocol)Protocol::FileTransferProtocol){
         return;
     }
 
-    Command command = (Command)msg.command;
+    Command command = (Command)message.command;
 
     if(command == Command::Response)
     {
-        uint8_t response_id = msg.data.at(0);
+        uint8_t response_id = message.data.at(0);
         switch(response_id)
         {
             case rsp_fileInfo:
             {
                 file_t file;
-                if(msg.data.at(2) == 0) file.type = file_t::file;
-                else if(msg.data.at(2) == 1) file.type = file_t::dir;
+                if(message.data.at(2) == 0) file.type = file_t::file;
+                else if(message.data.at(2) == 1) file.type = file_t::dir;
                 else file.type = file_t::error;
 
-                file.size = MiniBus::unpackUint32(msg.data,3);
-                file.name = msg.data.remove(0,7);
+                file.size = MiniBus::unpackUint32(message.data,3);
+                file.name = QByteArray(message.data).remove(0,7);
 
                 _files[file.name] = file;
                 emit fileList_change(_files);
@@ -36,23 +36,23 @@ void FileTransferProtocol::handleMessage(MiniBus::Message msg)
             break;
 
 
-            case rsp_startFileRead:  handle_readStart(msg); break;
+            case rsp_startFileRead:  handle_readStart(message); break;
 
-            case rsp_startFileWrite: handle_writeStart(msg); break;
-            case rsp_completeWrite:  handle_writeComplete(msg); break;
+            case rsp_startFileWrite: handle_writeStart(message); break;
+            case rsp_completeWrite:  handle_writeComplete(message); break;
         }
     }
     else if(command == Command::Request)
     {
-        uint8_t response_id = msg.data.at(0);
+        uint8_t response_id = message.data.at(0);
         switch(response_id)
         {
-            case req_endFileRead:  handle_readEnd(msg); break;
+            case req_endFileRead:  handle_readEnd(message); break;
         }
     }
     else if(command == Command::Read)
     {
-        handle_read(msg);
+        handle_read(message);
     }
     else if(command == Command::ReadAcknowledgment)
     {
@@ -64,7 +64,7 @@ void FileTransferProtocol::handleMessage(MiniBus::Message msg)
     }
     else if(command == Command::WriteAcknowledgment)
     {
-        handle_writeAck(msg);
+        handle_writeAck(message);
 
     }
 }

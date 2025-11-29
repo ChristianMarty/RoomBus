@@ -46,7 +46,7 @@ public:
 
     StateSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(MiniBus::Message msg);
+    void handleMessage(const MiniBus::Message &message) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);

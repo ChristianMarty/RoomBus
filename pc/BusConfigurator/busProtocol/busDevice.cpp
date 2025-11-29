@@ -39,7 +39,7 @@ QString RoomBusDevice::kernelVersionString(void) const
     uint8_t high = (uint8_t)((_deviceManagementProtocol._kernelVersion >> 8) & 0xFF);
     uint8_t low = (uint8_t)(_deviceManagementProtocol._kernelVersion & 0xFF);
 
-    return QString::number(high,10).rightJustified(2, '0')+"."+QString::number(low,10).rightJustified(2, '0');
+    return QString::number(high,10)+"."+QString::number(low,10).rightJustified(2, '0');
 }
 
 QString RoomBusDevice::hardwareVersionString(void) const
@@ -47,7 +47,7 @@ QString RoomBusDevice::hardwareVersionString(void) const
     uint8_t high = (uint8_t)((_deviceManagementProtocol._hardwareVersion >> 8) & 0xFF);
     uint8_t low = (uint8_t)(_deviceManagementProtocol._hardwareVersion & 0xFF);
 
-    return QString::number(high,10).rightJustified(2, '0')+"."+QString::number(low,10).rightJustified(2, '0');
+    return QString::number(high,10)+"."+QString::number(low,10).rightJustified(2, '0');
 }
 
 QString RoomBusDevice::deviceIdentificationString(void) const
@@ -102,7 +102,9 @@ void RoomBusDevice::removeProtocol(ProtocolBase* protocol)
 
 void RoomBusDevice::handleMessage(MiniBus::Message message)
 {
-    if(message.sourceAddress != _deviceAddress) return;
+    if(message.sourceAddress != _deviceAddress){
+        return;
+    }
 
     _deviceManagementProtocol.handleMessage(message);
 
@@ -114,12 +116,12 @@ void RoomBusDevice::handleMessage(MiniBus::Message message)
 
 MiniBus::Message RoomBusDevice::busScan()
 {
-    MiniBus::Message msg;
-    msg.destinationAddress = MiniBus::BroadcastAddress;
-    msg.protocol = (MiniBus::Protocol)ProtocolBase::Protocol::DeviceManagementProtocol;
-    msg.command = (MiniBus::Command)DeviceManagementProtocol::Command::HostToDevice;
-    msg.data.append((uint8_t)DeviceManagementProtocol::DeviceManagementSubCommand::SystemInformationRequest);
-    msg.priority = MiniBus::Priority::Normal;
+    MiniBus::Message message;
+    message.destinationAddress = MiniBus::BroadcastAddress;
+    message.protocol = (MiniBus::Protocol)ProtocolBase::Protocol::DeviceManagementProtocol;
+    message.command = (MiniBus::Command)DeviceManagementProtocol::Command::HostToDevice;
+    message.data.append((uint8_t)DeviceManagementProtocol::DeviceManagementSubCommand::SystemInformationRequest);
+    message.priority = MiniBus::Priority::Normal;
 
-    return msg;
+    return message;
 }

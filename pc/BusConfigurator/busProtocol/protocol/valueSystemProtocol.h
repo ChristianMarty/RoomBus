@@ -103,7 +103,7 @@ public:
 
     ValueSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(MiniBus::Message message);
+    void handleMessage(const MiniBus::Message &message);
 
     void sendValueCommand(uint16_t channel, ValueData value);
 

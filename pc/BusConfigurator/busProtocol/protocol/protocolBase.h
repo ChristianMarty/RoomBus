@@ -25,7 +25,7 @@ public:
     ProtocolBase(RoomBusDevice *device);
     ~ProtocolBase(void);
 
-    virtual void handleMessage(MiniBus::Message message) = 0;
+    virtual void handleMessage(const MiniBus::Message &message) = 0;
 
     static QString protocolName(MiniBus::Protocol protocol);
     static QString commandName(MiniBus::Protocol protocol, MiniBus::Command command);

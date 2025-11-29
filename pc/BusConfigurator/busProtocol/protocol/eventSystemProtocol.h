@@ -38,7 +38,7 @@ public:
 
     EventSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(MiniBus::Message msg) override;
+    void handleMessage(const MiniBus::Message &message) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);

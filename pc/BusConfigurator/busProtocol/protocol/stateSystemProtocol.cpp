@@ -7,15 +7,15 @@ StateSystemProtocol::StateSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void StateSystemProtocol::handleMessage(MiniBus::Message msg)
+void StateSystemProtocol::handleMessage(const MiniBus::Message &message)
 {
-    if(msg.protocol != (MiniBus::Protocol)Protocol::StateSystemProtocol) return;
+    if(message.protocol != (MiniBus::Protocol)Protocol::StateSystemProtocol) return;
 
-    switch((Command)msg.command)
+    switch((Command)message.command)
     {
-        case Command::State: _parseStateReport(msg); break;
-        case Command::SignalInformationReport: _parseSignalInformationReport(msg); break;
-        case Command::SlotInformationReport: _parseSlotInformationReport(msg); break;
+        case Command::State: _parseStateReport(message); break;
+        case Command::SignalInformationReport: _parseSignalInformationReport(message); break;
+        case Command::SlotInformationReport: _parseSlotInformationReport(message); break;
     }
 }
 

@@ -7,16 +7,16 @@ EventSystemProtocol::EventSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void EventSystemProtocol::handleMessage(MiniBus::Message msg)
+void EventSystemProtocol::handleMessage(const MiniBus::Message &message)
 {
-    if(msg.protocol != (MiniBus::Protocol)Protocol::EventSystemProtocol){
+    if(message.protocol != (MiniBus::Protocol)Protocol::EventSystemProtocol){
         return;
     }
 
-    switch((Command)msg.command){
-        case Command::Event: _parseEvent(msg); break;
-        case Command::SignalInformationReport: _parseSignalInformationReport(msg); break;
-        case Command::SlotInformationReport: _parseSlotInformationReport(msg); break;
+    switch((Command)message.command){
+        case Command::Event: _parseEvent(message); break;
+        case Command::SignalInformationReport: _parseSignalInformationReport(message); break;
+        case Command::SlotInformationReport: _parseSlotInformationReport(message); break;
 
         case Command::Reserved0:
         case Command::Reserved1:

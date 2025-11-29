@@ -37,7 +37,7 @@ public:
 
     TriggerSystemProtocol(RoomBusDevice *device);
 
-    void handleMessage(MiniBus::Message message) override;
+    void handleMessage(const MiniBus::Message &message) override;
 
     void requestSignalInformation(void);
     void requestSlotInformation(void);

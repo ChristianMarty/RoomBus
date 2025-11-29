@@ -7,7 +7,7 @@ TriggerSystemProtocol::TriggerSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void TriggerSystemProtocol::handleMessage(MiniBus::Message message)
+void TriggerSystemProtocol::handleMessage(const MiniBus::Message &message)
 {
     if(message.protocol != (MiniBus::Protocol)Protocol::TriggerSystemProtocol){
         return;

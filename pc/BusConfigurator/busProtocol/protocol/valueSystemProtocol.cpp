@@ -7,7 +7,7 @@ ValueSystemProtocol::ValueSystemProtocol(RoomBusDevice *device)
     _device->addProtocol(this);
 }
 
-void ValueSystemProtocol::handleMessage(MiniBus::Message message)
+void ValueSystemProtocol::handleMessage(const MiniBus::Message &message)
 {
     if(message.protocol != (MiniBus::Protocol)Protocol::ValueSystemProtocol){
         return;

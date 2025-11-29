@@ -28,7 +28,7 @@ void BusDeviceWidget::updateData(void)
 {
     ui->deviceNameLabel->setText(QString::number(_device->deviceAddress(),10)+" - "+_device->deviceName());
     ui->applicationNameLabel->setText(_device->applicationName());
-    ui->hardwareNameLabel->setText(_device->hardwareName());
+    ui->hardwareNameLabel->setText(_device->hardwareName()+" "+_device->hardwareVersionString());
     ui->lastHeartbeatLabel->setText(_device->lastHeartbeat().toString("hh:mm:ss"));
 
     if(_device->systemStatus().identify == false)ui->identifyButton->setText("Identify");

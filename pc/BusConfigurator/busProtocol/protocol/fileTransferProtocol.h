@@ -76,7 +76,7 @@ public:
 
     FileTransferProtocol(RoomBusDevice *device);
 
-    void handleMessage(MiniBus::Message msg);
+    void handleMessage(const MiniBus::Message &message) override;
 
     void list(QString path);
     void makeFile(QString path);

@@ -114,7 +114,7 @@ public:
 
     DeviceManagementProtocol(RoomBusDevice *device);
 
-    void handleMessage(MiniBus::Message message) override;
+    void handleMessage(const MiniBus::Message &message) override;
 
     uint16_t heartbeatInterval() const;
     uint16_t systemInfoInterval() const;

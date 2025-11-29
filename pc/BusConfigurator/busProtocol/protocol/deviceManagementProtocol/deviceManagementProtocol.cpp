@@ -8,7 +8,7 @@ DeviceManagementProtocol::DeviceManagementProtocol(RoomBusDevice *device)
     connect(&_heartbeatTimer,  &QTimer::timeout, this, &DeviceManagementProtocol::on_heartbeatTimeout);
 }
 
-void DeviceManagementProtocol::handleMessage(MiniBus::Message message)
+void DeviceManagementProtocol::handleMessage(const MiniBus::Message &message)
 {
     if(message.protocol != (MiniBus::Protocol)Protocol::DeviceManagementProtocol) return;
 
@@ -135,10 +135,17 @@ Eeprom &DeviceManagementProtocol::eeprom()
 QString DeviceManagementProtocol::commandName(MiniBus::Command command)
 {
     switch((Command)command){
-    case Command::DeviceToHost: return "Device To Host"; break;
-    case Command::HostToDevice: return "Host To Device"; break;
-    }
+        case Command::DeviceToHost: return "Device To Host";
+        case Command::HostToDevice: return "Host To Device";
 
+        case Command::Reserved0:
+        case Command::Reserved1:
+        case Command::Reserved2:
+        case Command::Reserved3:
+        case Command::Reserved4: return "Reserved";
+
+        case Command::SystemTimeSynchronisation: return "System Time Synchronisation";
+    }
     return "Unknown Command";
 }
 
@@ -161,12 +168,18 @@ QString DeviceManagementProtocol::dataDecoder(MiniBus::Command command, const QB
         case DeviceManagementSubCommand::WriteControl: output = "Write Control"; break;
         case DeviceManagementSubCommand::SetControl: output = "Set Control"; break;
         case DeviceManagementSubCommand::ClearControl: output = "Clear Control"; break;
-        case DeviceManagementSubCommand::EnterAdministrationMode: output = "Enter Root Mode"; break;
+        case DeviceManagementSubCommand::EnterAdministrationMode: output = "Enter Administration Mode"; break;
+        case DeviceManagementSubCommand::ExitAdministrationMode: output = "Exit Administration Mode"; break;
         case DeviceManagementSubCommand::SetDeviceName: output = "Set Device Name"; break;
         case DeviceManagementSubCommand::SetAddress: output = "Set Address"; break;
+        case DeviceManagementSubCommand::SetAdministrationModeKey: output = "Set Administration Mode Key"; break;
+
+        case DeviceManagementSubCommand::EepromReadRequest: output = "Eeprom Read Request"; break;
+        case DeviceManagementSubCommand::EepromReadReport: output = "Eeprom Read Report"; break;
 
         case DeviceManagementSubCommand::CanDiagnosticsRequest: output = "CAN Diagnostics Request"; break;
         case DeviceManagementSubCommand::CanDiagnosticsReport: output = "CAN Diagnostics Report"; break;
+
         case DeviceManagementSubCommand::Echo: output = "Echo"; break;
         case DeviceManagementSubCommand::Reboot: output = "Reboot"; break;
         case DeviceManagementSubCommand::EraseApplication: output = "Erase Application"; break;

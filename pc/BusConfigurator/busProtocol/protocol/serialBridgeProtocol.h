@@ -32,7 +32,7 @@ public:
 
     void sendData(uint8_t port, QByteArray data);
 
-    void handleMessage(MiniBus::Message msg);
+    void handleMessage(const MiniBus::Message &message) override;
 
     static QString commandName(MiniBus::Command command);
     static QString dataDecoder(MiniBus::Command command, const QByteArray &data);
