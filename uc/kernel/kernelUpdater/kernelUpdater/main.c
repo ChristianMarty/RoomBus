@@ -7,8 +7,8 @@
 
 
 #include "sam.h"
-#include "driver/SAMx5x/flash.h"
-#include "driver/SAMx5x/wdt.h"
+#include "driver/SAMx5x/kernel/watchDogTimer.h"
+#include "driver/SAMx5x/kernel/flash.h"
 
 #define KERNEL_START_ADDRESS 0x00000000
 #define NEW_KERNEL_START_ADDRESS  ((FLASH_SIZE/2) + (KERNEL_START_ADDRESS/2))
@@ -50,8 +50,8 @@ __attribute__((section(".kernelHeader"))) kernelHead_t kernelHead ={
 
 int main(void)
 {
-	wdt_off();
-	wdt_clear();
+	watchDogTimer_off();
+	watchDogTimer_clear();
 	__disable_irq();
 	
 	uint8_t blocksToErase = kernelHead.kernelSectionEndAddress / flash_getBlockSize();

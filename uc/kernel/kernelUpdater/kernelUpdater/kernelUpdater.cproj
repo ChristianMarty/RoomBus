@@ -109,7 +109,8 @@
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>../../../uCodebase</Value>
+      <Value>..</Value>
+      <Value>../../../../uCodebase</Value>
       <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
     </ListValues>
@@ -149,13 +150,13 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\flash.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\kernel\flash.h">
       <SubType>compile</SubType>
       <Link>flash.h</Link>
     </Compile>
-    <Compile Include="..\..\uCodebase\driver\SAMx5x\wdt.h">
+    <Compile Include="..\..\..\uCodebase\driver\SAMx5x\kernel\watchDogTimer.h">
       <SubType>compile</SubType>
-      <Link>wdt.h</Link>
+      <Link>watchDogTimer.h</Link>
     </Compile>
     <Compile Include="Device_Startup\startup_same51.c">
       <SubType>compile</SubType>
@@ -164,6 +165,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="main.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
