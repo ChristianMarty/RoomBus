@@ -144,7 +144,7 @@ public:
     void writeSetControl(DeviceManagementProtocol::SystemControl sysControl);
     void writeClearControl(DeviceManagementProtocol::SystemControl sysControl);
 
-    void sendEcho(QByteArray txData);
+    void sendEcho(QByteArray txData, MiniBus::Priority priority = MiniBus::Priority::Low);
 
     struct CanDignostics{
         uint8_t txErrorCounter;
@@ -216,6 +216,8 @@ private:
     void _decodeSystemInformation(const QByteArray &data);
     void _decodeHeartbeat(const QByteArray &data);
     void _decodeCanDiagnosticsReport(const QByteArray &data);
+
+    QByteArray _hashAdministrationModeKey(QString key) const;
 
 
     // bootloader

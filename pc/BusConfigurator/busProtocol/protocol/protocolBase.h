@@ -28,6 +28,7 @@ public:
     virtual void handleMessage(const MiniBus::Message &message) = 0;
 
     static QString protocolName(MiniBus::Protocol protocol);
+    static QString priorityName(MiniBus::Priority priority);
     static QString commandName(MiniBus::Protocol protocol, MiniBus::Command command);
     static QString dataDecoder(MiniBus::Protocol protocol, MiniBus::Command command, const QByteArray &data);
 

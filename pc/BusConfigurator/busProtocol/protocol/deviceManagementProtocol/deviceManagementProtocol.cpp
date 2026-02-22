@@ -1,6 +1,8 @@
 #include "deviceManagementProtocol.h"
 #include "../../QuCLib/source/crc.h"
 
+#include <QCryptographicHash>
+
 DeviceManagementProtocol::DeviceManagementProtocol(RoomBusDevice *device)
     : ProtocolBase(device)
 {
@@ -135,8 +137,8 @@ Eeprom &DeviceManagementProtocol::eeprom()
 QString DeviceManagementProtocol::commandName(MiniBus::Command command)
 {
     switch((Command)command){
-        case Command::DeviceToHost: return "Device To Host";
-        case Command::HostToDevice: return "Host To Device";
+        case Command::DeviceToHost: return "Device to Host";
+        case Command::HostToDevice: return "Host to Device";
 
         case Command::Reserved0:
         case Command::Reserved1:
@@ -215,7 +217,7 @@ void DeviceManagementProtocol::on_bootloadRetry(void)
     else _bootloadRetryTimer.stop();
 }
 
-void DeviceManagementProtocol::sendEcho(QByteArray txData)
+void DeviceManagementProtocol::sendEcho(QByteArray txData, MiniBus::Priority priority)
 {
     if(txData.size() > 63){
         txData.truncate(63);
@@ -224,6 +226,7 @@ void DeviceManagementProtocol::sendEcho(QByteArray txData)
     MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::Echo);
     msg.data.append(txData);
+    msg.priority = priority;
 
     sendMessage(msg);
 }
@@ -293,10 +296,14 @@ void DeviceManagementProtocol::eraseApp(void)
 
 void DeviceManagementProtocol::enterAdministrationMode(QString key)
 {
+    QByteArray hashData;
+
+    if(key.isEmpty()) hashData = MiniBus::packUint16(0x1234); // default key
+    else hashData = _hashAdministrationModeKey(key);
+
     MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::EnterAdministrationMode);
-    //msg.data.append(RoomBus::packString(key));
-    msg.data.append(MiniBus::packUint16(0x1234));
+    msg.data.append(hashData);
 
     sendMessage(msg);
 }
@@ -304,7 +311,7 @@ void DeviceManagementProtocol::enterAdministrationMode(QString key)
 void DeviceManagementProtocol::exitAdministrationMode(void)
 {
     MiniBus::Message msg;
-    msg.data.append((uint8_t)DeviceManagementSubCommand::EnterAdministrationMode);
+    msg.data.append((uint8_t)DeviceManagementSubCommand::ExitAdministrationMode);
 
     sendMessage(msg);
 }
@@ -329,11 +336,25 @@ void DeviceManagementProtocol::writeDeviceName(QString name)
 
 void DeviceManagementProtocol::writeAdministrationModeKey(QString key)
 {
+    QByteArray hashData = _hashAdministrationModeKey(key);
+
     MiniBus::Message msg;
     msg.data.append((uint8_t)DeviceManagementSubCommand::SetAdministrationModeKey);
-    msg.data.append(key.toLocal8Bit());
+    msg.data.append(hashData);
 
     sendMessage(msg);
+}
+
+QByteArray DeviceManagementProtocol::_hashAdministrationModeKey(QString key) const
+{
+    QByteArray input;
+    input.append(_serialNumber.word0);
+    input.append(_serialNumber.word1);
+    input.append(key.toLocal8Bit());
+    input.append(_serialNumber.word2);
+    input.append(_serialNumber.word3);
+
+    return QCryptographicHash::hash(input, QCryptographicHash::Algorithm::Sha256);;
 }
 
 void DeviceManagementProtocol::requestHeartbeat(void)

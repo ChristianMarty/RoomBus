@@ -29,11 +29,11 @@ private slots:
     void on_sendTimer(void);
     void on_timeout(void);
 
-    void on_spinBox_valueChanged(int arg1);
-
     void on_clearButton_clicked();
 
-    void on_timeoutBox_valueChanged(int arg1);
+    void on_spinBox_interval_valueChanged(int arg1);
+
+    void on_comboBox_priority_currentIndexChanged(int index);
 
 private:
     Ui::echoWindow *ui;
@@ -54,6 +54,8 @@ private:
     uint32_t _failCounter = 0;
     uint32_t _passCounter = 0;
     uint32_t _lostCounter = 0;
+
+    MiniBus::Priority _priority = MiniBus::Priority::Low;
 };
 
 #endif // ECHOWINDOW_H

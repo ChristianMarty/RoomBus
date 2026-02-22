@@ -71,7 +71,7 @@ void EchoTestWidget::on_sendButton_clicked()
     ui->lastSendLabel->setText(ui->sendDataEdit->text());
 
 
-    _busDevice->management().sendEcho(_lastSend);
+    _busDevice->management().sendEcho(_lastSend, _priority);
 
     _sendIndex++;
     _sendTimestamp = QDateTime::currentMSecsSinceEpoch();
@@ -79,9 +79,7 @@ void EchoTestWidget::on_sendButton_clicked()
     _waitForRx = true;
 
     _timeoutTimer.setSingleShot(true);
-    _timeoutTimer.start(ui->timeoutBox->value()*10);
-
-
+    _timeoutTimer.start(ui->spinBox_timeout->value());
 }
 
 void EchoTestWidget::on_autoEchoBox_stateChanged(int arg1)
@@ -104,11 +102,6 @@ void EchoTestWidget::on_timeout(void)
     if(ui->autoEchoBox->isChecked()) on_sendButton_clicked();
 }
 
-void EchoTestWidget::on_spinBox_valueChanged(int arg1)
-{
-    _autoSendTimer.setInterval(arg1*10);
-}
-
 void EchoTestWidget::on_clearButton_clicked()
 {
     _lostCounter = 0;
@@ -123,7 +116,13 @@ void EchoTestWidget::on_clearButton_clicked()
     ui->lostCounterLabel->setNum(int(_lostCounter));
 }
 
-void EchoTestWidget::on_timeoutBox_valueChanged(int arg1)
+void EchoTestWidget::on_spinBox_interval_valueChanged(int arg1)
 {
-
+    _autoSendTimer.setInterval(arg1);
 }
+
+void EchoTestWidget::on_comboBox_priority_currentIndexChanged(int index)
+{
+    _priority = (MiniBus::Priority)index;
+}
+

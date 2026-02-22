@@ -19,7 +19,7 @@ BusMonitorLine::BusMonitorLine(MiniBus::Message &msg, QWidget *parent) :
     ui->label_destination->setText(QString::number(msg.destinationAddress,10));
     ui->label_protocol->setText(ProtocolBase::protocolName(msg.protocol));
     ui->label_command->setText(ProtocolBase::commandName(msg.protocol, msg.command));
-
+    ui->label_priority->setText(ProtocolBase::priorityName(msg.priority));
     ui->label_data->setText((QString)msg.data.toHex(' ').toUpper());
     ui->label_decoded->setText(ProtocolBase::dataDecoder(msg.protocol, msg.command, msg.data));
 }

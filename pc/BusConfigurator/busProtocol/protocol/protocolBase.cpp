@@ -35,6 +35,17 @@ QString ProtocolBase::protocolName(MiniBus::Protocol protocol)
     return "Unknown Protocol";
 }
 
+QString ProtocolBase::priorityName(MiniBus::Priority priority)
+{
+    switch(priority){
+        case MiniBus::Priority::Immediate: return "Immediate";
+        case MiniBus::Priority::High:      return "High";
+        case MiniBus::Priority::Normal:    return "Normal";
+        case MiniBus::Priority::Low:       return "Low";
+    }
+    return "Unknown";
+}
+
 QString ProtocolBase::commandName(MiniBus::Protocol protocol, MiniBus::Command command)
 {
     switch((Protocol)protocol){
