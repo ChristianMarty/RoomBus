@@ -25,6 +25,5 @@
 			<input>0x000096CF</input>
 			<output>0x0001006C</output>
 		</transform>
-		
 	</output>
 </hex-merger>

@@ -157,9 +157,6 @@ void bus_initialize(uint8_t selfAddress, bool promiscuousMode)
 	CAN0->CCCR.bit.FDOE = true;
 	CAN0->CCCR.bit.CCE = false;
 	CAN0->CCCR.bit.INIT = false;
-	
-	BusTransceiverInitialization();
-	BusTransceiverEnable();
 }
 
 void bus_deinitialize(void)
@@ -279,7 +276,7 @@ bool bus_getMessageSlot(bus_txMessage_t *message)
 	message->bufferIndex = CAN0->TXFQS.bit.TFQPI;
 	
 	if(CAN0->TXFQS.bit.TFQF){ //TX FIFO/Queue full
-		sysControlHandler.sysStatus.bit.kernelTxBufferOverrun = true;
+		sysControlHandler.sysStatus.bit.txBufferOverrun = true;
 		return false;
 	}
 	
@@ -364,8 +361,7 @@ bool bus_send(bus_txMessage_t *message)
 	txBuffer[message->bufferIndex].DLC = i;
 	temp |= (canDlcLut[i] - message->length);
 	
-	for(i = 0; i< stuffSize; i++)
-	{
+	for(i = 0; i< stuffSize; i++){
 		bus_pushByte(message, 0xAA); // Use 0xAA to fill frame
 	}
 	

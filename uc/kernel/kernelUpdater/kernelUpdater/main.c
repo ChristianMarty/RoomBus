@@ -56,11 +56,12 @@ int main(void)
 	
 	uint8_t blocksToErase = kernelHead.kernelSectionEndAddress / flash_getBlockSize();
 	
+	// Erase old kernel
 	for(uint32_t i = 0; i<=blocksToErase; i++){
 		flash_eraseBlock((i*flash_getBlockSize()) );
 	}
 
-	// Copy new Kernel
+	// Copy new kernel
 	for(uint32_t i= 0; i< kernelHead.kernelDataSize; i+=512){
 		flash_writePage((KERNEL_START_ADDRESS+i),&((uint8_t*)kernelHead.kernelDataStartAddress)[i],512);
 	}

@@ -21,12 +21,13 @@
 #endif
 
 /******************************************************************************
-Hardware version is written to EEPROM with programmer
+Hardware version is written to EEPROM with programmer -> not in the HEX-File
 ******************************************************************************/  
 #ifndef HARDWARE_VERSION_MAJOR
 	#define HARDWARE_VERSION_MAJOR 2
 	#define HARDWARE_VERSION_MINOR 4
 #endif
+
 
 /******************************************************************************
 Administrator Access Button (AAB) settings

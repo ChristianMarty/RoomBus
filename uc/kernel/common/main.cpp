@@ -199,14 +199,16 @@ void busMessageHandler(void)
 
 int main(void)
 {
+	BusTransceiverDisable();
+	BusTransceiverInitialization();
+		
 	system_initialize();
-	systemControl_initialize();
-	
 	nvic_initialize();
 	userIo_initialize();
 	tickTimer_initialize();
 	watchDogTimer_initialize(wdt_earlyWarningHandler);
 	rand_initialize();
+	systemControl_initialize();
 	
 	kernel.clk_1MHz = gclk_getFreeGenerator();
 	gclk_generatorEnable(kernel.clk_1MHz, GCLK_SRC_XOSC1, 16);
@@ -218,6 +220,7 @@ int main(void)
 	bus_initialize(dmp_getDeviceAddress(), false);
 	pin_enablePeripheralMux(PIN_PORT_A, 22, PIN_FUNCTION_I);
 	pin_enablePeripheralMux(PIN_PORT_A, 23, PIN_FUNCTION_I);
+	BusTransceiverEnable();
 	
 	dmp_initialize(&appHead->appName[0], &sysControlHandler);
 	dmp_sendExtendedHeartbeat();

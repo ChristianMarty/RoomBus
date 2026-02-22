@@ -53,8 +53,8 @@ void writeHeartbeatSettings(const uint8_t *data, uint8_t size);
 void writeControl(const uint8_t *data, uint8_t size);
 void setControl(const uint8_t *data, uint8_t size);
 void clrControl(const uint8_t *data, uint8_t size);
-void enteradministratorAccess(const uint8_t *data, uint8_t size);
-void exitadministratorAccess(void);
+void enterAdministratorAccess(const uint8_t *data, uint8_t size);
+void exitAdministratorAccess(void);
 bool writeDeviceName(const uint8_t *data, uint8_t size);
 bool writeAdministratorAccessKey(const uint8_t *data, uint8_t size);
 bool writeAddress(const uint8_t *data, uint8_t size);
@@ -63,20 +63,13 @@ void sendEepromReport(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 void echo(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 void reboot(uint8_t sourceAddress, const uint8_t *data, uint8_t size);
 
-uint32_t appStartAddress;
-
 systemControl_t *sysControlPtr;
 uint8_t *appNamePtr;
-uint8_t appNameSize;
-
-uint8_t protocolTyp = busProtocol_deviceManagementProtocol;
 
 void dmp_initialize(uint8_t *appName, systemControl_t *sysControl)
 {
 	sysControlPtr = sysControl;
 	appNamePtr = appName;
-	
-	appStartAddress = 0x10000;
 	
 	heartbeatIntervalTime = eeporm_readWord(&eememData.heartbeatInterval);
 	extendedHeartbeatIntervalTime = eeporm_readWord(&eememData.extendedHeartbeatInterval);
@@ -109,10 +102,14 @@ uint8_t dmp_getDeviceAddress(void)
 
 bool dmp_receiveHandler(const bus_rxMessage_t *message)
 {	
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch" // ignore unhandled warning in switch
+		
+	const dmp_command_t command = (dmp_command_t)message->data[0];
 	const uint8_t *data = &message->data[1];
 	uint8_t dataLength = message->length-1;
 	
-	switch(message->data[0])
+	switch(command)
 	{
 		// Normal commands 
 		case dmp_cmdSystemInformationRequest:
@@ -135,12 +132,12 @@ bool dmp_receiveHandler(const bus_rxMessage_t *message)
 			clrControl(data, dataLength);
 			return true;
 
-		case dmp_cmdEnteradministratorAccess:
-			enteradministratorAccess(data, dataLength);
+		case dmp_cmdEnterAdministratorAccess:
+			enterAdministratorAccess(data, dataLength);
 			return true;
 			
-		case dmp_cmdExitadministratorAccess:
-			exitadministratorAccess();
+		case dmp_cmdExitAdministratorAccess:
+			exitAdministratorAccess();
 			return true;
 		
 		case dmp_cmdReboot:
@@ -157,9 +154,8 @@ bool dmp_receiveHandler(const bus_rxMessage_t *message)
 	}
 	
 	if(sysControlPtr->sysStatus.bit.administratorAccess){
-		switch(message->data[0])
+		switch(command)
 		{
-			// Administration mode commands
 			case dmp_cmdHeartbeatSettings:
 				writeHeartbeatSettings(data, dataLength);
 				sendSystemInfo();
@@ -182,7 +178,6 @@ bool dmp_receiveHandler(const bus_rxMessage_t *message)
 				if(!writeAddress(data, dataLength)){
 					mlp_sysWarning("New address invalid! Address not changed!");
 				}
-				system_reboot();
 				return true;
 
 			case dmp_cmdEraseApp:
@@ -198,7 +193,7 @@ bool dmp_receiveHandler(const bus_rxMessage_t *message)
 				return true;
 		}
 	}else{
-		switch(message->data[0])
+		switch(command)
 		{
 			case dmp_cmdHeartbeatSettings:
 			case dmp_cmdSetadministratorAccessKey:
@@ -213,20 +208,21 @@ bool dmp_receiveHandler(const bus_rxMessage_t *message)
 	}
 	
 	return false;
+	
+#pragma GCC diagnostic pop
 }
 
 void dmp_sendHeartbeat(void)
 {
 	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg,dmp_cmdHeartbeat);
-		bus_pushWord32(&msg, sysControlPtr->sysStatus.reg); 
-		bus_send(&msg);
+	if(!bus_getMessageSlot(&msg)) return;
+	
+	bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg,dmp_cmdHeartbeat);
+	bus_pushWord32(&msg, sysControlPtr->sysStatus.reg); 
+	bus_send(&msg);
 		
-		tickTimer_reset(&heartbeatTimer);
-	}
+	tickTimer_reset(&heartbeatTimer);
 }
 
 void dmp_sendExtendedHeartbeat(void)
@@ -240,52 +236,49 @@ void dmp_sendExtendedHeartbeat(void)
 void sendSystemInfo(void)
 {
 	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg, dmp_cmdSystemInfo);
-		bus_pushWord32(&msg, sysControlPtr->sysStatus.reg); 
-		bus_pushByte(&msg, eeporm_readByte(&eememData.hardwareRevisionMajor));
-		bus_pushByte(&msg, eeporm_readByte(&eememData.hardwareRevisionMinor));
-		bus_pushByte(&msg, KERNEL_VERSION_MAJOR);
-		bus_pushByte(&msg, KERNEL_VERSION_MINOR);
-		bus_pushWord16(&msg, heartbeatIntervalTime);
-		bus_pushWord16(&msg, extendedHeartbeatIntervalTime);
-		bus_pushWord32(&msg, sysControlPtr->appCrc); 
-		bus_pushWord32(&msg, appStartAddress); 
-		bus_pushWord32(&msg, system_deviceId()); 
-		bus_pushWord32(&msg, system_serialNumberWord0());
-		bus_pushWord32(&msg, system_serialNumberWord1());
-		bus_pushWord32(&msg, system_serialNumberWord2());
-		bus_pushWord32(&msg, system_serialNumberWord3());
-		bus_send(&msg);
-		
-		tickTimer_reset(&extendedHeartbeatTimer);
-	}
+	if(!bus_getMessageSlot(&msg)) return;
+	
+	bus_writeHeader(&msg, BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg, dmp_cmdSystemInfo);
+	bus_pushWord32(&msg, sysControlPtr->sysStatus.reg);
+	bus_pushByte(&msg, eeporm_readByte(&eememData.hardwareRevisionMajor));
+	bus_pushByte(&msg, eeporm_readByte(&eememData.hardwareRevisionMinor));
+	bus_pushByte(&msg, KERNEL_VERSION_MAJOR);
+	bus_pushByte(&msg, KERNEL_VERSION_MINOR);
+	bus_pushWord16(&msg, heartbeatIntervalTime);
+	bus_pushWord16(&msg, extendedHeartbeatIntervalTime);
+	bus_pushWord32(&msg, sysControlPtr->appCrc);
+	bus_pushWord32(&msg, APP_START_ADDR);
+	bus_pushWord32(&msg, system_deviceId());
+	bus_pushWord32(&msg, system_serialNumberWord0());
+	bus_pushWord32(&msg, system_serialNumberWord1());
+	bus_pushWord32(&msg, system_serialNumberWord2());
+	bus_pushWord32(&msg, system_serialNumberWord3());
+	bus_send(&msg);
+	
+	tickTimer_reset(&extendedHeartbeatTimer);
 }
 
 void sendHardwareName(void)
 {
 	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg,dmp_cmdHardwareName);
-		bus_pushArray(&msg, &HARDWARE_NAME[0],HARDWARE_NAME_LENGTH);
-		bus_send(&msg);
-	}
+	if(!bus_getMessageSlot(&msg)) return;
+	
+	bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg,dmp_cmdHardwareName);
+	bus_pushArray(&msg, &HARDWARE_NAME[0],HARDWARE_NAME_LENGTH);
+	bus_send(&msg);
 }
 
 void sendApplicationName(void)
 {
 	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg,dmp_cmdApplicationName);
-		bus_pushArray(&msg, appNamePtr, string_getLength((char*)appNamePtr));
-		bus_send(&msg);
-	}
+	if(!bus_getMessageSlot(&msg)) return;
+	
+	bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg,dmp_cmdApplicationName);
+	bus_pushArray(&msg, appNamePtr, string_getLength((char*)appNamePtr));
+	bus_send(&msg);
 }
 
 void sendDeviceName(void)
@@ -297,29 +290,27 @@ void sendDeviceName(void)
 	eeprom_readArray(&DeviceName[0], &eememData.deviceName[0], length);
 	
 	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg,dmp_cmdDeviceName);
-		bus_pushArray(&msg, &DeviceName[0],length);
-		bus_send(&msg);
-	}
+	if(!bus_getMessageSlot(&msg)) return;
+	
+	bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg,dmp_cmdDeviceName);
+	bus_pushArray(&msg, &DeviceName[0],length);
+	bus_send(&msg);
 }
 
 void sendDiagnosticsReport(void)
 {
 	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg,dmp_canDiagnosticsReport);
-		bus_pushWord24(&msg,bus_getErrorCounter());
-		bus_pushByte(&msg,bus_getLastErrorCode());
-		bus_pushWord32(&msg, sysControlPtr->appBenchmark.us_avg);
-		bus_pushWord32(&msg, sysControlPtr->appBenchmark.us_min);
-		bus_pushWord32(&msg, sysControlPtr->appBenchmark.us_max);
-		bus_send(&msg);
-	}
+	if(!bus_getMessageSlot(&msg)) return;
+	
+	bus_writeHeader(&msg,BUS_BROADCAST_ADDRESS, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg,dmp_canDiagnosticsReport);
+	bus_pushWord24(&msg,bus_getErrorCounter());
+	bus_pushByte(&msg,bus_getLastErrorCode());
+	bus_pushWord32(&msg, sysControlPtr->appBenchmark.us_avg);
+	bus_pushWord32(&msg, sysControlPtr->appBenchmark.us_min);
+	bus_pushWord32(&msg, sysControlPtr->appBenchmark.us_max);
+	bus_send(&msg);
 	
 	benchmark_reset(&sysControlPtr->appBenchmark);
 }
@@ -355,7 +346,7 @@ void clrControl(const uint8_t *data, uint8_t size)
 	sysControlPtr->sysControl.reg &= ~unpack_uint32(&data[0]);
 }
 
-void enteradministratorAccess(const uint8_t *data, uint8_t size)
+void enterAdministratorAccess(const uint8_t *data, uint8_t size)
 {
 	bool keyValid = false;
 	uint8_t deviceName[60];
@@ -380,7 +371,7 @@ void enteradministratorAccess(const uint8_t *data, uint8_t size)
 	dmp_sendHeartbeat();
 }
 
-void exitadministratorAccess(void)
+void exitAdministratorAccess(void)
 {
 	sysControlPtr->sysStatus.bit.administratorAccess = false;
 }
@@ -439,38 +430,38 @@ void sendEepromReport(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 		return;
 	}
 	
+	bus_txMessage_t msg;
+	if(!bus_getMessageSlot(&msg)){
+		return;
+	}
+	
 	uint8_t eepromData[60];
-	volatile uint8_t *eepormAddress = (uint8_t*)(&eememData)+eepromOffset; 
+	volatile uint8_t *eepormAddress = (uint8_t*)(&eememData)+eepromOffset;
 	eeprom_readArray(&eepromData[0], eepormAddress, eepromSize);
 	
-	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg,sourceAddress, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg, dmp_eepromReadReport);
-		bus_pushWord16(&msg, eepromOffset);
-		bus_pushArray(&msg, &eepromData[0], eepromSize);
-		bus_send(&msg);
-	}
+	bus_writeHeader(&msg,sourceAddress, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg, dmp_eepromReadReport);
+	bus_pushWord16(&msg, eepromOffset);
+	bus_pushArray(&msg, &eepromData[0], eepromSize);
+	bus_send(&msg);
 }
 
 void echo(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
 	bus_txMessage_t msg;
-	if(bus_getMessageSlot(&msg))
-	{
-		bus_writeHeader(&msg, sourceAddress, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
-		bus_pushByte(&msg,dmp_echo);
-		bus_pushArray(&msg, data,size);
-		bus_send(&msg);
-	}
+	if(!bus_getMessageSlot(&msg)) return;
+	
+	bus_writeHeader(&msg, sourceAddress, busProtocol_deviceManagementProtocol, dmp_cmd_deviceToHost, RESPONSE_PRIORITY);
+	bus_pushByte(&msg,dmp_echo);
+	bus_pushArray(&msg, data,size);
+	bus_send(&msg);
 }
 
 void reboot(uint8_t sourceAddress, const uint8_t *data, uint8_t size)
 {
-	if(size == 0){ 
-		system_reboot();
-	}
+	if(size != 0) return; 
+
+	system_reboot();
 }
 
 

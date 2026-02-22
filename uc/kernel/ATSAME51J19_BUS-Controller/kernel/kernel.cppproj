@@ -72,6 +72,8 @@
         </armgcc.compiler.symbols.DefSymbols>
         <armgcc.compiler.directories.IncludePaths>
           <ListValues>
+            <Value>..</Value>
+            <Value>../../../../uCodebase</Value>
             <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
             <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
           </ListValues>
@@ -86,6 +88,8 @@
         </armgcccpp.compiler.symbols.DefSymbols>
         <armgcccpp.compiler.directories.IncludePaths>
           <ListValues>
+            <Value>..</Value>
+            <Value>../../../../uCodebase</Value>
             <Value>%24(PackRepoDir)\arm\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
             <Value>%24(PackRepoDir)\atmel\SAME51_DFP\1.1.139\include</Value>
           </ListValues>
@@ -104,6 +108,7 @@
           </ListValues>
         </armgcccpp.linker.libraries.LibrarySearchPaths>
         <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <armgcccpp.linker.memorysettings.ExternalRAM />
         <armgcccpp.linker.miscellaneous.LinkerFlags>-Tsame51j19a_flash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
         <armgcccpp.assembler.general.IncludePaths>
           <ListValues>
