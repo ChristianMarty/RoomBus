@@ -1,19 +1,25 @@
-qmake6
+apt update && apt upgrade -y
 
-qt6-base-dev
+apt install gcc g++ make -y
+apt install qmake6 qt6-base-dev -y
+apt install libqt6websockets6 qt6-websockets-dev libqt6network6 -y
+apt install libqt6serialport6 qt6-serialport-dev -y
+apt install libqt6serialbus6 qt6-serialbus-dev -y
 
-libqt6websockets6
 
-libqt6network6
+cd /home/pc
+rm -rf BusCommander/build/ && mkdir -p BusCommander/build/
+rm -rf BusConfigurator/build/busAccess/ && mkdir -p BusConfigurator/build/busAccess/
 
-libqt6serialport6
-libqt6serialport6-dev
 
-libqt6serialbus6
-libqt6serialbus6-dev
+(cd BusConfigurator/build/busAccess/ && qmake6 ../../busAccess/busAccess.pro && make)
+(cd BusCommander/build/ && qmake6 ../BusCommander.pro && make)
+cp BusConfigurator/build/busAccess/libbusAccess.so.1 /usr/lib
+
 
 
 sudo ip link set can0 up type can bitrate 500000 dbitrate 500000 sample-point 0.75 dsample-point 0.75 sjw 2 fd on
 ./BusCommander --ip 192.168.1.174 --pin 5286 --can can0
 
-./BusCommander --ip 192.168.1.174 --pin 5286 --com /dev/serial/by-id/usb-Openlight_Labs_CANable2_CANbeSerial_Firmware_2053388A4D4D-if00
+./BusCommander/build/BusCommander --ip 192.168.1.174 --pin 6167 --com /dev/serial/by-id/usb-Openlight_Labs_CANable2_CANbeSerial_Firmware_205338844D4D-if00
+

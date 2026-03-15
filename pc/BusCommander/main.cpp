@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
 
     QCommandLineOption ipOption(QStringList("ip"),"IP address of the remote","ip");
-    QCommandLineOption pinOption(QStringList("pin"),"IP address of the remote", "pin");
+    QCommandLineOption pinOption(QStringList("pin"),"PIN address of the remote", "pin");
     QCommandLineOption comOption(QStringList("com"),"COM port of CANbeSerial interface", "com");
     QCommandLineOption canOption(QStringList("can"),"CAN interface", "can");
 

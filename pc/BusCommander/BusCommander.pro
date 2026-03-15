@@ -39,3 +39,6 @@ else:unix: LIBS += -L$$PWD/../BusConfigurator/build/busAccess/ -lbusAccess
 
 INCLUDEPATH += $$PWD/../BusConfigurator/busAccess
 DEPENDPATH += $$PWD/../BusConfigurator/busAccess
+
+INCLUDEPATH += $$PWD/../BusConfigurator/busProtocol
+DEPENDPATH += $$PWD/../BusConfigurator/busProtocol

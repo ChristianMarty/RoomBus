@@ -2,6 +2,7 @@
 #include "server.h"
 
 #include "roomBus/roomBus.h"
+#include "protocol/protocolBase.h"
 
 
 using namespace UnfoldedCircle;
@@ -84,7 +85,7 @@ RoomBusInterface *Remote::roomBusInterface()
 void Remote::pushRoomBusMessage(const MiniBus::Message &message)
 {
     for(Entity *entity:_server.entities()){
-        if(message.protocol == MiniBus::Protocol::StateSystemProtocol){
+        if(message.protocol == (MiniBus::Protocol)ProtocolBase::Protocol::StateSystemProtocol){
             for(uint8_t i = 0; i < message.data.length(); i+=3){
                 uint16_t channel = MiniBus::unpackUint16(message.data.mid(i,2), 0);
                 uint8_t state = message.data.at(i+2);

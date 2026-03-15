@@ -1,4 +1,7 @@
- #include "roomBus.h"
+#include "roomBus.h"
+#include "protocol/protocolBase.h"
+#include "protocol/triggerSystemProtocol.h"
+#include "protocol/valueSystemProtocol.h"
 
 RoomBusInterface::RoomBusInterface(Type type,  QString port, QObject *parent)
     : QObject{parent}
@@ -33,8 +36,8 @@ void RoomBusInterface::sendValue(uint16_t valueChannel, uint32_t value)
     msg.destinationAddress = MiniBus::BroadcastAddress;
     msg.sourceAddress = _sourceAddress;
 
-    msg.protocol = MiniBus::Protocol::ValueSystemProtocol;
-    msg.command = (uint8_t)MiniBus::ValueSystemCommand::ValueCommand;
+    msg.protocol = (MiniBus::Protocol)ProtocolBase::Protocol::ValueSystemProtocol;
+    msg.command = (uint8_t)ValueSystemProtocol::Command::ValueCommand;
     msg.data.append(MiniBus::packUint16(valueChannel));
     msg.data.append(0x11); // Set value 	Clamp 	Long
     msg.data.append(MiniBus::packUint32(value));
@@ -51,8 +54,8 @@ void RoomBusInterface::sendTrigger(uint16_t triggerChannel)
     msg.destinationAddress = MiniBus::BroadcastAddress;
     msg.sourceAddress = _sourceAddress;
 
-    msg.protocol = MiniBus::Protocol::TriggerSystemProtocol;
-    msg.command = (uint8_t)MiniBus::TriggerSystemCommand::Trigger;
+    msg.protocol = (MiniBus::Protocol)ProtocolBase::Protocol::TriggerSystemProtocol;
+    msg.command = (uint8_t)TriggerSystemProtocol::Command::Trigger;
     msg.data.append(MiniBus::packUint16(triggerChannel));
 
     _busConnection.write(msg);

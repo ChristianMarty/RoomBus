@@ -14,20 +14,20 @@ Server::Server(RoomBusInterface *roomBusInterface, QObject *parent)
     : QObject{parent}
     ,_roomBusInterface{roomBusInterface}
 {
-    addEntity(new Light{"Licht 1", QSet<Light::Feature>{Light::Feature::Toggle},
+    addEntity(new Light{"Schreibtisch", QSet<Light::Feature>{Light::Feature::Toggle},
         Light::RoomBusChannel{
-            .onTrigger = 4,
-            .offTrigger = 5,
-            .toggleTrigger = 6,
+            .onTrigger = 5,
+            .offTrigger = 6,
+            .toggleTrigger = 7,
             .stateChannel= 2
         }}
     );
 
-    addEntity(new Light{"Licht 2", QSet<Light::Feature>{Light::Feature::Toggle},
+    addEntity(new Light{"Arbeitstisch", QSet<Light::Feature>{Light::Feature::Toggle},
         Light::RoomBusChannel{
-            .onTrigger = 7,
-            .offTrigger = 8,
-            .toggleTrigger = 9,
+            .onTrigger = 8,
+            .offTrigger = 9,
+            .toggleTrigger = 10,
             .stateChannel= 3
         }}
     );
@@ -50,7 +50,7 @@ Server::Server(RoomBusInterface *roomBusInterface, QObject *parent)
     qDebug(("Server listening on port "+ QString::number(_port)).toLocal8Bit());
 
     if(_roomBusInterface){
-        connect(_roomBusInterface->busConnection(), &MiniBusAccess::newData, this, &Server::on_newRoomBusData);
+        connect(_roomBusInterface->busConnection(), &MiniBusAccess::messageReceived, this, &Server::on_messageReceived);
     }
 }
 
@@ -109,12 +109,12 @@ Entity *Server::entity(int entityId)
     return _entities.value(entityId);
 }
 
-void Server::on_newRoomBusData()
+void Server::on_messageReceived()
 {
-    while(_roomBusInterface->busConnection()->rxMsgBuffer.size())
+    while(_roomBusInterface->busConnection()->rxMessageBuffer.size())
     {
-        MiniBus::Message temp = _roomBusInterface->busConnection()->rxMsgBuffer.first();
-        _roomBusInterface->busConnection()->rxMsgBuffer.removeFirst();
+        MiniBus::Message temp = _roomBusInterface->busConnection()->rxMessageBuffer.first();
+        _roomBusInterface->busConnection()->rxMessageBuffer.removeFirst();
 
         for(Remote *remote: _remotes){
             remote->pushRoomBusMessage(temp);

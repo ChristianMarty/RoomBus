@@ -32,7 +32,7 @@ public:
 
 private slots:
     void on_newConnection(void);
-    void on_newRoomBusData(void);
+    void on_messageReceived(void);
 
     void on_remoteDisconnected(Remote* remote);
 
