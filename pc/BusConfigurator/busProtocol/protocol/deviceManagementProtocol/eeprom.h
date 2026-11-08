@@ -2,17 +2,13 @@
 #define EEPROM_H
 
 #include <QObject>
+#include "uiComponents/uiDatatypes.h"
 
 class DeviceManagementProtocol;
 class Eeprom
 {
 public:
     explicit Eeprom(DeviceManagementProtocol *parent);
-
-    struct EepromByte {
-        bool read = false;
-        uint8_t byte = 0xFF;
-    };
 
     void clear(void);
     void readAll(void);
@@ -21,7 +17,8 @@ public:
 
     uint16_t eepromSize(void) const;
 
-    EepromByte at(uint16_t index) const;
+    UiDatatypes::MemoryByte at(uint16_t index) const;
+    QList<UiDatatypes::MemoryByte> data(void) const;
 
     friend DeviceManagementProtocol;
 private:
@@ -34,7 +31,7 @@ private:
     static const uint8_t _messageSize = 60;
 
     static const uint16_t _eepromSize = 512;
-    EepromByte _eeprom[_eepromSize];
+    UiDatatypes::MemoryByte _eeprom[_eepromSize];
 };
 
 #endif // EEPROM_H

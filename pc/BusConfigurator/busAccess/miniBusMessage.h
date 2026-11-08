@@ -2,6 +2,7 @@
 #define MINI_BUS_MESSAGE_H
 
 #include <QObject>
+#include <QDateTime>;
 
 namespace MiniBus {
 
@@ -24,6 +25,8 @@ namespace MiniBus {
         Priority priority = Priority::Low;
         Command command;
         QByteArray data;
+
+        uint64_t timestamp;
     };
 
     static inline uint32_t toCanIdentifier(const Message &message)
@@ -51,7 +54,7 @@ namespace MiniBus {
         return canId;
     }
 
-    static inline Message toMessage(uint32_t identifier, const QByteArray &data)
+    static inline Message toMessage(uint32_t identifier, const QByteArray &data, uint64_t timestamp = QDateTime::currentMSecsSinceEpoch())
     {
         Message message;
 
@@ -63,6 +66,8 @@ namespace MiniBus {
 
         uint8_t paddingLength = identifier & 0x0F;
         message.data = data.mid(0, data.size()-paddingLength);
+
+        message.timestamp = timestamp;
 
         return message;
     }

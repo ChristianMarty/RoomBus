@@ -36,37 +36,37 @@ QString RoomBusDevice::applicationName() const
 
 QString RoomBusDevice::kernelVersionString(void) const
 {
-    uint8_t high = (uint8_t)((_deviceManagementProtocol._kernelVersion >> 8) & 0xFF);
-    uint8_t low = (uint8_t)(_deviceManagementProtocol._kernelVersion & 0xFF);
+    uint8_t high = _deviceManagementProtocol._lastSystemInformation.kernelVersion.major;
+    uint8_t low = _deviceManagementProtocol._lastSystemInformation.kernelVersion.minor;
 
     return QString::number(high,10)+"."+QString::number(low,10).rightJustified(2, '0');
 }
 
 QString RoomBusDevice::hardwareVersionString(void) const
 {
-    uint8_t high = (uint8_t)((_deviceManagementProtocol._hardwareVersion >> 8) & 0xFF);
-    uint8_t low = (uint8_t)(_deviceManagementProtocol._hardwareVersion & 0xFF);
+    uint8_t high = _deviceManagementProtocol._lastSystemInformation.hardwareVersion.major;
+    uint8_t low = _deviceManagementProtocol._lastSystemInformation.hardwareVersion.minor;
 
     return QString::number(high,10)+"."+QString::number(low,10).rightJustified(2, '0');
 }
 
 QString RoomBusDevice::deviceIdentificationString(void) const
 {
-    switch(_deviceManagementProtocol._deviceIdentificationCode) {
-        case 0x61810502: return "ATSAME51J19A (0x61810502)";
-        case 0x61810002: return "ATSAME51J19A (0x61810002)";
-        case 0x61810303: return "ATSAME51J18A (0x61810303)";
-        default: return "Unknown Device (0x"+QString::number(_deviceManagementProtocol._deviceIdentificationCode,16).rightJustified(8, '0').toUpper()+")";
+    switch(_deviceManagementProtocol._lastSystemInformation.deviceIdentificationCode) {
+        case 0x61810502: return QStringLiteral("ATSAME51J19A (0x61810502)");
+        case 0x61810002: return QStringLiteral("ATSAME51J19A (0x61810002)");
+        case 0x61810303: return QStringLiteral("ATSAME51J18A (0x61810303)");
+        default: return QStringLiteral("Unknown Device (0x")+QString::number(_deviceManagementProtocol._lastSystemInformation.deviceIdentificationCode,16).rightJustified(8, '0').toUpper()+QStringLiteral(")");
     }
 }
 
 QString RoomBusDevice::deviceSerialNumberString(void) const
 {
     QString temp;
-    temp  = QString::number(_deviceManagementProtocol._serialNumber.word3, 16).rightJustified(8, '0').toUpper()+"-";
-    temp += QString::number(_deviceManagementProtocol._serialNumber.word2, 16).rightJustified(8, '0').toUpper()+"-";
-    temp += QString::number(_deviceManagementProtocol._serialNumber.word1, 16).rightJustified(8, '0').toUpper()+"-";
-    temp += QString::number(_deviceManagementProtocol._serialNumber.word0, 16).rightJustified(8, '0').toUpper();
+    temp  = QString::number(_deviceManagementProtocol._lastSystemInformation.deviceSerialNumber.word3, 16).rightJustified(8, '0').toUpper()+QStringLiteral("-");
+    temp += QString::number(_deviceManagementProtocol._lastSystemInformation.deviceSerialNumber.word2, 16).rightJustified(8, '0').toUpper()+QStringLiteral("-");
+    temp += QString::number(_deviceManagementProtocol._lastSystemInformation.deviceSerialNumber.word1, 16).rightJustified(8, '0').toUpper()+QStringLiteral("-");
+    temp += QString::number(_deviceManagementProtocol._lastSystemInformation.deviceSerialNumber.word0, 16).rightJustified(8, '0').toUpper();
     return temp;
 }
 

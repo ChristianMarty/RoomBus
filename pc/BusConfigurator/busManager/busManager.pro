@@ -29,10 +29,11 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 CONFIG += c++20
 
 SOURCES += \
+        ../../QuCLib/source/uiComponents/memoryTextWidget.cpp \
         busDeviceWidget.cpp \
         busDeviceWindow.cpp \
         busMonitor/busMonitor.cpp \
-        busMonitor/busMonitorLine.cpp \
+        busMonitor/busMonitorModel.cpp \
         connection/connectionWidget.cpp \
         echoTestWidget.cpp \
         eepromWidget.cpp \
@@ -59,10 +60,12 @@ SOURCES += \
         value/valueWidget.cpp
 
 HEADERS += \
+        ../../QuCLib/source/uiComponents/memoryTextWidget.h \
+        ../../QuCLib/source/uiComponents/uiDatatypes.h \
         busDeviceWidget.h \
         busDeviceWindow.h \
         busMonitor/busMonitor.h \
-        busMonitor/busMonitorLine.h \
+        busMonitor/busMonitorModel.h \
         connection/connectionWidget.h \
         echoTestWidget.h \
         eepromWidget.h \
@@ -91,7 +94,6 @@ FORMS += \
         busDeviceWidget.ui \
         busDeviceWindow.ui \
         busMonitor/busMonitor.ui \
-        busMonitor/busMonitorLine.ui \
         connection/connectionWidget.ui \
         echoTestWidget.ui \
         eepromWidget.ui \
@@ -121,15 +123,17 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../build/busAccess/release/ -lbusAccess
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build/busAccess/debug/ -lbusAccess
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug/busAccess/debug/ -lbusAccess
 else:unix: LIBS += -L$$PWD/../busAccess/build/ -lbusAccess
 
 INCLUDEPATH += $$PWD/../busAccess
 DEPENDPATH += $$PWD/../busAccess
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../build/busProtocol/release/ -lbusProtocol
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build/busProtocol/debug/ -lbusProtocol
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug/busProtocol/debug/ -lbusProtocol
 else:unix: LIBS += -L$$PWD/../../busProtocol/build/ -lbusProtocol
 
 INCLUDEPATH += $$PWD/../busProtocol
 DEPENDPATH += $$PWD/../busProtocol
+
+INCLUDEPATH += $$PWD/../../QuCLib/source

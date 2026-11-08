@@ -36,7 +36,6 @@ void UdpConnection::close()
     _udpClient.disconnectFromHost();
 }
 
-
 QString UdpConnection::getConnectionName()
 {
     return "UDP";

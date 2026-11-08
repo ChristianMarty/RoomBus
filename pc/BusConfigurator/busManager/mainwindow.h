@@ -29,6 +29,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void closeEvent(QCloseEvent *event) override;
+
 private slots:
 
     void on_newData(void);
@@ -54,7 +56,7 @@ private:
     MiniBusAccess _busConnection;
     ConnectionWidget *_busConnectionWidget = new ConnectionWidget(_busConnection);
 
-    busMonitor *_monitorWindow = nullptr;
+    BusMonitor *_monitorWindow = nullptr;
 
     qualityOfServiceWindow *_qosWindow = nullptr;
 

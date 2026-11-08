@@ -1,35 +1,44 @@
 #include "busMonitor.h"
 #include "ui_busMonitor.h"
-#include <QTableWidget>
-#include <QDateTime>
 
-#include "busMonitorLine.h"
-
-busMonitor::busMonitor(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::busMonitor)
+BusMonitor::BusMonitor(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::BusMonitor)
 {
     ui->setupUi(this);
+
+    ui->tableView->setModel(&_busMonitorModel);
+
+    ui->tableView->setColumnWidth(0,100);
+    ui->tableView->setColumnWidth(1,75);
+    ui->tableView->setColumnWidth(2,75);
+    ui->tableView->setColumnWidth(3,50);
+    ui->tableView->setColumnWidth(4,150);
+    ui->tableView->setColumnWidth(5,150);
+
+    QHeaderView *verticalHeader = ui->tableView->verticalHeader();
+    verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+    verticalHeader->setDefaultSectionSize(38);
 }
 
-busMonitor::~busMonitor()
+BusMonitor::~BusMonitor()
 {
     delete ui;
 }
 
-void busMonitor::on_newMessage(MiniBus::Message msg)
+void BusMonitor::append(const QList<MiniBus::Message> &message)
 {
-    QListWidgetItem *item = new QListWidgetItem(ui->listWidget);
-    BusMonitorLine *lineWidget = new BusMonitorLine(msg, ui->listWidget);
-    item->setSizeHint(lineWidget->sizeHint());
-    ui->listWidget->setItemWidget(item,lineWidget);
+    _busMonitorModel.append(message);
 
-    if(!ui->listWidget->hasFocus()){
-        ui->listWidget->scrollToBottom();
+    if(!ui->tableView->hasFocus()){
+        ui->tableView->scrollToBottom();
     }
+
+    ui->label_items->setText(QString("%1 items").arg(_busMonitorModel.rowCount()));
 }
 
-void busMonitor::on_clearButton_clicked()
+void BusMonitor::on_clearButton_clicked()
 {
-    ui->listWidget->clear();
+    _busMonitorModel.clear();
+    ui->label_items->setText("0 items");
 }

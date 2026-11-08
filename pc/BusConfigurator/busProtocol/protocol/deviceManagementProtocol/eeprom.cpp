@@ -31,9 +31,18 @@ uint16_t Eeprom::eepromSize() const
     return _eepromSize;
 }
 
-Eeprom::EepromByte Eeprom::at(uint16_t index) const
+QList<UiDatatypes::MemoryByte> Eeprom::data() const
 {
-    if(index >= _eepromSize) return EepromByte();
+    QList<UiDatatypes::MemoryByte> output;
+    for(uint16_t i = 0; i < _eepromSize; i++){
+        output.append(_eeprom[i]);
+    }
+    return output;
+}
+
+UiDatatypes::MemoryByte Eeprom::at(uint16_t index) const
+{
+    if(index >= _eepromSize) return UiDatatypes::MemoryByte();
 
     return _eeprom[index];
 }
@@ -54,7 +63,7 @@ void Eeprom::_decodeEepromReadReport(const QByteArray &data)
     }
 
     for(uint16_t i = 0; i < length; i++){
-        _eeprom[offste+i] = EepromByte({.read = true, .byte = (uint8_t)data.at(i+2) });
+        _eeprom[offste+i] = UiDatatypes::MemoryByte({.read = true, .byte = (uint8_t)data.at(i+2) });
     }
 
     emit _parent->eepromDataChanged();
@@ -78,7 +87,7 @@ void Eeprom::_decodeEepromReadReport(const QByteArray &data)
 void Eeprom::clear()
 {
     for(uint16_t i = 0; i < _eepromSize; i++){
-        _eeprom[i] = EepromByte();
+        _eeprom[i] = UiDatatypes::MemoryByte();
     }
 
     emit _parent->eepromDataChanged();

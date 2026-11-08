@@ -1,29 +1,29 @@
-#ifndef BUSMONITOR_H
-#define BUSMONITOR_H
+#ifndef BUS_MONITOR_H
+#define BUS_MONITOR_H
+#include <QWidget>
 
-#include <QDialog>
-
-#include "busDevice.h"
+#include "miniBusMessage.h"
+#include "busMonitorModel.h"
 
 namespace Ui {
-class busMonitor;
+class BusMonitor;
 }
 
-class busMonitor : public QDialog
+class BusMonitor : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit busMonitor(QWidget *parent = nullptr);
-    ~busMonitor();
+    explicit BusMonitor(QWidget *parent = nullptr);
+    ~BusMonitor();
 
-    void on_newMessage(MiniBus::Message msg);
+    void append(const QList<MiniBus::Message> &message);
 
 private slots:
     void on_clearButton_clicked();
 
 private:
-    Ui::busMonitor *ui;
+    Ui::BusMonitor *ui;
+    BusMonitorModel _busMonitorModel;
 };
 
-#endif // BUSMONITOR_H
+#endif // BUS_MONITOR_H

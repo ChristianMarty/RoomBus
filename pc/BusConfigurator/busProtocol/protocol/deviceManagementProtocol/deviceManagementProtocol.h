@@ -34,49 +34,49 @@ public:
     };
 
     struct SystemStatus {
-        uint32_t applicationState : 2;
-        uint32_t applicationCrcError : 1;
-        uint32_t applicationRunOnStartup : 1;
-        uint32_t userLedEnabled : 1;
-        uint32_t identify : 1;
-        uint32_t administratorAccess : 1;
-        uint32_t messageLogEnabled : 1;
+        uint32_t applicationState : 2 = 0;
+        uint32_t applicationCrcError : 1 = 0;
+        uint32_t applicationRunOnStartup : 1 = 0;
+        uint32_t userLedEnabled : 1 = 0;
+        uint32_t identify : 1 = 0;
+        uint32_t administratorAccess : 1 = 0;
+        uint32_t messageLogEnabled : 1 = 0;
 
-        uint32_t systemError : 1;
-        uint32_t watchdogWarning : 1;
-        uint32_t watchdogError : 1;
-        uint32_t txBufferOverrun: 1;
-        uint32_t txMessageOverrun: 1;
-        uint32_t kernelRxBufferOverrun: 1;
-        uint32_t applicationRxBufferOverrun : 1;
-        uint32_t applicationError : 1;
+        uint32_t systemError : 1 = 0;
+        uint32_t watchdogWarning : 1 = 0;
+        uint32_t watchdogError : 1 = 0;
+        uint32_t txBufferOverrun: 1 = 0;
+        uint32_t txMessageOverrun: 1 = 0;
+        uint32_t kernelRxBufferOverrun: 1 = 0;
+        uint32_t applicationRxBufferOverrun : 1 = 0;
+        uint32_t applicationError : 1 = 0;
 
-        uint32_t applicationSpecific : 16;
+        uint32_t applicationSpecific : 16 = 0;
     };
 
     union SystemControl {
         struct {
-            uint32_t applicationRun : 1;
-            uint32_t applicationFroceStop : 1;
-            uint32_t applicationCheckCrc : 1;
-            uint32_t applicationRunOnStartup : 1;
-            uint32_t userLedEnabled : 1;
-            uint32_t identify : 1;
-            uint32_t reserved0 : 1;
-            uint32_t messageLogEnabled : 1;
+            uint32_t applicationRun : 1 = 0;
+            uint32_t applicationFroceStop : 1 = 0;
+            uint32_t applicationCheckCrc : 1 = 0;
+            uint32_t applicationRunOnStartup : 1 = 0;
+            uint32_t userLedEnabled : 1 = 0;
+            uint32_t identify : 1 = 0;
+            uint32_t reserved0 : 1 = 0;
+            uint32_t messageLogEnabled : 1 = 0;
 
-            uint32_t clearSystemError : 1;
-            uint32_t clearWatchdogWarning : 1;
-            uint32_t clearWatchdogError : 1;
-            uint32_t clearTxBufferOverrun : 1;
-            uint32_t clearTxMessageOverrun : 1;
-            uint32_t clearKernelRxBufferOverrun : 1;
-            uint32_t clearApplicationRxBufferOverrun : 1;
-            uint32_t clearApplicationError : 1;
+            uint32_t clearSystemError : 1 = 0;
+            uint32_t clearWatchdogWarning : 1 = 0;
+            uint32_t clearWatchdogError : 1 = 0;
+            uint32_t clearTxBufferOverrun : 1 = 0;
+            uint32_t clearTxMessageOverrun : 1 = 0;
+            uint32_t clearKernelRxBufferOverrun : 1 = 0;
+            uint32_t clearApplicationRxBufferOverrun : 1 = 0;
+            uint32_t clearApplicationError : 1 = 0;
 
-            uint32_t applicationSpecific : 16;
+            uint32_t applicationSpecific : 16 = 0;
         } bit;
-        uint32_t reg;
+        uint32_t reg = 0;
     };
 
     enum class DeviceManagementSubCommand {
@@ -193,20 +193,31 @@ private:
 
     SystemStatus _systemStatus;
 
-    uint16_t _hardwareVersion = 0;
-    uint16_t _kernelVersion = 0;
-    uint16_t _heartbeatInterval = 0;
-    uint16_t _extendedHeartbeatInterval = 0;
-    uint32_t _appCRC = 0;
-    uint32_t _appStartAddress = 0;
-    uint32_t _deviceIdentificationCode = 0;
-
     struct MicrocontrollerSerialNumber{
-        uint32_t word0;
-        uint32_t word1;
-        uint32_t word2;
-        uint32_t word3;
-    } _serialNumber;
+        uint32_t word0 = 0;
+        uint32_t word1 = 0;
+        uint32_t word2 = 0;
+        uint32_t word3 = 0;
+    };
+
+    struct Version{
+        uint8_t major = 0;
+        uint8_t minor = 0;
+    };
+
+    struct SystemInformation{
+        SystemStatus systemStatus;
+        Version hardwareVersion;
+        Version kernelVersion;
+        uint16_t heartbeatInterval = 0;
+        uint16_t extendedHeartbeatInterval = 0;
+        uint32_t appCRC = 0;
+        uint32_t appStartAddress = 0;
+        uint32_t deviceIdentificationCode = 0;
+        MicrocontrollerSerialNumber deviceSerialNumber;
+    };
+
+    SystemInformation _lastSystemInformation;
 
     QDateTime _lastMessage;
 

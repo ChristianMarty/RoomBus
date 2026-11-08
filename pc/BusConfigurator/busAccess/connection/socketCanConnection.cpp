@@ -79,7 +79,8 @@ void SocketCanConnection::on_framesReceived()
     QList<QCanBusFrame> frames = _device->readAllFrames();
 
     for(const QCanBusFrame &frame : frames){
-        _parrent->_handleMessageReceived(MiniBus::toMessage(frame.frameId(), frame.payload()));
+        uint32_t timestampMs = (frame.timeStamp().seconds()*1000)+(frame.timeStamp().microSeconds()/1000);
+        _parrent->_handleMessageReceived(MiniBus::toMessage(frame.frameId(), frame.payload(), timestampMs));
     }
 }
 

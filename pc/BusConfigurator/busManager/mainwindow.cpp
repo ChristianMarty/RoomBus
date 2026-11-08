@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    _settings.readFile("C:/Users/Christian/Raumsteuerung/RoomBus/pc/BusConfigurator/settings.xml");
+    _settings.readFile("C:/Users/Christian/Projekte/RoomBus/pc/BusConfigurator/settings.xml");
 
     connect(&_busConnection, &MiniBusAccess::messageReceived,this, &MainWindow::on_newData);
 
@@ -16,8 +16,17 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow()
-{
+{    
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if(_monitorWindow != nullptr) {
+        _monitorWindow->close();
+    }
+
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::addConnection()
@@ -36,13 +45,13 @@ void MainWindow::addConnection()
 
 void MainWindow::on_newData(void)
 {
+    if(_monitorWindow != nullptr) {
+        _monitorWindow->append(_busConnection.rxMessageBuffer);
+    }
+
     while(_busConnection.rxMessageBuffer.size()) {
         MiniBus::Message temp = _busConnection.rxMessageBuffer.first();
         _busConnection.rxMessageBuffer.removeFirst();
-
-        if(_monitorWindow != nullptr) {
-            _monitorWindow->on_newMessage(temp);
-        }
 
         RoomBusDevice *device = getDevice(temp.sourceAddress);
         device->handleMessage(temp);
@@ -57,7 +66,7 @@ void MainWindow::on_deviceTx(MiniBus::Message msg)
     _busConnection.write(msg);
 
     if(_monitorWindow != nullptr) {
-        _monitorWindow->on_newMessage(msg);
+        _monitorWindow->append(QList<MiniBus::Message>{msg});
     }
 }
 
@@ -112,7 +121,7 @@ void MainWindow::on_scanButton_clicked()
 void MainWindow::on_monitorButton_clicked()
 {
     if(_monitorWindow == nullptr){
-        _monitorWindow = new busMonitor();
+        _monitorWindow = new BusMonitor();
     }
     _monitorWindow->show();
 }
@@ -136,3 +145,6 @@ void MainWindow::on_busDeviceWindowShow(RoomBusDevice *device)
     this->addDockWidget(Qt::RightDockWidgetArea, _busDeviceWindowMap[device]);
     _busDeviceWindowMap[device]->show();
 }
+
+
+

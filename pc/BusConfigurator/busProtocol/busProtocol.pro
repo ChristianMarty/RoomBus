@@ -43,6 +43,7 @@ HEADERS += \
         ../../QuCLib/source/cobs.h \
         ../../QuCLib/source/crc.h \
         ../../QuCLib/source/hexFileParser.h \
+        ../../QuCLib/source/uiComponents/uiDatatypes.h \
         busDevice.h \
         protocol/deviceManagementProtocol/deviceManagementProtocol.h \
         protocol/deviceManagementProtocol/eeprom.h \
@@ -61,3 +62,4 @@ unix {
 }
 
 INCLUDEPATH += $$PWD/../busAccess
+INCLUDEPATH += $$PWD/../../QuCLib/source

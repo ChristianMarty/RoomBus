@@ -73,21 +73,24 @@ void DeviceManagementProtocol::_decodeSystemInformation(const QByteArray &data)
 
     uint32_t status = MiniBus::unpackUint32(data,0);
     _systemStatus = *((SystemStatus*) &status);
+    _lastSystemInformation.systemStatus = _systemStatus;
 
-    _hardwareVersion = MiniBus::unpackUint16(data,4);
-    _kernelVersion = MiniBus::unpackUint16(data,6);
-    _heartbeatInterval = MiniBus::unpackUint16(data,8);
-    _extendedHeartbeatInterval = MiniBus::unpackUint16(data,10);
-    _appCRC = MiniBus::unpackUint32(data,12);
-    _appStartAddress = MiniBus::unpackUint32(data,16);
-    _deviceIdentificationCode = MiniBus::unpackUint32(data,20);
+    _lastSystemInformation.hardwareVersion.major = MiniBus::unpackUint8(data,4);
+    _lastSystemInformation.hardwareVersion.minor = MiniBus::unpackUint8(data,5);
+    _lastSystemInformation.kernelVersion.major = MiniBus::unpackUint8(data,6);
+    _lastSystemInformation.kernelVersion.minor = MiniBus::unpackUint8(data,7);
+    _lastSystemInformation.heartbeatInterval = MiniBus::unpackUint16(data,8);
+    _lastSystemInformation.extendedHeartbeatInterval = MiniBus::unpackUint16(data,10);
+    _lastSystemInformation.appCRC = MiniBus::unpackUint32(data,12);
+    _lastSystemInformation.appStartAddress = MiniBus::unpackUint32(data,16);
+    _lastSystemInformation.deviceIdentificationCode = MiniBus::unpackUint32(data,20);
 
-    _serialNumber.word0 = MiniBus::unpackUint32(data,24);
-    _serialNumber.word1 = MiniBus::unpackUint32(data,28);
-    _serialNumber.word2 = MiniBus::unpackUint32(data,32);
-    _serialNumber.word3 = MiniBus::unpackUint32(data,36);
+    _lastSystemInformation.deviceSerialNumber.word0 = MiniBus::unpackUint32(data,24);
+    _lastSystemInformation.deviceSerialNumber.word1 = MiniBus::unpackUint32(data,28);
+    _lastSystemInformation.deviceSerialNumber.word2 = MiniBus::unpackUint32(data,32);
+    _lastSystemInformation.deviceSerialNumber.word3 = MiniBus::unpackUint32(data,36);
 
-    _heartbeatTimer.setInterval(_heartbeatInterval*2500);
+    _heartbeatTimer.setInterval(_lastSystemInformation.heartbeatInterval*2500);
     _timeoutStatus = false;
     _heartbeatTimer.start();
 
@@ -101,7 +104,7 @@ void DeviceManagementProtocol::_decodeHeartbeat(const QByteArray &data)
     uint32_t status = MiniBus::unpackUint32(data,0);
     _systemStatus = *((SystemStatus*) &status);
 
-    if(_heartbeatInterval){
+    if(_lastSystemInformation.heartbeatInterval){
         _timeoutStatus = false;
         _heartbeatTimer.start();
     }
@@ -195,12 +198,12 @@ QString DeviceManagementProtocol::dataDecoder(MiniBus::Command command, const QB
 
 uint16_t DeviceManagementProtocol::heartbeatInterval() const
 {
-    return _heartbeatInterval;
+    return _lastSystemInformation.heartbeatInterval;
 }
 
 uint16_t DeviceManagementProtocol::systemInfoInterval() const
 {
-    return _extendedHeartbeatInterval;
+    return _lastSystemInformation.extendedHeartbeatInterval;
 }
 
 void DeviceManagementProtocol::on_heartbeatTimeout()
@@ -348,11 +351,11 @@ void DeviceManagementProtocol::writeAdministrationModeKey(QString key)
 QByteArray DeviceManagementProtocol::_hashAdministrationModeKey(QString key) const
 {
     QByteArray input;
-    input.append(_serialNumber.word0);
-    input.append(_serialNumber.word1);
+    input.append(_lastSystemInformation.deviceSerialNumber.word0);
+    input.append(_lastSystemInformation.deviceSerialNumber.word1);
     input.append(key.toLocal8Bit());
-    input.append(_serialNumber.word2);
-    input.append(_serialNumber.word3);
+    input.append(_lastSystemInformation.deviceSerialNumber.word2);
+    input.append(_lastSystemInformation.deviceSerialNumber.word3);
 
     return QCryptographicHash::hash(input, QCryptographicHash::Algorithm::Sha256);;
 }

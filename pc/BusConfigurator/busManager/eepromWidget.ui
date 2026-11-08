@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTextEdit" name="textEdit_data">
+    <widget class="MemoryTextWidget" name="textEdit_data">
      <property name="minimumSize">
       <size>
        <width>500</width>
@@ -40,7 +40,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -68,6 +68,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MemoryTextWidget</class>
+   <extends>QTextEdit</extends>
+   <header>..\..\QuCLib\source\uiComponents\memoryTextWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

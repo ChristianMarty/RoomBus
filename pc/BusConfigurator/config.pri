@@ -9,7 +9,7 @@ VER_PATCH = 1
 
 COMPANY_WEBSITE = www.christian-marty.ch
 COMPANY_NAME = Christian Marty
-PRODUCT_NAME = BUS Configuration Tool
+PRODUCT_NAME = MiniBus Configurator
 
 GCTUI_DESCRIPTION = Configuration tool for bus
 GCTLOGIC_DESCRIPTION = Configuration tool for bus

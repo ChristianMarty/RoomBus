@@ -164,10 +164,11 @@ void ValueSystemProtocol::_parseSignalInformationReport(MiniBus::Message msg)
     signal.interval = MiniBus::unpackUint16(msg.data,2);
 
     uint16_t uomIndex = (UnitOfMeasure)MiniBus::unpackUint16(msg.data,4);
-    UnitType type = UnitOfMeasurements[uomIndex].type;
 
     signal.readOnly = (uomIndex & 0x8000);
     signal.uom = (UnitOfMeasure)(uomIndex &0x7FFF);
+    UnitType type = UnitOfMeasurements[signal.uom].type;
+
     signal.minimum = _decodeData(type, msg.data.mid(6,4));
     signal.maximum = _decodeData(type, msg.data.mid(10,4));
     signal.description = msg.data.mid(14);

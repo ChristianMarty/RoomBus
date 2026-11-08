@@ -10,27 +10,23 @@ SerialBridge::SerialBridge(RoomBusDevice *busDevice): _serialBridgeProtocol(busD
 
 void SerialBridge::tcpBridgeOpen(uint16_t port)
 {
-    if(!_tcpBridgeServer.listen(QHostAddress::Any, port))
-    {
-        emit tcpBridgeStatus("Server startup faild!",false,false);
-    }
-    else
-    {
-        emit tcpBridgeStatus("Server running. 0 active connections.",true,false);
+    if(!_tcpBridgeServer.listen(QHostAddress::Any, port)){
+        emit tcpBridgeStatus(QStringLiteral("Server startup faild!"), false, false);
+    }else{ 
+        emit tcpBridgeStatus(QStringLiteral("Server running. 0 active connections."), true, false);
     }
 }
 
 void SerialBridge::tcpBridgeClose()
 {
-    for(auto socket: _tcpBridgeSocket)
-    {
+    for(QTcpSocket *socket: _tcpBridgeSocket){
         socket->flush();
         socket->close();
         disconnect(socket, &QTcpSocket::readyRead, this, &SerialBridge::on_tcpBridgeDataReceived);
     }
     _tcpBridgeSocket.clear();
     _tcpBridgeServer.close();
-    emit tcpBridgeStatus("Server closed.",false,false);
+    emit tcpBridgeStatus(QStringLiteral("Server closed."), false, false);
 }
 
 void SerialBridge::on_tcpBridgeNewConnection(void)
@@ -40,7 +36,7 @@ void SerialBridge::on_tcpBridgeNewConnection(void)
     connect(socket, &QTcpSocket::readyRead, this, &SerialBridge::on_tcpBridgeDataReceived);
     _tcpBridgeSocket.append(socket);
 
-    emit tcpBridgeStatus("Server running. "+ QString::number(_tcpBridgeSocket.size()) +" active connections.",true,false);
+    emit tcpBridgeStatus(QStringLiteral("Server running. ")+QString::number(_tcpBridgeSocket.size()) +QStringLiteral(" active connections."), true, false);
 }
 
 void SerialBridge::on_tcpBridgeDataReceived()
